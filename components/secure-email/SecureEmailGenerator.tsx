@@ -1106,8 +1106,7 @@ function ClientSelectorField({
   const displayValue =
     query.length > 0 || !loadedClient ? query : loadedClient.fullName;
 
-  const submitNewClient = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const submitNewClient = async () => {
     setCreateError(null);
     if (!newName.trim()) {
       setCreateError("Client name is required.");
@@ -1257,8 +1256,16 @@ function ClientSelectorField({
           )}
         </div>
       ) : (
-        <form
-          onSubmit={submitNewClient}
+        // Not a <form>: this picker is rendered inside the outer generator
+        // <form>, and nested forms are invalid HTML — the browser drops the
+        // inner form, so a type="submit" button would submit the outer form.
+        <div
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !creating) {
+              e.preventDefault();
+              void submitNewClient();
+            }
+          }}
           className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50/60 p-3"
         >
           <label className="flex flex-col gap-1">
@@ -1302,14 +1309,15 @@ function ClientSelectorField({
           </p>
           <div className="flex items-center justify-end">
             <button
-              type="submit"
+              type="button"
+              onClick={() => void submitNewClient()}
               disabled={creating}
               className="inline-flex h-9 items-center justify-center rounded-lg bg-brand px-3 text-xs font-medium text-white transition hover:bg-brand-hover disabled:opacity-50"
             >
               {creating ? "Saving…" : "Create & load"}
             </button>
           </div>
-        </form>
+        </div>
       )}
       {loading ? (
         <p className="text-[11px] text-slate-500">Loading client context…</p>

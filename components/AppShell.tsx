@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ScanLine, type LucideIcon } from "lucide-react";
+import { ScanLine, FileSpreadsheet, type LucideIcon } from "lucide-react";
 
 export interface MenuItem {
   label: string;
@@ -71,9 +71,18 @@ const ADMIN_MENU: readonly MenuItem[] = [
   { label: "Audit Logs", href: "/dashboard/audit" },
 ];
 
+const FINANCE_MENU: readonly MenuItem[] = [
+  {
+    label: "Monthly Account Analysis",
+    href: "/finance-intelligence",
+    icon: FileSpreadsheet,
+  },
+];
+
 const SECTIONS: readonly MenuSection[] = [
   { items: MAIN_MENU },
   { title: "Client Onboarding", items: ONBOARDING_MENU },
+  { title: "Finance Intelligence", items: FINANCE_MENU },
   { title: "Compliance", items: ADMIN_MENU },
 ];
 
