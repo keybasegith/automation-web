@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import AccountPreviewTable from "./AccountPreviewTable";
 import AccountSelectionStep from "./AccountSelectionStep";
 import FinanceIntelligenceLandingCard from "./FinanceIntelligenceLandingCard";
@@ -10,14 +10,14 @@ import ValidationPanel from "./ValidationPanel";
 import type {
   AccountPreview,
   AccountSummary,
+  SageAccount,
 } from "@/lib/finance-intelligence/types";
 
 interface ParseResponse {
-  uploadSessionId: string;
   filename: string;
   parsedAt: string;
   detectedFiscalYears: number[];
-  accounts: AccountSummary[];
+  accounts: SageAccount[];
 }
 
 interface PreviewResponse {
@@ -35,16 +35,26 @@ function defaultAsAtDate(year: number, period: string): string {
   return `${y}-${mm}-${dd}`;
 }
 
-/** Pick the most-recent ISO YYYY-MM-DD across the given account list. */
-function latestDateAcross(accounts: AccountSummary[]): string | undefined {
+function latestDocDateOf(account: SageAccount): string | undefined {
   let latest: string | undefined;
-  for (const a of accounts) {
-    if (!a.latestTransactionDate) continue;
-    if (!latest || a.latestTransactionDate > latest) {
-      latest = a.latestTransactionDate;
-    }
+  for (const t of account.transactions) {
+    if (!t.docDate) continue;
+    if (!latest || t.docDate > latest) latest = t.docDate;
   }
   return latest;
+}
+
+function toSummary(account: SageAccount): AccountSummary {
+  return {
+    accountNumber: account.accountNumber,
+    accountNumberRaw: account.accountNumberRaw,
+    accountName: account.accountName,
+    fiscalYear: account.fiscalYear,
+    transactionCount: account.transactions.length,
+    openingBalance: account.openingBalance,
+    endingBalance: account.endingBalance,
+    latestTransactionDate: latestDocDateOf(account),
+  };
 }
 
 /** Derive { fiscalYear, fiscalPeriod, asAtDate } from an ISO YYYY-MM-DD. */
@@ -103,6 +113,19 @@ export default function MonthlyAccountAnalysisWorkflow() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
 
+  const accountSummaries = useMemo<AccountSummary[]>(
+    () => (parsed ? parsed.accounts.map(toSummary) : []),
+    [parsed]
+  );
+
+  const selectedAccount = useMemo<SageAccount | null>(() => {
+    if (!parsed || !selectedAccountNumber) return null;
+    return (
+      parsed.accounts.find((a) => a.accountNumber === selectedAccountNumber) ??
+      null
+    );
+  }, [parsed, selectedAccountNumber]);
+
   const handleUpload = async () => {
     if (!file) return;
     setIsUploading(true);
@@ -124,7 +147,11 @@ export default function MonthlyAccountAnalysisWorkflow() {
       // Default the timing to the latest transaction actually present in the
       // file, not to "today" — that way the generated header reads e.g.
       // "As at Mar 31, 2026" when the data ends in March.
-      const latestDate = latestDateAcross(data.accounts);
+      let latestDate: string | undefined;
+      for (const a of data.accounts) {
+        const d = latestDocDateOf(a);
+        if (d && (!latestDate || d > latestDate)) latestDate = d;
+      }
       const timing = latestDate ? deriveTimingFromDate(latestDate) : null;
       if (timing) {
         setFiscalYear(timing.fiscalYear);
@@ -160,9 +187,8 @@ export default function MonthlyAccountAnalysisWorkflow() {
       const picked = parsed.accounts.find(
         (a) => a.accountNumber === next.accountNumber
       );
-      const timing = picked?.latestTransactionDate
-        ? deriveTimingFromDate(picked.latestTransactionDate)
-        : null;
+      const latest = picked ? latestDocDateOf(picked) : undefined;
+      const timing = latest ? deriveTimingFromDate(latest) : null;
       if (timing) {
         setFiscalYear(timing.fiscalYear);
         setFiscalPeriod(timing.fiscalPeriod);
@@ -181,7 +207,7 @@ export default function MonthlyAccountAnalysisWorkflow() {
   };
 
   const handleLoadPreview = async () => {
-    if (!parsed || !selectedAccountNumber) return;
+    if (!selectedAccount) return;
     setIsLoadingPreview(true);
     setPreviewError(null);
     setPreview(null);
@@ -190,8 +216,7 @@ export default function MonthlyAccountAnalysisWorkflow() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          uploadSessionId: parsed.uploadSessionId,
-          accountNumber: selectedAccountNumber,
+          account: selectedAccount,
           fiscalYear,
           fiscalPeriod,
           asAtDate,
@@ -208,7 +233,7 @@ export default function MonthlyAccountAnalysisWorkflow() {
   };
 
   const handleGenerate = async () => {
-    if (!parsed || !selectedAccountNumber) return;
+    if (!selectedAccount) return;
     setIsGenerating(true);
     setGenerateError(null);
     try {
@@ -218,8 +243,7 @@ export default function MonthlyAccountAnalysisWorkflow() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            uploadSessionId: parsed.uploadSessionId,
-            accountNumber: selectedAccountNumber,
+            account: selectedAccount,
             fiscalYear,
             fiscalPeriod,
             asAtDate,
@@ -231,7 +255,7 @@ export default function MonthlyAccountAnalysisWorkflow() {
       const match = /filename="([^"]+)"/.exec(disposition);
       const filename =
         match?.[1] ??
-        `monthly-analysis-${selectedAccountNumber}-${fiscalYear}-${fiscalPeriod}.xlsx`;
+        `monthly-analysis-${selectedAccount.accountNumber}-${fiscalYear}-${fiscalPeriod}.xlsx`;
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -274,7 +298,7 @@ export default function MonthlyAccountAnalysisWorkflow() {
           </div>
 
           <AccountSelectionStep
-            accounts={parsed.accounts}
+            accounts={accountSummaries}
             detectedFiscalYears={parsed.detectedFiscalYears}
             fiscalYear={fiscalYear}
             fiscalPeriod={fiscalPeriod}

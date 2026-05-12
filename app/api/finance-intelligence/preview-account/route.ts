@@ -1,20 +1,45 @@
 import { NextResponse } from "next/server";
 import { buildMonthlyAnalysis } from "@/lib/finance-intelligence/buildMonthlyAnalysis";
-import { getParsedExport } from "@/lib/finance-intelligence/tempStore";
 import type {
   AccountPreview,
   AccountSummary,
+  SageAccount,
 } from "@/lib/finance-intelligence/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 interface RequestBody {
-  uploadSessionId?: string;
-  accountNumber?: string;
+  account?: unknown;
   fiscalYear?: number;
   fiscalPeriod?: string;
   asAtDate?: string;
+}
+
+function validateAccount(value: unknown):
+  | { ok: true; account: SageAccount }
+  | { ok: false; error: string } {
+  if (!value || typeof value !== "object") {
+    return { ok: false, error: "account is required." };
+  }
+  const a = value as Record<string, unknown>;
+  if (typeof a.accountNumber !== "string" || !a.accountNumber.trim()) {
+    return { ok: false, error: "account.accountNumber is required." };
+  }
+  if (typeof a.accountNumberRaw !== "string") {
+    return { ok: false, error: "account.accountNumberRaw is required." };
+  }
+  if (typeof a.accountName !== "string") {
+    return { ok: false, error: "account.accountName is required." };
+  }
+  if (!Array.isArray(a.transactions)) {
+    return { ok: false, error: "account.transactions must be an array." };
+  }
+  // Defensive cap so a malformed/oversized payload can't run away with us.
+  if (a.transactions.length > 200_000) {
+    return { ok: false, error: "account.transactions is too large." };
+  }
+  return { ok: true, account: value as SageAccount };
 }
 
 export async function POST(request: Request) {
@@ -25,45 +50,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  if (!body.uploadSessionId || typeof body.uploadSessionId !== "string") {
-    return NextResponse.json(
-      { error: "uploadSessionId is required." },
-      { status: 400 }
-    );
+  const validated = validateAccount(body.account);
+  if (!validated.ok) {
+    return NextResponse.json({ error: validated.error }, { status: 400 });
   }
-  if (!body.accountNumber || typeof body.accountNumber !== "string") {
-    return NextResponse.json(
-      { error: "accountNumber is required." },
-      { status: 400 }
-    );
-  }
-
-  const parsed = getParsedExport(body.uploadSessionId);
-  if (!parsed) {
-    return NextResponse.json(
-      {
-        error:
-          "Upload session not found or expired. Please re-upload the Sage 300 file.",
-      },
-      { status: 404 }
-    );
-  }
-
-  const account = parsed.accounts.find(
-    (a) => a.accountNumber === body.accountNumber
-  );
-  if (!account) {
-    return NextResponse.json(
-      { error: `Account ${body.accountNumber} not found in this upload.` },
-      { status: 404 }
-    );
-  }
+  const account = validated.account;
 
   const fiscalYear =
-    body.fiscalYear ??
-    account.fiscalYear ??
-    parsed.detectedFiscalYears[parsed.detectedFiscalYears.length - 1] ??
-    new Date().getFullYear();
+    body.fiscalYear ?? account.fiscalYear ?? new Date().getFullYear();
   const fiscalPeriod = body.fiscalPeriod ?? "12";
 
   const analysis = buildMonthlyAnalysis({

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { parseSageExport } from "@/lib/finance-intelligence/parseSageExport";
-import { putParsedExport } from "@/lib/finance-intelligence/tempStore";
-import type { AccountSummary } from "@/lib/finance-intelligence/types";
+import type { SageAccount } from "@/lib/finance-intelligence/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -84,29 +83,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const uploadSessionId = putParsedExport(parsed);
-  const accounts: AccountSummary[] = parsed.accounts.map((a) => {
-    let latestTransactionDate: string | undefined;
-    for (const t of a.transactions) {
-      if (!t.docDate) continue;
-      if (!latestTransactionDate || t.docDate > latestTransactionDate) {
-        latestTransactionDate = t.docDate;
-      }
-    }
-    return {
-      accountNumber: a.accountNumber,
-      accountNumberRaw: a.accountNumberRaw,
-      accountName: a.accountName,
-      fiscalYear: a.fiscalYear,
-      transactionCount: a.transactions.length,
-      openingBalance: a.openingBalance,
-      endingBalance: a.endingBalance,
-      latestTransactionDate,
-    };
-  });
+  // Stateless: return the full parsed export so the client can hold it in
+  // state and echo the selected account back on subsequent calls. Avoids
+  // server-side session state that breaks across serverless instances.
+  const accounts: SageAccount[] = parsed.accounts;
 
   return NextResponse.json({
-    uploadSessionId,
     filename: parsed.filename,
     parsedAt: parsed.parsedAt,
     detectedFiscalYears: parsed.detectedFiscalYears,
