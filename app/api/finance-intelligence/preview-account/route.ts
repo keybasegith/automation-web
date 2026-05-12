@@ -11,10 +11,17 @@ export const dynamic = "force-dynamic";
 
 interface RequestBody {
   account?: unknown;
+  // Legacy fields kept only so we can detect a stale client bundle and tell
+  // the user to hard-refresh rather than silently fail.
+  uploadSessionId?: unknown;
+  accountNumber?: unknown;
   fiscalYear?: number;
   fiscalPeriod?: string;
   asAtDate?: string;
 }
+
+const STALE_CLIENT_HINT =
+  "Your browser is using a cached version of this page. Hard-refresh (Cmd+Shift+R on Mac, Ctrl+Shift+R on Windows) and try again.";
 
 function validateAccount(value: unknown):
   | { ok: true; account: SageAccount }
@@ -48,6 +55,16 @@ export async function POST(request: Request) {
     body = (await request.json()) as RequestBody;
   } catch {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+
+  // Detect the pre-refactor request shape: old browser bundle still sends
+  // { uploadSessionId, accountNumber } and would otherwise hit a generic
+  // "account is required" error.
+  if (
+    body.account === undefined &&
+    (body.uploadSessionId !== undefined || body.accountNumber !== undefined)
+  ) {
+    return NextResponse.json({ error: STALE_CLIENT_HINT }, { status: 400 });
   }
 
   const validated = validateAccount(body.account);

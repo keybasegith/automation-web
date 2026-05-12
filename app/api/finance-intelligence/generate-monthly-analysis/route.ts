@@ -12,10 +12,15 @@ export const maxDuration = 60;
 
 interface RequestBody {
   account?: unknown;
+  uploadSessionId?: unknown;
+  accountNumber?: unknown;
   fiscalYear?: number;
   fiscalPeriod?: string;
   asAtDate?: string;
 }
+
+const STALE_CLIENT_HINT =
+  "Your browser is using a cached version of this page. Hard-refresh (Cmd+Shift+R on Mac, Ctrl+Shift+R on Windows) and try again.";
 
 function validateAccount(value: unknown):
   | { ok: true; account: SageAccount }
@@ -48,6 +53,13 @@ export async function POST(request: Request) {
     body = (await request.json()) as RequestBody;
   } catch {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+
+  if (
+    body.account === undefined &&
+    (body.uploadSessionId !== undefined || body.accountNumber !== undefined)
+  ) {
+    return NextResponse.json({ error: STALE_CLIENT_HINT }, { status: 400 });
   }
 
   const validated = validateAccount(body.account);
