@@ -113,6 +113,12 @@ export default function MonthlyAccountAnalysisWorkflow() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
 
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
+  const [generateAllError, setGenerateAllError] = useState<string | null>(null);
+  const [generateAllSummary, setGenerateAllSummary] = useState<string | null>(
+    null
+  );
+
   const accountSummaries = useMemo<AccountSummary[]>(
     () => (parsed ? parsed.accounts.map(toSummary) : []),
     [parsed]
@@ -232,6 +238,61 @@ export default function MonthlyAccountAnalysisWorkflow() {
     }
   };
 
+  const handleGenerateAll = async () => {
+    if (!parsed || parsed.accounts.length === 0) return;
+    setIsGeneratingAll(true);
+    setGenerateAllError(null);
+    setGenerateAllSummary(null);
+    try {
+      const res = await fetch(
+        "/api/finance-intelligence/generate-all-monthly-analyses",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            accounts: parsed.accounts,
+            fiscalYear,
+            fiscalPeriod,
+            asAtDate,
+          }),
+        }
+      );
+      if (!res.ok) throw new Error(await safeReadError(res));
+
+      const disposition = res.headers.get("Content-Disposition") ?? "";
+      const match = /filename="([^"]+)"/.exec(disposition);
+      const filename =
+        match?.[1] ??
+        `monthly-analyses-all-accounts-${fiscalYear}-${fiscalPeriod}.xlsx`;
+
+      const count = res.headers.get("X-Account-Count");
+      const matched = res.headers.get("X-Validation-Matched");
+      const review = res.headers.get("X-Validation-Review-Required");
+      const missing = res.headers.get("X-Validation-Missing");
+      if (count) {
+        setGenerateAllSummary(
+          `Downloaded ${count} account tab${count === "1" ? "" : "s"} · ` +
+            `${matched ?? 0} matched · ${review ?? 0} review required · ` +
+            `${missing ?? 0} missing Sage balance`
+        );
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setGenerateAllError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsGeneratingAll(false);
+    }
+  };
+
   const handleGenerate = async () => {
     if (!selectedAccount) return;
     setIsGenerating(true);
@@ -296,6 +357,44 @@ export default function MonthlyAccountAnalysisWorkflow() {
               ? parsed.detectedFiscalYears.join(", ")
               : "unknown"}
           </div>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <header className="mb-3 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-base font-semibold text-slate-900">
+                  Download All Accounts
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Produces a single Excel workbook with one tab per detected
+                  account, all using the fiscal year, period, and as-at date
+                  selected below.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleGenerateAll}
+                disabled={isGeneratingAll || parsed.accounts.length === 0}
+                className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-medium text-white transition hover:bg-brand-hover disabled:opacity-50"
+              >
+                {isGeneratingAll
+                  ? "Generating…"
+                  : `Generate & Download All (${parsed.accounts.length} tabs)`}
+              </button>
+            </header>
+            {generateAllSummary && (
+              <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs text-emerald-800">
+                {generateAllSummary}
+              </p>
+            )}
+            {generateAllError && (
+              <p
+                role="alert"
+                className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+              >
+                {generateAllError}
+              </p>
+            )}
+          </section>
 
           <AccountSelectionStep
             accounts={accountSummaries}
