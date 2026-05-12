@@ -77,11 +77,35 @@ function cellToString(value: unknown): string {
   return String(value).trim();
 }
 
+/**
+ * Read a "Doc. Date" cell. Sage 300 .xls exports sometimes store dates as
+ * Excel serial numbers (e.g. 46387 for 2026-01-01) without a date format
+ * applied — so xlsx's cellDates option leaves them as raw numbers. Convert
+ * those serials to YYYY-MM-DD here so downstream date filtering works.
+ */
+function readDocDateCell(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  if (value instanceof Date) return formatDateValue(value);
+  if (typeof value === "number") {
+    // Plausible Excel serial date range: ~1980-01-01 (29221) to ~2100 (73415).
+    // Anything outside that band is far more likely to be a stray number.
+    if (value > 25000 && value < 80000) {
+      // Excel 1900 system: serial 25569 == 1970-01-01.
+      const ms = (value - 25569) * 86400000;
+      const d = new Date(ms);
+      const formatted = formatDateValue(d);
+      if (formatted) return formatted;
+    }
+    return String(value);
+  }
+  return String(value).trim();
+}
+
 function formatDateValue(d: Date): string {
   if (Number.isNaN(d.getTime())) return "";
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const year = d.getUTCFullYear();
+  const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
@@ -229,7 +253,10 @@ function parseRowToTransaction(
     return parseAmount(row[idx]);
   };
 
-  const docDate = getCell(columnMap.docDate);
+  const docDate =
+    columnMap.docDate !== undefined
+      ? readDocDateCell(row[columnMap.docDate])
+      : "";
   const fiscalPeriod = getCell(columnMap.prd);
   const description = getCell(columnMap.description);
   const reference = getCell(columnMap.reference);
