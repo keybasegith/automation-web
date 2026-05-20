@@ -6,6 +6,7 @@ import AccountSelectionStep from "./AccountSelectionStep";
 import FinanceIntelligenceLandingCard from "./FinanceIntelligenceLandingCard";
 import GenerateAnalysisButton from "./GenerateAnalysisButton";
 import SageUploadStep from "./SageUploadStep";
+import SelectedAccountsDownloadSection from "./SelectedAccountsDownloadSection";
 import ValidationPanel from "./ValidationPanel";
 import type {
   AccountPreview,
@@ -119,6 +120,17 @@ export default function MonthlyAccountAnalysisWorkflow() {
     null
   );
 
+  const [selectedForDownload, setSelectedForDownload] = useState<Set<string>>(
+    new Set()
+  );
+  const [isGeneratingSelected, setIsGeneratingSelected] = useState(false);
+  const [generateSelectedError, setGenerateSelectedError] = useState<
+    string | null
+  >(null);
+  const [generateSelectedSummary, setGenerateSelectedSummary] = useState<
+    string | null
+  >(null);
+
   const accountSummaries = useMemo<AccountSummary[]>(
     () => (parsed ? parsed.accounts.map(toSummary) : []),
     [parsed]
@@ -139,6 +151,11 @@ export default function MonthlyAccountAnalysisWorkflow() {
     setParsed(null);
     setPreview(null);
     setSelectedAccountNumber(null);
+    setSelectedForDownload(new Set());
+    setGenerateSelectedSummary(null);
+    setGenerateSelectedError(null);
+    setGenerateAllSummary(null);
+    setGenerateAllError(null);
     try {
       const form = new FormData();
       form.append("file", file);
@@ -235,6 +252,89 @@ export default function MonthlyAccountAnalysisWorkflow() {
       setPreviewError(err instanceof Error ? err.message : String(err));
     } finally {
       setIsLoadingPreview(false);
+    }
+  };
+
+  const handleToggleSelectedForDownload = (accountNumber: string) => {
+    setSelectedForDownload((prev) => {
+      const next = new Set(prev);
+      if (next.has(accountNumber)) next.delete(accountNumber);
+      else next.add(accountNumber);
+      return next;
+    });
+  };
+
+  const handleSelectAllFilteredForDownload = (accountNumbers: string[]) => {
+    setSelectedForDownload((prev) => {
+      const next = new Set(prev);
+      for (const n of accountNumbers) next.add(n);
+      return next;
+    });
+  };
+
+  const handleClearSelectedForDownload = () => {
+    setSelectedForDownload(new Set());
+  };
+
+  const handleGenerateSelected = async () => {
+    if (!parsed || selectedForDownload.size === 0) return;
+    const accountsToSend = parsed.accounts.filter((a) =>
+      selectedForDownload.has(a.accountNumber)
+    );
+    if (accountsToSend.length === 0) return;
+    setIsGeneratingSelected(true);
+    setGenerateSelectedError(null);
+    setGenerateSelectedSummary(null);
+    try {
+      const res = await fetch(
+        "/api/finance-intelligence/generate-all-monthly-analyses",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            accounts: accountsToSend,
+            fiscalYear,
+            fiscalPeriod,
+            asAtDate,
+            mode: "selected",
+          }),
+        }
+      );
+      if (!res.ok) throw new Error(await safeReadError(res));
+
+      const disposition = res.headers.get("Content-Disposition") ?? "";
+      const match = /filename="([^"]+)"/.exec(disposition);
+      const filename =
+        match?.[1] ??
+        `monthly-analyses-selected-${accountsToSend.length}-accounts-${fiscalYear}-${fiscalPeriod}.xlsx`;
+
+      const count = res.headers.get("X-Account-Count");
+      const matched = res.headers.get("X-Validation-Matched");
+      const review = res.headers.get("X-Validation-Review-Required");
+      const missing = res.headers.get("X-Validation-Missing");
+      if (count) {
+        setGenerateSelectedSummary(
+          `Downloaded ${count} account tab${count === "1" ? "" : "s"} · ` +
+            `${matched ?? 0} matched · ${review ?? 0} review required · ` +
+            `${missing ?? 0} missing Sage balance`
+        );
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setGenerateSelectedError(
+        err instanceof Error ? err.message : String(err)
+      );
+    } finally {
+      setIsGeneratingSelected(false);
     }
   };
 
@@ -395,6 +495,18 @@ export default function MonthlyAccountAnalysisWorkflow() {
               </p>
             )}
           </section>
+
+          <SelectedAccountsDownloadSection
+            accounts={accountSummaries}
+            selected={selectedForDownload}
+            onToggle={handleToggleSelectedForDownload}
+            onSelectAllFiltered={handleSelectAllFilteredForDownload}
+            onClear={handleClearSelectedForDownload}
+            onDownload={handleGenerateSelected}
+            isDownloading={isGeneratingSelected}
+            summary={generateSelectedSummary}
+            error={generateSelectedError}
+          />
 
           <AccountSelectionStep
             accounts={accountSummaries}

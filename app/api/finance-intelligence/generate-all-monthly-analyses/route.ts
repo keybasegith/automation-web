@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { buildMonthlyAnalysis } from "@/lib/finance-intelligence/buildMonthlyAnalysis";
 import {
   buildAllAccountsDownloadFilename,
+  buildSelectedAccountsDownloadFilename,
   generateAllAccountsWorkbook,
 } from "@/lib/finance-intelligence/generateMonthlyAnalysisWorkbook";
 import type { SageAccount } from "@/lib/finance-intelligence/types";
@@ -15,6 +16,7 @@ interface RequestBody {
   fiscalYear?: number;
   fiscalPeriod?: string;
   asAtDate?: string;
+  mode?: "all" | "selected";
 }
 
 function validateAccount(value: unknown): value is SageAccount {
@@ -83,10 +85,14 @@ export async function POST(request: Request) {
     })
   );
 
-  const filename = buildAllAccountsDownloadFilename(
-    body.fiscalYear,
-    body.fiscalPeriod
-  );
+  const filename =
+    body.mode === "selected"
+      ? buildSelectedAccountsDownloadFilename(
+          body.fiscalYear,
+          body.fiscalPeriod,
+          accounts.length
+        )
+      : buildAllAccountsDownloadFilename(body.fiscalYear, body.fiscalPeriod);
 
   let buffer: Buffer;
   try {

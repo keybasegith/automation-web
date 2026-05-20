@@ -226,3 +226,12 @@ export function buildAllAccountsDownloadFilename(
   const period = fiscalPeriod.padStart(2, "0");
   return `monthly-analyses-all-accounts-${fiscalYear}-${period}.xlsx`;
 }
+
+export function buildSelectedAccountsDownloadFilename(
+  fiscalYear: number,
+  fiscalPeriod: string,
+  count: number
+): string {
+  const period = fiscalPeriod.padStart(2, "0");
+  return `monthly-analyses-selected-${count}-accounts-${fiscalYear}-${period}.xlsx`;
+}
