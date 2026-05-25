@@ -46,7 +46,7 @@ export default function FlipCard({
         className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full shadow-md ring-1 ring-black/10 transition"
         style={{
           backgroundColor: flipped ? accentColor : "rgba(255,255,255,0.92)",
-          color: flipped ? "#0f172a" : "#0f172a",
+          color: flipped ? "#ffffff" : "#0f172a",
         }}
       >
         {flipped ? (
@@ -113,7 +113,10 @@ export default function FlipCard({
               {fullName}
             </p>
             <p className="mt-0.5 text-center text-[11px] text-white/60 sm:text-[12px]">
-              {title} · {company}
+              {title}
+            </p>
+            <p className="text-center text-[11px] text-white/60 sm:text-[12px]">
+              {company}
             </p>
           </article>
         </div>

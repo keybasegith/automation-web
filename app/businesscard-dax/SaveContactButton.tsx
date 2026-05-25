@@ -2,51 +2,54 @@
 
 import { useState } from "react";
 import { Download, Check } from "lucide-react";
+import { downloadVCard, type VCardData } from "./vcard";
 
 type Props = {
-  vcard: string;
-  fileName: string;
+  card: VCardData;
   className?: string;
   style?: React.CSSProperties;
 };
 
-export default function SaveContactButton({ vcard, fileName, className, style }: Props) {
-  const [saved, setSaved] = useState(false);
+export default function SaveContactButton({ card, className, style }: Props) {
+  const [showHint, setShowHint] = useState(false);
 
   const handleClick = () => {
-    const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 1800);
+    downloadVCard(card);
+    setShowHint(true);
+    window.setTimeout(() => setShowHint(false), 8000);
   };
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      className={className}
-      style={style}
-      aria-label="Save contact to phone"
-    >
-      {saved ? (
-        <>
-          <Check className="h-4 w-4" />
-          <span>Saved to contacts</span>
-        </>
-      ) : (
-        <>
-          <Download className="h-4 w-4" />
-          <span>Save Contact</span>
-        </>
-      )}
-    </button>
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={handleClick}
+        className={className}
+        style={style}
+        aria-label="Save contact to phone"
+      >
+        {showHint ? (
+          <>
+            <Check className="h-4 w-4" />
+            <span>Save Contact</span>
+          </>
+        ) : (
+          <>
+            <Download className="h-4 w-4" />
+            <span>Save Contact</span>
+          </>
+        )}
+      </button>
+      {showHint ? (
+        <p
+          role="status"
+          className="text-center text-[11px] leading-snug text-slate-500 sm:text-[12px]"
+        >
+          Your phone will open a contact preview. Tap{" "}
+          <span className="font-semibold text-slate-700">Create New Contact</span>{" "}
+          or <span className="font-semibold text-slate-700">Save</span> to add it.
+        </p>
+      ) : null}
+    </div>
   );
 }

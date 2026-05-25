@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import SaveContactButton from "./SaveContactButton";
 import FlipCard from "./FlipCard";
+import type { VCardData } from "./vcard";
 
 /**
  * CEO digital business card.
@@ -11,7 +12,7 @@ const card = {
   firstName: "Dax",
   lastName: "Sukhraj",
   title: "President & CEO",
-  company: "Keybase",
+  company: "Keybase Financial Group",
   tagline: "Building and Preserving Personal Wealth",
   profilePhoto: "/dax-profile.jpg",
   backgroundPhoto: "/dax-profile-background.jpg",
@@ -36,42 +37,31 @@ const card = {
 } as const;
 
 const fullName = [card.firstName, card.lastName].filter(Boolean).join(" ");
-const slug = (card.firstName + (card.lastName ? "-" + card.lastName : ""))
-  .toLowerCase()
-  .replace(/[^a-z0-9-]+/g, "");
 
 export const metadata: Metadata = {
   title: `${fullName} — ${card.title}, ${card.company}`,
   description: `Digital business card for ${fullName}, ${card.title} at ${card.company}.`,
 };
 
-// Escape vCard text per RFC 6350: backslash, comma, semicolon, newline.
-const esc = (v: string) =>
-  v.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
-
-const buildVCard = () => {
-  const lines = [
-    "BEGIN:VCARD",
-    "VERSION:3.0",
-    `N:${esc(card.lastName)};${esc(card.firstName)};;;`,
-    `FN:${esc(fullName)}`,
-    `ORG:${esc(card.company)}`,
-    `TITLE:${esc(card.title)}`,
-    `TEL;TYPE=WORK,VOICE:${esc(card.contact.phone)}`,
-    `TEL;TYPE=WORK,FAX:${esc(card.contact.fax)}`,
-    `EMAIL;TYPE=INTERNET,WORK:${esc(card.contact.email)}`,
-    `URL:${esc(`https://${card.contact.website}`)}`,
-    `ADR;TYPE=WORK:;;${esc(card.address.line1)};${esc(card.address.line2)};;;`,
-    `X-SOCIALPROFILE;TYPE=linkedin:${esc(card.social.linkedin)}`,
-    "END:VCARD",
-  ];
-  return lines.join("\r\n");
+const vCardData: VCardData = {
+  firstName: card.firstName,
+  lastName: card.lastName,
+  title: card.title,
+  company: card.company,
+  email: card.contact.email,
+  phone: card.contact.phone,
+  fax: card.contact.fax,
+  website: card.contact.website,
+  address: {
+    line1: card.address.line1,
+    line2: card.address.line2,
+  },
+  linkedin: card.social.linkedin,
 };
 
-const GOLD = "#F5B638";
+const KEYBASE_GREEN = "#006d6e";
 
 export default function BusinessCardDaxPage() {
-  const vcard = buildVCard();
   const mailto = `mailto:${card.contact.email}`;
   const telHref = `tel:${card.contact.phone.replace(/[^+\d]/g, "")}`;
   const websiteHref = `https://${card.contact.website}`;
@@ -190,8 +180,7 @@ export default function BusinessCardDaxPage() {
             {card.primaryCta.label}
           </a>
           <SaveContactButton
-            vcard={vcard}
-            fileName={`${slug}.vcf`}
+            card={vCardData}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-center text-[13px] font-semibold text-slate-700 transition hover:bg-slate-200 sm:py-3 sm:text-[14px]"
           />
         </div>
@@ -206,7 +195,7 @@ export default function BusinessCardDaxPage() {
         fullName={fullName}
         title={card.title}
         company={card.company}
-        accentColor={GOLD}
+        accentColor={KEYBASE_GREEN}
       />
     </main>
   );
