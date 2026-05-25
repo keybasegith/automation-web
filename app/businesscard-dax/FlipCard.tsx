@@ -22,7 +22,9 @@ export default function FlipCard({
   const [qrSrc, setQrSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    const url = window.location.origin + window.location.pathname;
+    // TODO: replace with window.location.origin + pathname once the canonical
+    // domain is finalized. Hardcoded for now so QR scans always resolve to prod.
+    const url = "https://automation-web-red.vercel.app/businesscard-dax";
     QRCode.toDataURL(url, {
       margin: 1,
       width: 480,
