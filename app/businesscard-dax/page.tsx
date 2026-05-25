@@ -137,7 +137,7 @@ export default function BusinessCardDaxPage() {
 
         {/* Title */}
         <p className="mt-1 text-center text-[12px] font-medium text-slate-600 sm:text-[14px]">
-          {card.title} · {card.company}
+          {card.title}
         </p>
 
         {/* Tagline */}
@@ -179,7 +179,7 @@ export default function BusinessCardDaxPage() {
             href={mailto}
             className="block w-full rounded-xl border border-slate-900 px-4 py-2.5 text-center text-[13px] font-semibold text-slate-900 transition hover:bg-slate-50 sm:py-3 sm:text-[14px]"
           >
-            Message Me
+            Email Me
           </a>
           <a
             href={card.primaryCta.href}
