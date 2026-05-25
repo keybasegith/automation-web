@@ -15,7 +15,7 @@ const card = {
   tagline: "Building and Preserving Personal Wealth",
   profilePhoto: "/dax-profile.jpg",
   backgroundPhoto: "/dax-profile-background.jpg",
-  companyLogo: "/keybase-logo%20copy.png",
+  companyLogo: "/keybaselogo-updated.png",
   social: {
     linkedin: "https://www.linkedin.com/company/keybase",
   },
