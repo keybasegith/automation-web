@@ -24,7 +24,7 @@ export const COMMUNICATION_STYLES = ["Short", "Detailed"] as const;
 export type CommunicationStyle = (typeof COMMUNICATION_STYLES)[number];
 
 export const SEVERITIES = ["Low", "Medium", "High"] as const;
-export type Severity = (typeof SEVERITIES)[number];
+export type Severity = (typeof SEVERhITIES)[number];
 
 export interface MarketContext {
   sp500Change: number;

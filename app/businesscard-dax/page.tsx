@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import SaveContactButton from "./SaveContactButton";
+import ShareButton from "./ShareButton";
 import FlipCard from "./FlipCard";
 import type { VCardData } from "./vcard";
 
@@ -181,6 +182,12 @@ export default function BusinessCardDaxPage() {
           </a>
           <SaveContactButton
             card={vCardData}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-center text-[13px] font-semibold text-slate-700 transition hover:bg-slate-200 sm:py-3 sm:text-[14px]"
+          />
+          <ShareButton
+            fullName={fullName}
+            title={card.title}
+            company={card.company}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-center text-[13px] font-semibold text-slate-700 transition hover:bg-slate-200 sm:py-3 sm:text-[14px]"
           />
         </div>
