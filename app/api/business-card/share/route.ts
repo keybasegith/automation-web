@@ -11,6 +11,7 @@ const ALLOWED_RECIPIENTS = new Set<string>([
   "dstrukan@keybase.com",
   "shutchinson@keybase.com",
   "nalford@keybase.com",
+  "mark.garcia@keybase.com",
 ]);
 
 type RawPayload = Partial<Record<keyof BusinessCardLead, unknown>>;
