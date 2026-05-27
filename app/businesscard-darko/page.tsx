@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import SaveContactButton from "./SaveContactButton";
+import ShareYourContactButton from "@/components/business-card/ShareYourContactButton";
 import ShareButton from "./ShareButton";
 import FlipCard from "./FlipCard";
-import type { VCardData } from "./vcard";
 
 /**
  * Financial Advisor digital business card.
@@ -42,22 +41,6 @@ const fullName = [card.firstName, card.lastName].filter(Boolean).join(" ");
 export const metadata: Metadata = {
   title: `${fullName} — ${card.title}, ${card.company}`,
   description: `Digital business card for ${fullName}, ${card.title} at ${card.company}.`,
-};
-
-const vCardData: VCardData = {
-  firstName: card.firstName,
-  lastName: card.lastName,
-  title: card.title,
-  company: card.company,
-  email: card.contact.email,
-  phone: card.contact.phone,
-  tollFree: card.contact.tollFree,
-  website: card.contact.website,
-  address: {
-    line1: card.address.line1,
-    line2: card.address.line2,
-  },
-  linkedin: card.social.linkedin,
 };
 
 const KEYBASE_GREEN = "#006d6e";
@@ -184,8 +167,9 @@ export default function BusinessCardDarkoPage() {
           >
             {card.primaryCta.label}
           </a>
-          <SaveContactButton
-            card={vCardData}
+          <ShareYourContactButton
+            recipientEmail={card.contact.email}
+            recipientName={fullName}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-center text-[13px] font-semibold text-slate-700 transition hover:bg-slate-200 sm:py-3 sm:text-[14px]"
           />
           <ShareButton

@@ -5,17 +5,16 @@ import ShareButton from "./ShareButton";
 import FlipCard from "./FlipCard";
 
 /**
- * CEO digital business card.
+ * Financial & Insurance Advisor digital business card.
  * Edit the `card` object below to update personal contact info.
  */
 const card = {
-  firstName: "Dax",
-  lastName: "Sukhraj",
-  title: "President & CEO",
+  firstName: "Neil",
+  lastName: "Alford",
+  title: "Financial & Insurance Advisor",
   company: "Keybase Financial Group",
   tagline: "Building and Preserving Personal Wealth",
-  profilePhoto: "/dax-profile.jpg",
-  backgroundPhoto: "/dax-profile-background.jpg",
+  backgroundPhoto: "/neil-profile-background.jpg",
   companyLogo: "/keybaselogo-updated.png",
   social: {
     linkedin: "https://www.linkedin.com/company/keybase",
@@ -25,9 +24,9 @@ const card = {
     line2: "Richmond Hill, ON L4B 0B3",
   },
   contact: {
-    phone: "905-709-7911 Ext. 2253",
+    phone: "905-709-7911 Ext. 2235",
     fax: "905-709-7022",
-    email: "daxs@keybase.com",
+    email: "nalford@keybase.com",
     website: "www.keybase.com",
   },
   primaryCta: {
@@ -45,7 +44,7 @@ export const metadata: Metadata = {
 
 const KEYBASE_GREEN = "#006d6e";
 
-export default function BusinessCardDaxPage() {
+export default function BusinessCardNeilPage() {
   const mailto = `mailto:${card.contact.email}`;
   const telHref = `tel:${card.contact.phone.replace(/[^+\d]/g, "")}`;
   const websiteHref = `https://${card.contact.website}`;
@@ -79,7 +78,7 @@ export default function BusinessCardDaxPage() {
         </div>
       </div>
 
-      {/* Background + circular profile */}
+      {/* Background + empty circular profile frame */}
       <div className="relative">
         <div className="relative h-[160px] w-full overflow-hidden bg-slate-100 sm:h-[220px]">
           <Image
@@ -91,16 +90,7 @@ export default function BusinessCardDaxPage() {
             className="object-cover"
           />
         </div>
-        <div className="absolute left-1/2 -bottom-12 h-24 w-24 -translate-x-1/2 overflow-hidden rounded-full bg-white shadow-lg ring-4 ring-white sm:-bottom-16 sm:h-32 sm:w-32">
-          <Image
-            src={card.profilePhoto}
-            alt={`${fullName} portrait`}
-            fill
-            sizes="(max-width: 640px) 96px, 128px"
-            className="object-cover"
-            style={{ objectPosition: "50% 0%" }}
-          />
-        </div>
+        <div className="absolute left-1/2 -bottom-12 h-24 w-24 -translate-x-1/2 overflow-hidden rounded-full bg-white shadow-lg ring-4 ring-white sm:-bottom-16 sm:h-32 sm:w-32" />
       </div>
 
       <div className="px-5 pt-16 pb-5 sm:px-7 sm:pt-20 sm:pb-7">
