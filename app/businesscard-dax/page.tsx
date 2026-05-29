@@ -14,7 +14,7 @@ const card = {
   title: "President & CEO",
   company: "Keybase Financial Group",
   tagline: "Building and Preserving Personal Wealth",
-  profilePhoto: "/dax-profile.jpg",
+  profilePhoto: "/dax-profile-updated.jpg",
   backgroundPhoto: "/dax-profile-background.jpg",
   companyLogo: "/keybaselogo-updated.png",
   social: {
@@ -97,8 +97,8 @@ export default function BusinessCardDaxPage() {
             alt={`${fullName} portrait`}
             fill
             sizes="(max-width: 640px) 96px, 128px"
-            className="object-cover"
-            style={{ objectPosition: "50% 0%" }}
+            className="scale-110 object-cover"
+            style={{ objectPosition: "50% 20%" }}
           />
         </div>
       </div>
