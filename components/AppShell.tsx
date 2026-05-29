@@ -4,7 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ScanLine, FileSpreadsheet, type LucideIcon } from "lucide-react";
+import {
+  ScanLine,
+  FileSpreadsheet,
+  Calculator,
+  type LucideIcon,
+} from "lucide-react";
 
 export interface MenuItem {
   label: string;
@@ -76,6 +81,11 @@ const FINANCE_MENU: readonly MenuItem[] = [
     label: "Monthly Account Analysis",
     href: "/finance-intelligence",
     icon: FileSpreadsheet,
+  },
+  {
+    label: "Compound Interest Calculator",
+    href: "/compound-interest",
+    icon: Calculator,
   },
 ];
 
