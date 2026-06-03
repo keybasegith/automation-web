@@ -140,7 +140,7 @@ export default function TriviaForm() {
             value={form.timeline}
             onChange={(v) => update("timeline", v)}
             options={TIMELINES}
-            placeholder="When are you looking to invest?"
+            placeholder="How long are you looking to invest for?"
           />
 
           <label className="mt-2 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-colors hover:border-slate-300">
