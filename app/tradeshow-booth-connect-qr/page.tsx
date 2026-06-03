@@ -4,14 +4,14 @@ import Image from "next/image";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 
-export default function TriviaFormQR() {
+const BOOKING_URL =
+  "https://cal.com/stylecast-uurjw6/business-chat-with-dax-sukhraj?overlayCalendar=true";
+
+export default function TradeshowBoothConnectQR() {
   const [qrSrc, setQrSrc] = useState<string | null>(null);
-  const [url, setUrl] = useState("");
 
   useEffect(() => {
-    const target = "https://automation-web-red.vercel.app/trivia-game-form/qr";
-    setUrl(target);
-    QRCode.toDataURL(target, {
+    QRCode.toDataURL(BOOKING_URL, {
       margin: 1,
       width: 1024,
       color: { dark: "#0f172a", light: "#ffffff" },
@@ -37,19 +37,18 @@ export default function TriviaFormQR() {
         </p>
 
         <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
-          Finance Trivia Challenge
+          Let&apos;s Connect
         </h1>
 
         <p className="mt-4 max-w-md text-[15px] leading-relaxed text-slate-500 sm:text-base">
-          Scan with your phone camera to play. Nine questions, about three
-          minutes.
+          Scan with your phone camera to book a business chat with Dax Sukhraj.
         </p>
 
         <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           {qrSrc ? (
             <Image
               src={qrSrc}
-              alt="Scan to connect with Keybase Financial Group"
+              alt="Scan to book a business chat with Dax Sukhraj"
               width={1024}
               height={1024}
               unoptimized
@@ -62,15 +61,8 @@ export default function TriviaFormQR() {
           )}
         </div>
 
-        <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-5 py-2.5">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-            Or visit
-          </span>
-          <span className="font-mono text-sm text-slate-700">{url}</span>
-        </div>
-
         <p className="mt-8 text-xs text-slate-400">
-          9 questions · ~3 minutes · Your info stays private
+          Powered by Cal.com · Pick a time that works for you
         </p>
       </div>
     </div>
