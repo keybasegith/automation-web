@@ -9,7 +9,7 @@ export default function TriviaFormQR() {
   const [url, setUrl] = useState("");
 
   useEffect(() => {
-    const target = "https://automation-web-red.vercel.app/trivia-game-form/qr";
+    const target = "https://automation-web-red.vercel.app/trivia-game-form";
     setUrl(target);
     QRCode.toDataURL(target, {
       margin: 1,
