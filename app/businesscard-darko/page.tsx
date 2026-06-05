@@ -98,8 +98,8 @@ export default function BusinessCardDarkoPage() {
             alt={`${fullName} portrait`}
             fill
             sizes="(max-width: 640px) 96px, 128px"
-            className="object-cover"
-            style={{ objectPosition: "50% 0%" }}
+            className="scale-150 object-cover"
+            style={{ objectPosition: "50% 20%" }}
           />
         </div>
       </div>
