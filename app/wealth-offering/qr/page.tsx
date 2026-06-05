@@ -23,17 +23,13 @@ export default function WealthOfferingQR() {
     <div className="min-h-screen w-full bg-white text-slate-900">
       <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center justify-center px-6 py-10 text-center">
         <Image
-          src="/keybase-logo%20copy.png"
-          alt="Keybase Financial Group"
+          src="/argosy-logo.png"
+          alt="Argosy"
           width={200}
           height={200}
           priority
-          className="mb-6 h-16 w-16 rounded-2xl object-contain"
+          className="mb-2 h-auto w-56 object-contain sm:w-64"
         />
-
-        <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-brand">
-          Keybase Financial Group
-        </p>
 
         <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
           Wealth Offering
