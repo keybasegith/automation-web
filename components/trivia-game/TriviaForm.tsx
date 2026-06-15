@@ -151,8 +151,11 @@ export default function TriviaForm() {
               className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-brand focus:ring-brand"
             />
             <span className="text-[13px] leading-relaxed text-slate-600">
-              I consent to Keybase Financial Group contacting me by phone or
-              email about my inquiry. I can unsubscribe at any time.
+              By submitting this entry, you consent to Keybase Financial Group
+              Inc. collecting and using your personal information to administer
+              the contest and to contact you by phone or email regarding
+              financial products and services. You may withdraw your consent at
+              any time.
             </span>
           </label>
 

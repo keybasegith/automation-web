@@ -16,14 +16,13 @@ const profile = {
   // Practice focus areas shown under the name in the hero.
   specialties: "Wealth Management · Retirement & Estate Planning · Investment Strategy",
   profilePhoto: "/johnathan-profile1.jpg",
-  companyLogo: "/keybaselogo-updated.png",
+  companyLogo: "/keybase-logo-nobg.png",
   address: {
     line1: "1725 16th Avenue, Suite 101",
     line2: "Richmond Hill, ON L4B 0B3",
   },
   contact: {
     phone: "905-709-7911 Ext. 2222",
-    fax: "905-709-7022",
     cell: "647-242-7524",
     email: "jleung@keybase.com",
   },
@@ -63,15 +62,18 @@ export const metadata: Metadata = {
 
 export default function ProfileJleungPage() {
   const mailto = `mailto:${profile.contact.email}`;
-  const telHref = `tel:${profile.contact.phone.replace(/[^+\d]/g, "")}`;
-  const cellHref = `tel:${profile.contact.cell.replace(/[^+\d]/g, "")}`;
+  // Show ONE phone number: Office preferred; fall back to Cell if no Office number.
+  const primaryPhone = profile.contact.phone
+    ? { label: "Office", value: profile.contact.phone }
+    : { label: "Cell", value: profile.contact.cell };
+  const primaryPhoneHref = `tel:${primaryPhone.value.replace(/[^+\d]/g, "")}`;
 
   return (
     <main className="min-h-[100dvh] bg-[#f5f5f7] text-slate-900">
       {/* ---------- Top bar ---------- */}
       <header className="sticky top-0 z-20 border-b border-black/5 bg-white/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5 sm:px-8">
-          <div className="relative h-9 w-32 sm:h-10 sm:w-40">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
+          <div className="relative h-8 w-28 flex-shrink-0 sm:h-10 sm:w-40">
             <Image
               src={profile.companyLogo}
               alt={`${profile.company} logo`}
@@ -83,7 +85,7 @@ export default function ProfileJleungPage() {
           </div>
           <a
             href={mailto}
-            className="group inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold text-[#03302d] shadow-sm transition hover:opacity-90 sm:px-5 sm:text-sm"
+            className="group inline-flex flex-shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-semibold text-[#03302d] shadow-sm transition hover:opacity-90 sm:px-5 sm:text-sm"
             style={{ background: `linear-gradient(135deg, ${GOLD}, #e3cfa0)` }}
           >
             Book a Consultation
@@ -120,7 +122,7 @@ export default function ProfileJleungPage() {
             </div>
 
             {/* name */}
-            <h1 className="font-display mt-6 whitespace-nowrap text-3xl font-bold leading-[1.05] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
+            <h1 className="font-display mt-6 text-[clamp(34px,9vw,40px)] font-bold leading-[1.05] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               {fullName}
             </h1>
 
@@ -152,25 +154,14 @@ export default function ProfileJleungPage() {
                 </span>
               </a>
               <a
-                href={telHref}
+                href={primaryPhoneHref}
                 className="group flex items-center justify-center gap-4 transition lg:justify-start"
               >
                 <span className="w-16 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Office
+                  {primaryPhone.label}
                 </span>
                 <span className="font-medium text-slate-700 transition group-hover:text-slate-900">
-                  {profile.contact.phone}
-                </span>
-              </a>
-              <a
-                href={cellHref}
-                className="group flex items-center justify-center gap-4 transition lg:justify-start"
-              >
-                <span className="w-16 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Cell
-                </span>
-                <span className="font-medium text-slate-700 transition group-hover:text-slate-900">
-                  {profile.contact.cell}
+                  {primaryPhone.value}
                 </span>
               </a>
             </div>
@@ -183,26 +174,28 @@ export default function ProfileJleungPage() {
               {/* soft halo */}
               <div
                 aria-hidden
-                className="absolute -inset-6 rounded-[2.75rem] opacity-25 blur-3xl"
+                className="absolute -inset-[18px] rounded-3xl opacity-25 blur-2xl"
                 style={{ background: "radial-gradient(circle, #c8a96a 0%, transparent 70%)" }}
               />
-              {/* portrait card */}
+              {/* Reusable portrait frame: a fixed 4:5 aspect ratio that scales
+                  with the viewport. object-cover + centered position means any
+                  photo — portrait, square, or landscape — fills the frame
+                  cleanly, so this works as the base template for every advisor. */}
               <div
-                className="relative h-72 w-64 overflow-hidden rounded-[2rem] bg-white sm:h-80 sm:w-72 lg:h-[24rem] lg:w-[20rem]"
-                style={{ boxShadow: "0 40px 90px -25px rgba(0,0,0,0.6)" }}
+                className="relative aspect-[4/5] w-[min(280px,72vw)] overflow-hidden rounded-2xl bg-slate-100"
+                style={{ boxShadow: "0 20px 45px -18px rgba(0,0,0,0.55)" }}
               >
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 z-10 rounded-[2rem]"
+                  className="pointer-events-none absolute inset-0 z-10 rounded-2xl"
                   style={{ boxShadow: `inset 0 0 0 1px ${GOLD}66` }}
                 />
                 <Image
                   src={profile.profilePhoto}
                   alt={`${fullName} portrait`}
                   fill
-                  sizes="(max-width: 1024px) 320px, 368px"
-                  className="object-cover"
-                  style={{ objectPosition: "50% 12%" }}
+                  sizes="280px"
+                  className="object-cover object-center"
                   priority
                 />
               </div>
@@ -303,10 +296,8 @@ export default function ProfileJleungPage() {
           </div>
 
           <div className="mx-auto mt-10 grid max-w-3xl gap-4 sm:grid-cols-2">
-            <ContactRow label="Office" value={profile.contact.phone} href={telHref} icon="phone" />
-            <ContactRow label="Cell" value={profile.contact.cell} href={cellHref} icon="phone" />
+            <ContactRow label={primaryPhone.label} value={primaryPhone.value} href={primaryPhoneHref} icon="phone" />
             <ContactRow label="Email" value={profile.contact.email} href={mailto} icon="mail" />
-            <ContactRow label="Fax" value={profile.contact.fax} icon="fax" />
           </div>
 
           <div className="mx-auto mt-6 flex max-w-3xl items-start gap-3 rounded-2xl bg-white px-5 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.04)] ring-1 ring-black/5">
@@ -347,12 +338,11 @@ function ContactRow({
   label: string;
   value: string;
   href?: string;
-  icon: "phone" | "mail" | "fax";
+  icon: "phone" | "mail";
 }) {
   const icons = {
     phone: "M6.62 10.79a15.15 15.15 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.4 11.4 0 0 0 3.57.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .57 3.57 1 1 0 0 1-.24 1.02l-2.21 2.2z",
     mail: "M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z",
-    fax: "M19 8h-1V3H6v5H5a3 3 0 0 0-3 3v6h4v3h12v-3h4v-6a3 3 0 0 0-3-3zM8 5h8v3H8V5zm8 14H8v-4h8v4zm4-7a1 1 0 1 1-2 0 1 1 0 0 1 2 0z",
   };
 
   const inner = (
