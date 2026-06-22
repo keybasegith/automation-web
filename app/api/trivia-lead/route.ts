@@ -8,6 +8,7 @@ type LeadPayload = {
   email: string;
   phone: string;
   timeline?: string;
+  advisor?: string;
   consent: boolean;
 };
 
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
     email: data.email.trim().toLowerCase(),
     phone: data.phone.trim(),
     timeline: data.timeline?.trim() ?? "",
+    advisor: data.advisor?.trim() ?? "",
     consent: true,
   };
 
@@ -68,15 +70,24 @@ export async function POST(req: Request) {
   }
 
   try {
+    // Apps Script web apps append the row during the initial POST, then reply
+    // with a 302 to a googleusercontent result page. We use redirect: "manual"
+    // so we can treat that redirect as success without following it to a page
+    // that isn't readable anonymously (which would look like a 405 failure).
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      redirect: "manual",
     });
-    if (!response.ok) {
+    const forwarded =
+      response.ok ||
+      response.status === 302 ||
+      response.type === "opaqueredirect";
+    if (!forwarded) {
       const text = await response.text().catch(() => "");
       console.error(
-        "[trivia-lead] Apps Script webhook returned non-2xx:",
+        "[trivia-lead] Apps Script webhook returned unexpected status:",
         response.status,
         text,
       );

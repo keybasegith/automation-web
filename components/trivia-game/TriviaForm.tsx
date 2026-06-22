@@ -9,6 +9,7 @@ type FormState = {
   email: string;
   phone: string;
   timeline: string;
+  advisor: string;
   consent: boolean;
 };
 
@@ -17,6 +18,7 @@ const INITIAL: FormState = {
   email: "",
   phone: "",
   timeline: "",
+  advisor: "",
   consent: false,
 };
 
@@ -27,6 +29,8 @@ const TIMELINES = [
   "1+ year",
   "Just exploring",
 ];
+
+const ADVISORS = ["Darko", "Hari", "Jaxson", "Shomari", "Not applicable"];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -141,6 +145,14 @@ export default function TriviaForm() {
             onChange={(v) => update("timeline", v)}
             options={TIMELINES}
             placeholder="How long are you looking to invest for?"
+          />
+
+          <Select
+            label="Did you speak with one of our advisors?"
+            value={form.advisor}
+            onChange={(v) => update("advisor", v)}
+            options={ADVISORS}
+            placeholder="Select"
           />
 
           <label className="mt-2 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-colors hover:border-slate-300">
