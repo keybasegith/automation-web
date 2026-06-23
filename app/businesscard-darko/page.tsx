@@ -150,7 +150,7 @@ export default function BusinessCardDarkoPage() {
         <div className="mt-5 space-y-2.5 sm:mt-6 sm:space-y-3">
           <a
             href={mailto}
-            className="block w-full rounded-xl border border-slate-900 px-4 py-2.5 text-center text-[13px] font-semibold text-slate-900 transition hover:bg-slate-50 sm:py-3 sm:text-[14px]"
+            className="block w-full rounded-xl bg-black px-4 py-2.5 text-center text-[13px] font-semibold text-white transition hover:bg-neutral-800 sm:py-3 sm:text-[14px]"
           >
             Email Me
           </a>
