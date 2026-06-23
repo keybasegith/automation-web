@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import ShareYourContactButton from "@/components/business-card/ShareYourContactButton";
 import ShareButton from "./ShareButton";
 import FlipCard from "./FlipCard";
 
@@ -26,13 +25,8 @@ const card = {
   },
   contact: {
     phone: "905-709-7911 Ext. 2253",
-    fax: "905-709-7022",
     email: "daxs@keybase.com",
     website: "www.keybase.com",
-  },
-  primaryCta: {
-    label: "Book a Meeting",
-    href: "https://cal.com/stylecast-uurjw6/business-chat-with-dax-sukhraj",
   },
 } as const;
 
@@ -127,9 +121,7 @@ export default function BusinessCardDaxPage() {
             <span className="text-slate-400">T:</span>{" "}
             <a href={telHref} className="hover:text-slate-900">
               {card.contact.phone}
-            </a>{" "}
-            <span className="text-slate-300">·</span>{" "}
-            <span className="text-slate-400">F:</span> {card.contact.fax}
+            </a>
           </p>
           <p>
             <a href={mailto} className="hover:text-slate-900">
@@ -155,19 +147,6 @@ export default function BusinessCardDaxPage() {
           >
             Email Me
           </a>
-          <a
-            href={card.primaryCta.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full rounded-xl bg-slate-900 px-4 py-2.5 text-center text-[13px] font-semibold text-white transition hover:bg-slate-800 sm:py-3 sm:text-[14px]"
-          >
-            {card.primaryCta.label}
-          </a>
-          <ShareYourContactButton
-            recipientEmail={card.contact.email}
-            recipientName={fullName}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-center text-[13px] font-semibold text-slate-700 transition hover:bg-slate-200 sm:py-3 sm:text-[14px]"
-          />
           <ShareButton
             fullName={fullName}
             title={card.title}

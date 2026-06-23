@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import ShareYourContactButton from "@/components/business-card/ShareYourContactButton";
 import ShareButton from "./ShareButton";
 import FlipCard from "./FlipCard";
 
@@ -29,13 +28,8 @@ const card = {
     extension: "2229",
     direct: "289-472-0483",
     cell: "647-929-4592",
-    fax: "905-709-7022",
     email: "jkeelan@keybase.com",
     website: "www.keybase.com",
-  },
-  primaryCta: {
-    label: "Book a Meeting",
-    href: "https://cal.com/stylecast-uurjw6/business-chat-with-dax-sukhraj",
   },
 } as const;
 
@@ -103,7 +97,7 @@ export default function BusinessCardJaxonPage() {
             fill
             sizes="(max-width: 640px) 96px, 128px"
             className="scale-150 object-cover"
-            style={{ objectPosition: "50% 20%" }}
+            style={{ objectPosition: "50% 12%" }}
           />
         </div>
       </div>
@@ -142,20 +136,12 @@ export default function BusinessCardJaxonPage() {
               {card.contact.direct}
             </a>
           </p>
-          {card.contact.cell ? (
-            <p>
-              <span className="text-slate-400">Cell:</span>{" "}
-              <a href={cellHref} className="hover:text-slate-900">
-                {card.contact.cell}
-              </a>{" "}
-              <span className="text-slate-300">·</span>{" "}
-              <span className="text-slate-400">Fax:</span> {card.contact.fax}
-            </p>
-          ) : (
-            <p>
-              <span className="text-slate-400">Fax:</span> {card.contact.fax}
-            </p>
-          )}
+          <p>
+            <span className="text-slate-400">Cell:</span>{" "}
+            <a href={cellHref} className="hover:text-slate-900">
+              {card.contact.cell}
+            </a>
+          </p>
           <p>
             <a href={mailto} className="hover:text-slate-900">
               {card.contact.email}
@@ -180,19 +166,6 @@ export default function BusinessCardJaxonPage() {
           >
             Email Me
           </a>
-          <a
-            href={card.primaryCta.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full rounded-xl bg-slate-900 px-4 py-2.5 text-center text-[13px] font-semibold text-white transition hover:bg-slate-800 sm:py-3 sm:text-[14px]"
-          >
-            {card.primaryCta.label}
-          </a>
-          <ShareYourContactButton
-            recipientEmail={card.contact.email}
-            recipientName={fullName}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-center text-[13px] font-semibold text-slate-700 transition hover:bg-slate-200 sm:py-3 sm:text-[14px]"
-          />
           <ShareButton
             fullName={fullName}
             title={card.title}
