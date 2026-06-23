@@ -9,13 +9,13 @@ import FlipCard from "./FlipCard";
  * Edit the `card` object below to update personal contact info.
  */
 const card = {
-  firstName: "Shomari",
-  lastName: "Hutchinson",
+  firstName: "Hari",
+  lastName: "Sukhraj",
   title: "Financial Advisor",
   company: "Keybase Financial Group",
   tagline: "Building and Preserving Personal Wealth",
-  profilePhoto: "/shomari-profile1.jpg",
-  backgroundPhoto: "/shomari-profile-background.jpg",
+  profilePhoto: "/hari-profile.jpg",
+  backgroundPhoto: "/dax-profile-background.jpg",
   companyLogo: "/keybaselogo-updated.png",
   social: {
     linkedin: "https://www.linkedin.com/company/keybase",
@@ -25,9 +25,12 @@ const card = {
     line2: "Richmond Hill, ON L4B 0B3",
   },
   contact: {
-    phone: "905-709-7911 Ext. 2231",
-    tollFree: "1-888-539-4246",
-    email: "shutchinson@keybase.com",
+    phone: "905-709-7911",
+    extension: "2277",
+    direct: "905-780-1651",
+    cell: "",
+    fax: "905-709-7022",
+    email: "hsukhraj@keybase.com",
     website: "www.keybase.com",
   },
   primaryCta: {
@@ -45,10 +48,11 @@ export const metadata: Metadata = {
 
 const KEYBASE_GREEN = "#006d6e";
 
-export default function BusinessCardShomariPage() {
+export default function BusinessCardHariPage() {
   const mailto = `mailto:${card.contact.email}`;
   const telHref = `tel:${card.contact.phone.replace(/[^+\d]/g, "")}`;
-  const tollFreeHref = `tel:${card.contact.tollFree.replace(/[^+\d]/g, "")}`;
+  const directHref = `tel:${card.contact.direct.replace(/[^+\d]/g, "")}`;
+  const cellHref = `tel:${card.contact.cell.replace(/[^+\d]/g, "")}`;
   const websiteHref = `https://${card.contact.website}`;
 
   const frontFace = (
@@ -128,13 +132,30 @@ export default function BusinessCardShomariPage() {
             <span className="text-slate-400">T:</span>{" "}
             <a href={telHref} className="hover:text-slate-900">
               {card.contact.phone}
-            </a>{" "}
+            </a>
+            {card.contact.extension ? (
+              <span className="text-slate-500"> Ext. {card.contact.extension}</span>
+            ) : null}{" "}
             <span className="text-slate-300">·</span>{" "}
-            <span className="text-slate-400">TF:</span>{" "}
-            <a href={tollFreeHref} className="hover:text-slate-900">
-              {card.contact.tollFree}
+            <span className="text-slate-400">Direct:</span>{" "}
+            <a href={directHref} className="hover:text-slate-900">
+              {card.contact.direct}
             </a>
           </p>
+          {card.contact.cell ? (
+            <p>
+              <span className="text-slate-400">Cell:</span>{" "}
+              <a href={cellHref} className="hover:text-slate-900">
+                {card.contact.cell}
+              </a>{" "}
+              <span className="text-slate-300">·</span>{" "}
+              <span className="text-slate-400">Fax:</span> {card.contact.fax}
+            </p>
+          ) : (
+            <p>
+              <span className="text-slate-400">Fax:</span> {card.contact.fax}
+            </p>
+          )}
           <p>
             <a href={mailto} className="hover:text-slate-900">
               {card.contact.email}
