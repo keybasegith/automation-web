@@ -22,23 +22,23 @@ export const metadata = {
 const SERVICES = [
   {
     icon: LineChart,
-    title: "Wealth Management",
-    body: "Comprehensive, goals-based portfolios designed around your circumstances, time horizon, and tolerance for risk.",
+    title: "Wealth Planning",
+    body: "Comprehensive, goals-based plans designed around your circumstances, time horizon, and long-term ambitions.",
   },
   {
     icon: TrendingUp,
-    title: "Investment Advisory",
-    body: "Disciplined, research-driven strategies across public and private markets, managed with institutional rigor.",
+    title: "Financial Advice",
+    body: "Independent, research-driven guidance that brings clarity to every decision across your financial life.",
   },
   {
     icon: Landmark,
-    title: "Retirement & Estate",
-    body: "Tax-efficient planning to protect what you've built and transfer wealth seamlessly across generations.",
+    title: "Investment Solutions",
+    body: "Disciplined strategies across public and private markets, managed with institutional rigor and care.",
   },
   {
     icon: ShieldCheck,
-    title: "Insurance Solutions",
-    body: "Protection strategies that safeguard your family, your business, and your long-term financial security.",
+    title: "Preservation Strategies",
+    body: "Tax-efficient planning that protects what you've built and transfers wealth seamlessly across generations.",
   },
 ];
 

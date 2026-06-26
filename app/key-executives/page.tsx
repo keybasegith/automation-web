@@ -15,18 +15,52 @@ const LEADERSHIP: Executive[] = [
     name: "Dax Sukhraj",
     title: "President & CEO",
     photo: "/dax-profile-updated.jpg",
+    ceoMessage: true,
     lead: "Dax Sukhraj is President & CEO at Keybase Financial Group.",
     paragraphs: [
       "As President & CEO, Mr. Sukhraj sets the strategic direction of the firm, championing an independent, client-first model built on transparency and disciplined advice.",
       "Prior to leading Keybase, he held senior roles across wealth management and capital markets, advising individuals, families, and institutions through every stage of the market cycle.",
       "Mr. Sukhraj has more than two decades of experience in the financial services industry and remains personally committed to building durable relationships that span generations.",
     ],
-    href: "/businesscard-dax",
+  },
+  {
+    name: "Don Cook",
+    title: "Vice President, Chief Financial Officer",
+    comingSoon: true,
+    lead: "Don Cook is Vice President and Chief Financial Officer at Keybase Financial Group.",
+    paragraphs: [
+      "Mr. Cook oversees the firm's financial management, reporting, and capital planning, ensuring a strong and disciplined financial foundation.",
+      "He brings extensive experience in finance and corporate strategy across the financial services industry, with a focus on stability, transparency, and responsible growth.",
+      "Mr. Cook is dedicated to maintaining the financial integrity that underpins the trust clients and advisors place in Keybase.",
+    ],
+  },
+  {
+    name: "Keith Sutherland",
+    title: "Vice President, System Development and Support",
+    comingSoon: true,
+    lead: "Keith Sutherland is Vice President, System Development and Support at Keybase Financial Group.",
+    paragraphs: [
+      "Mr. Sutherland leads the firm's technology systems, development, and support, building the digital infrastructure that powers a modern advisory experience.",
+      "He brings extensive experience in systems development and technical operations across the financial services industry, with a focus on reliability, security, and innovation.",
+      "Mr. Sutherland is dedicated to delivering the tools and platforms that help advisors serve clients seamlessly and securely.",
+    ],
+  },
+  {
+    name: "Krissy Sukhraj",
+    title: "Director of Marketing & Corporate Strategy",
+    comingSoon: true,
+    lead: "Krissy Sukhraj is Director of Marketing & Corporate Strategy at Keybase Financial Group.",
+    paragraphs: [
+      "Ms. Sukhraj shapes the firm's brand, client experience, and long-term strategic direction, connecting the Keybase story with the families and institutions it serves.",
+      "She brings extensive experience across marketing, communications, and corporate strategy, with a focus on building meaningful, lasting client relationships.",
+      "Ms. Sukhraj leads the firm's growth initiatives and is dedicated to ensuring the Keybase experience is clear, personal, and consistent at every touchpoint.",
+    ],
+    href: "/businesscard-krissy",
   },
   {
     name: "Mark Garcia",
     title: "Chief Compliance Officer",
-    photo: "/mark-profile.jpg",
+    photo: "/mark-newprofilepic.jpg",
     lead: "Mark Garcia is Chief Compliance Officer at Keybase Financial Group.",
     paragraphs: [
       "Mr. Garcia oversees the firm's regulatory, risk, and governance framework, ensuring every client engagement meets the highest standards of integrity and fiduciary care.",
@@ -36,16 +70,26 @@ const LEADERSHIP: Executive[] = [
     href: "/businesscard-mark",
   },
   {
-    name: "Krissy Sukhraj",
-    title: "Director of Marketing & Corporate Strategy",
-    photo: "/krissy-profile.jpg",
-    lead: "Krissy Sukhraj is Director of Marketing & Corporate Strategy at Keybase Financial Group.",
+    name: "Pushpa Shivanthan",
+    title: "Vice President, Back Office Administration",
+    comingSoon: true,
+    lead: "Pushpa Shivanthan is Vice President, Back Office Administration at Keybase Financial Group.",
     paragraphs: [
-      "Ms. Sukhraj shapes the firm's brand, client experience, and long-term strategic direction, connecting the Keybase story with the families and institutions it serves.",
-      "She brings extensive experience across marketing, communications, and corporate strategy, with a focus on building meaningful, lasting client relationships.",
-      "Ms. Sukhraj leads the firm's growth initiatives and is dedicated to ensuring the Keybase experience is clear, personal, and consistent at every touchpoint.",
+      "Mr. Shivanthan leads the firm's back office and administrative operations, ensuring accurate, timely, and seamless support across every client and advisor interaction.",
+      "He brings extensive experience in operations and administration across the financial services industry, with a focus on accuracy, efficiency, and reliability.",
+      "Mr. Shivanthan is committed to building the disciplined processes and systems that keep the firm running smoothly behind the scenes.",
     ],
-    href: "/businesscard-krissy",
+  },
+  {
+    name: "Jerome Pare",
+    title: "Senior I.T. Specialist",
+    comingSoon: true,
+    lead: "Jerome Pare is Senior I.T. Specialist at Keybase Financial Group.",
+    paragraphs: [
+      "Mr. Pare supports the firm's information technology systems, ensuring secure, reliable, and responsive infrastructure across the organization.",
+      "He brings hands-on experience across IT operations, security, and support within the financial services industry.",
+      "Mr. Pare is dedicated to keeping the firm's technology running smoothly so advisors and staff can focus on serving clients.",
+    ],
   },
 ];
 
@@ -82,7 +126,7 @@ export default function KeyExecutivesPage() {
         </h1>
 
         {/* Interactive executives */}
-        <div className="mt-14 sm:mt-16">
+        <div className="mt-10 sm:mt-12">
           <KeyExecutives people={LEADERSHIP} />
         </div>
       </main>

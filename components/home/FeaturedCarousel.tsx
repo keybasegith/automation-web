@@ -10,7 +10,7 @@ const SLIDES = [
   {
     category: "Whitepaper",
     title: "Building durable retirement income in a higher-for-longer world",
-    image: "/wealth-offering.jpg",
+    image: "/consult-advisors.jpg",
   },
   {
     category: "Family Wealth",

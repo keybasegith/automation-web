@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 
@@ -14,84 +13,80 @@ export default function CeoMessagePage() {
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
 
-      {/* ---------- Hero ---------- */}
-      <section className="border-b border-black/10 bg-[#0a1f33] text-white">
-        <div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
-          <p className="text-[13px] font-semibold uppercase tracking-[0.22em] text-white/60">
-            From the Office of the CEO
-          </p>
-          <h1 className="mt-5 max-w-3xl font-serif text-[42px] font-normal leading-[1.06] tracking-tight sm:text-[60px]">
-            A message from our CEO.
-          </h1>
-          <p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/75">
-            On what guides Keybase Financial Group — and the promise we make to
-            every client who places their trust in us.
-          </p>
-        </div>
+      {/* ---------- Page heading ---------- */}
+      <section className="mx-auto max-w-[1280px] px-5 pt-12 sm:px-8 sm:pt-16">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex flex-wrap items-center gap-2 text-[15px] text-[#5b6573]"
+        >
+          <Link href="/" className="transition-colors hover:text-[#0a1f33]">
+            Home
+          </Link>
+          <span className="text-[#c2c8d0]">/</span>
+          <Link href="/about" className="transition-colors hover:text-[#0a1f33]">
+            About Us
+          </Link>
+          <span className="text-[#c2c8d0]">/</span>
+          <Link
+            href="/key-executives"
+            className="transition-colors hover:text-[#0a1f33]"
+          >
+            Leadership
+          </Link>
+          <span className="text-[#c2c8d0]">/</span>
+          <span className="font-semibold text-[#0a1f33]">CEO Message</span>
+        </nav>
+        <h1 className="mt-8 font-serif text-[44px] font-normal leading-[1.06] tracking-tight text-[#0a1f33] sm:text-[64px]">
+          Message from the CEO
+        </h1>
       </section>
 
       {/* ---------- Letter ---------- */}
-      <section className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
-        <div className="grid gap-12 lg:grid-cols-[300px_1fr] lg:gap-16">
-          {/* Portrait + identity */}
-          <aside className="lg:sticky lg:top-28 lg:self-start">
-            <div className="overflow-hidden rounded-lg bg-[#eaeef2]">
-              <img
-                src="/dax-profile-updated.jpg"
-                alt="Dax Sukhraj, President & CEO"
-                className="aspect-[4/5] w-full object-cover object-top"
-              />
-            </div>
-            <h2 className="mt-6 font-serif text-2xl font-normal text-[#0a1f33]">
-              Dax Sukhraj
-            </h2>
-            <p className="mt-1 text-[13px] font-semibold uppercase tracking-[0.12em] text-[#006d6e]">
-              President &amp; Chief Executive Officer
-            </p>
-          </aside>
-
+      <section className="mx-auto max-w-[1280px] px-5 pb-20 pt-12 sm:px-8 sm:pb-28 sm:pt-16">
+        <div className="grid gap-12 lg:grid-cols-[1fr_300px] lg:gap-16">
           {/* Letter body */}
           <div className="max-w-2xl">
-            <p className="font-serif text-[26px] font-normal leading-snug text-[#0a1f33] sm:text-[30px]">
-              When we founded Keybase, we set out to build the kind of firm we
-              would want advising our own families.
-            </p>
-
-            <div className="mt-8 space-y-6 text-lg leading-relaxed text-[#5b6573]">
+            <div className="space-y-6 text-lg leading-relaxed text-[#5b6573]">
               <p>
-                To the clients, partners, and communities we are privileged to
-                serve — thank you. Your trust is the foundation of everything we
-                do, and we never take it for granted.
+                As the founder and president of both Argosy and Keybase — both
+                true independent dealers — for more than four decades in the
+                industry, I have had the privilege of working alongside advisors,
+                clients, employees, and industry partners who have shaped my
+                understanding of leadership and stewardship.
               </p>
               <p>
-                The financial industry has no shortage of products, pitches, and
-                noise. What it too often lacks is genuine independence — advice
-                offered without competing incentives, and a partner whose success
-                is measured by yours. That gap is exactly why Keybase exists. We
-                are proudly independent, which means our counsel is shaped by one
-                question and one question only: what is right for you.
+                I believe leadership is not about titles or authority — it is
+                about earning trust, creating opportunities for others, and
+                showing up consistently when it matters most. Throughout my
+                career, I have sought to lead with authenticity, humility, and a
+                long-term perspective, recognizing that strong relationships,
+                sound judgment, and unwavering integrity are the foundations of
+                lasting success.
               </p>
               <p>
-                Our work is grounded in three commitments. First, we listen
-                before we advise — because no strategy matters until we
-                understand your goals, your circumstances, and the people you are
-                planning for. Second, we bring institutional discipline to deeply
-                personal relationships, pairing rigorous research with the
-                patience to stay the course through every market cycle. And
-                third, we remain transparent in everything — clear about our
-                fees, honest in our guidance, and accountable for our advice.
+                My vision has always been to build an organization where people
+                can grow, thrive, and achieve more than they thought possible
+                without compromising integrity. Whether mentoring the next
+                generation of leaders, supporting entrepreneurial advisors, or
+                helping families navigate important financial decisions, I am
+                driven by the belief that business is ultimately about people,
+                moments, and promises. Success is measured not by results alone,
+                but by the positive impact we have on the lives we touch and the
+                well-being we help create. My goal is to leave behind an
+                organization, relationships, and communities that are stronger
+                because we worked together — with purpose, respect, and a shared
+                commitment to excellence.
               </p>
               <p>
-                The world will keep changing — markets will rise and fall, rates
-                will shift, and new challenges will emerge. Through all of it,
-                our promise stays the same: to be the steady, independent partner
-                who helps you build, protect, and pass on what you have worked so
-                hard to create.
-              </p>
-              <p>
-                On behalf of our entire team, thank you for allowing us to be part
-                of your journey. We are honored by your confidence, and we are
-                committed to earning it every single day.
+                My mantra of leadership, through many years of experience, is
+                relationship-focused, community-minded, and guided by learned
+                wisdom and service rather than corporate credentials. It is all
+                about my vision of authentic leadership, mentorship, human
+                connection, and legacy. My greatest achievement will not be what I
+                have built personally — it will be the care, kindness, and
+                compassion I have shown, the people I have helped develop, the
+                careers I have influenced, and the legacy of values and humility
+                that continues long after my own journey.
               </p>
             </div>
 
@@ -105,23 +100,24 @@ export default function CeoMessagePage() {
               </p>
             </div>
 
-            {/* CTA */}
-            <div className="mt-12 flex flex-wrap gap-4">
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 bg-[#0a1f33] px-7 py-4 text-[15px] font-semibold text-white transition-colors hover:bg-[#0e2a45]"
-              >
-                Speak with an Advisor
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/key-executives"
-                className="inline-flex items-center gap-2 border border-[#1a2433] px-7 py-4 text-[15px] font-semibold text-[#1a2433] transition-colors hover:bg-[#1a2433] hover:text-white"
-              >
-                Meet our Leadership
-              </Link>
-            </div>
           </div>
+
+          {/* Portrait + identity */}
+          <aside className="lg:sticky lg:top-28 lg:self-start lg:order-last">
+            <div className="overflow-hidden rounded-lg bg-[#eaeef2]">
+              <img
+                src="/dax-profile-updated.jpg"
+                alt="Dax Sukhraj, President & CEO"
+                className="aspect-[4/5] w-full object-cover object-top"
+              />
+            </div>
+            <h2 className="mt-6 text-center font-serif text-2xl font-normal text-[#0a1f33]">
+              Dax Sukhraj
+            </h2>
+            <p className="mt-1 text-center text-[13px] font-semibold uppercase tracking-[0.12em] text-[#006d6e]">
+              President &amp; Chief Executive Officer
+            </p>
+          </aside>
         </div>
       </section>
 

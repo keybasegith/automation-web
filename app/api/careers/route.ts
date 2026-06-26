@@ -1,0 +1,111 @@
+import { NextResponse } from "next/server";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+type ApplicationPayload = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  position: string;
+  resumeLink?: string;
+  linkedin?: string;
+  message?: string;
+  consent: boolean;
+};
+
+const isString = (v: unknown): v is string =>
+  typeof v === "string" && v.trim().length > 0;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export async function POST(req: Request) {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON." }, { status: 400 });
+  }
+
+  const data = body as Partial<ApplicationPayload>;
+
+  if (!isString(data.firstName)) {
+    return NextResponse.json(
+      { error: "First name is required." },
+      { status: 400 },
+    );
+  }
+  if (!isString(data.lastName)) {
+    return NextResponse.json(
+      { error: "Last name is required." },
+      { status: 400 },
+    );
+  }
+  if (!isString(data.email) || !EMAIL_RE.test(data.email)) {
+    return NextResponse.json(
+      { error: "A valid email is required." },
+      { status: 400 },
+    );
+  }
+  if (!isString(data.position)) {
+    return NextResponse.json(
+      { error: "Please select the role you're applying for." },
+      { status: 400 },
+    );
+  }
+  if (data.consent !== true) {
+    return NextResponse.json(
+      { error: "Consent is required." },
+      { status: 400 },
+    );
+  }
+
+  const payload = {
+    submittedAt: new Date().toISOString(),
+    source: "careers-application",
+    firstName: data.firstName.trim(),
+    lastName: data.lastName.trim(),
+    email: data.email.trim().toLowerCase(),
+    phone: data.phone?.trim() ?? "",
+    position: data.position.trim(),
+    resumeLink: data.resumeLink?.trim() ?? "",
+    linkedin: data.linkedin?.trim() ?? "",
+    message: data.message?.trim() ?? "",
+    consent: true,
+  };
+
+  // Always log the application server-side as a recovery backup, so submissions
+  // are never lost even if the webhook is unset or fails.
+  console.log("[careers]", JSON.stringify(payload));
+
+  const webhookUrl = process.env.CAREERS_APPLICATION_WEBHOOK_URL;
+  if (!webhookUrl) {
+    console.warn(
+      "[careers] CAREERS_APPLICATION_WEBHOOK_URL is not set — application logged above but not forwarded.",
+    );
+    return NextResponse.json({ ok: true, forwarded: false });
+  }
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      console.error(
+        "[careers] Webhook returned non-2xx:",
+        response.status,
+        text,
+      );
+      return NextResponse.json({ ok: true, forwarded: false });
+    }
+  } catch (err) {
+    console.error("[careers] Failed to call webhook:", err);
+    return NextResponse.json({ ok: true, forwarded: false });
+  }
+
+  return NextResponse.json({ ok: true, forwarded: true });
+}

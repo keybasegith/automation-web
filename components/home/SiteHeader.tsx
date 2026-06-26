@@ -3,13 +3,83 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Search, Menu, X, ChevronDown, Globe, Check } from "lucide-react";
+
+type ServiceLink = { label: string; href: string };
+type ServiceGroup = { heading?: string; links: ServiceLink[] };
+type ServiceColumn = { title: string; groups: ServiceGroup[] };
 
 type NavItem = {
   label: string;
   href?: string;
   children?: { label: string; href: string }[];
+  mega?: ServiceColumn[];
 };
+
+// All service links currently point at the on-page services section until
+// dedicated pages exist.
+const S = "/#what-we-do";
+
+const SERVICES_MENU: ServiceColumn[] = [
+  {
+    title: "Wealth Planning",
+    groups: [
+      {
+        links: [
+          { label: "Education Planning", href: S },
+          { label: "Estate Planning", href: S },
+          { label: "Retirement Planning", href: S },
+          { label: "Tax Planning", href: S },
+          { label: "Wealth Building", href: S },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Investment Solutions",
+    groups: [
+      {
+        heading: "Plans",
+        links: [
+          { label: "Non-Registered Investments", href: S },
+          { label: "Registered Disability Savings Plan (RDSP)", href: S },
+          { label: "Registered Education Savings Plan (RESP)", href: S },
+          { label: "Registered Retirement Savings Plan (RRSP)", href: S },
+          { label: "Tax-Free Savings Account (TFSA)", href: S },
+          { label: "First Home Savings Account (FHSA)", href: S },
+        ],
+      },
+      {
+        heading: "Products",
+        links: [
+          { label: "Traditional Investments", href: S },
+          { label: "Alternative Investments", href: S },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Preservation Strategies",
+    groups: [
+      {
+        links: [
+          { label: "Insurance", href: S },
+          { label: "Travel Insurance", href: S },
+          { label: "Segregated Funds", href: S },
+        ],
+      },
+    ],
+  },
+];
+
+const LANGUAGES = [
+  { code: "EN", label: "English" },
+  { code: "FR", label: "Français" },
+  { code: "ZH", label: "中文" },
+  { code: "KO", label: "한국어" },
+  { code: "ES", label: "Español" },
+  { code: "HI", label: "हिन्दी" },
+];
 
 const NAV: NavItem[] = [
   {
@@ -26,15 +96,17 @@ const NAV: NavItem[] = [
       { label: "Our Advisors", href: "/our-advisors" },
     ],
   },
-  { label: "Our Services", href: "/#what-we-do" },
-  { label: "Newsroom", href: "/#insights" },
-  { label: "Careers", href: "/#careers" },
+  { label: "Our Services", mega: SERVICES_MENU },
+  { label: "Newsroom", href: "/newsroom" },
+  { label: "Careers", href: "/careers" },
 ];
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [openMobileMenu, setOpenMobileMenu] = useState<string | null>(null);
+  const [lang, setLang] = useState("EN");
+  const [langOpen, setLangOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/10 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
@@ -53,7 +125,73 @@ export default function SiteHeader() {
         {/* Primary nav */}
         <nav className="hidden items-center gap-8 lg:flex">
           {NAV.map((item) =>
-            item.children ? (
+            item.mega ? (
+              <div
+                key={item.label}
+                className="static"
+                onMouseEnter={() => setOpenMenu(item.label)}
+                onMouseLeave={() => setOpenMenu(null)}
+              >
+                <button
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded={openMenu === item.label}
+                  onClick={() =>
+                    setOpenMenu((cur) => (cur === item.label ? null : item.label))
+                  }
+                  className="flex items-center gap-1 text-[15px] font-medium text-[#1a2433] transition-colors hover:text-[#006d6e]"
+                >
+                  {item.label}
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${
+                      openMenu === item.label ? "rotate-180" : ""
+                    }`}
+                    strokeWidth={2}
+                  />
+                </button>
+
+                {openMenu === item.label && (
+                  <div className="absolute left-0 right-0 top-full pt-3">
+                    <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
+                      <div className="rounded-md border border-black/10 bg-white p-8 shadow-lg shadow-black/5">
+                        <div className="grid grid-cols-3 gap-8">
+                          {item.mega.map((col) => (
+                            <div key={col.title}>
+                              <p className="text-[15px] font-semibold text-[#006d6e]">
+                                {col.title}
+                              </p>
+                              <div className="mt-4 space-y-4">
+                                {col.groups.map((group, gi) => (
+                                  <div key={gi}>
+                                    {group.heading && (
+                                      <p className="mb-2 text-[13px] font-bold text-[#1a2433]">
+                                        {group.heading}
+                                      </p>
+                                    )}
+                                    <div className="space-y-2">
+                                      {group.links.map((link) => (
+                                        <Link
+                                          key={link.label}
+                                          href={link.href}
+                                          onClick={() => setOpenMenu(null)}
+                                          className="block text-[14px] leading-snug text-[#5b6573] transition-colors hover:text-[#006d6e]"
+                                        >
+                                          {link.label}
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : item.children ? (
               <div
                 key={item.label}
                 className="relative"
@@ -109,6 +247,54 @@ export default function SiteHeader() {
 
         {/* Utility / actions */}
         <div className="hidden items-center gap-6 lg:flex">
+          {/* Language selector */}
+          <div
+            className="relative"
+            onMouseEnter={() => setLangOpen(true)}
+            onMouseLeave={() => setLangOpen(false)}
+          >
+            <button
+              type="button"
+              aria-haspopup="true"
+              aria-expanded={langOpen}
+              aria-label="Select language"
+              onClick={() => setLangOpen((v) => !v)}
+              className="flex items-center gap-1.5 text-[15px] font-medium text-[#1a2433] transition-colors hover:text-[#006d6e]"
+            >
+              <Globe className="h-[18px] w-[18px]" strokeWidth={2} />
+              {lang}
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  langOpen ? "rotate-180" : ""
+                }`}
+                strokeWidth={2}
+              />
+            </button>
+
+            {langOpen && (
+              <div className="absolute right-0 top-full pt-3">
+                <div className="w-48 overflow-hidden rounded-md border border-black/10 bg-white py-2 shadow-lg shadow-black/5">
+                  {LANGUAGES.map((l) => (
+                    <button
+                      key={l.code}
+                      type="button"
+                      onClick={() => {
+                        setLang(l.code);
+                        setLangOpen(false);
+                      }}
+                      className="flex w-full items-center justify-between px-5 py-2.5 text-left text-[15px] font-medium text-[#1a2433] transition-colors hover:bg-[#f3f6f7] hover:text-[#006d6e]"
+                    >
+                      {l.label}
+                      {lang === l.code && (
+                        <Check className="h-4 w-4 text-[#006d6e]" strokeWidth={2.5} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             type="button"
             aria-label="Search"
@@ -118,7 +304,7 @@ export default function SiteHeader() {
           </button>
           <Link
             href="/contact"
-            className="border border-[#1a2433] px-5 py-2.5 text-[14px] font-semibold tracking-wide text-[#1a2433] transition-colors hover:bg-[#1a2433] hover:text-white"
+            className="border border-[#1a2433] bg-[#1a2433] px-5 py-2.5 text-[14px] font-semibold tracking-wide text-white transition-colors hover:bg-white hover:text-[#1a2433]"
           >
             Contact Us
           </Link>
@@ -141,7 +327,61 @@ export default function SiteHeader() {
         <div className="border-t border-black/10 bg-white lg:hidden">
           <nav className="mx-auto flex max-w-[1280px] flex-col px-5 py-3 sm:px-8">
             {NAV.map((item) =>
-              item.children ? (
+              item.mega ? (
+                <div key={item.label}>
+                  <button
+                    type="button"
+                    aria-expanded={openMobileMenu === item.label}
+                    onClick={() =>
+                      setOpenMobileMenu((cur) =>
+                        cur === item.label ? null : item.label
+                      )
+                    }
+                    className="flex w-full items-center justify-between border-b border-black/5 py-3 text-[15px] font-medium text-[#1a2433]"
+                  >
+                    {item.label}
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${
+                        openMobileMenu === item.label ? "rotate-180" : ""
+                      }`}
+                      strokeWidth={2}
+                    />
+                  </button>
+                  {openMobileMenu === item.label && (
+                    <div className="border-b border-black/5 bg-[#f7f9fa] py-2">
+                      {item.mega.map((col) => (
+                        <div key={col.title} className="px-4 py-2">
+                          <p className="text-[14px] font-semibold text-[#006d6e]">
+                            {col.title}
+                          </p>
+                          {col.groups.map((group, gi) => (
+                            <div key={gi} className="mt-1">
+                              {group.heading && (
+                                <p className="mt-1 text-[12px] font-bold text-[#1a2433]">
+                                  {group.heading}
+                                </p>
+                              )}
+                              {group.links.map((link) => (
+                                <Link
+                                  key={link.label}
+                                  href={link.href}
+                                  onClick={() => {
+                                    setOpen(false);
+                                    setOpenMobileMenu(null);
+                                  }}
+                                  className="block py-1.5 pl-2 text-[14px] leading-snug text-[#5b6573]"
+                                >
+                                  {link.label}
+                                </Link>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : item.children ? (
                 <div key={item.label}>
                   <button
                     type="button"
@@ -193,10 +433,34 @@ export default function SiteHeader() {
             <Link
               href="/contact"
               onClick={() => setOpen(false)}
-              className="mt-4 border border-[#1a2433] px-5 py-3 text-center text-[14px] font-semibold tracking-wide text-[#1a2433]"
+              className="mt-4 border border-[#1a2433] bg-[#1a2433] px-5 py-3 text-center text-[14px] font-semibold tracking-wide text-white transition-colors hover:bg-white hover:text-[#1a2433]"
             >
               Contact Us
             </Link>
+
+            {/* Language selector */}
+            <div className="mt-6">
+              <p className="mb-3 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-[#9aa3ad]">
+                <Globe className="h-4 w-4" strokeWidth={2} />
+                Language
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {LANGUAGES.map((l) => (
+                  <button
+                    key={l.code}
+                    type="button"
+                    onClick={() => setLang(l.code)}
+                    className={`rounded-full px-4 py-2 text-[14px] font-medium transition-colors ${
+                      lang === l.code
+                        ? "bg-[#0a1f33] text-white"
+                        : "border border-black/15 text-[#1a2433]"
+                    }`}
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </nav>
         </div>
       )}

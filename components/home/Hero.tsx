@@ -17,9 +17,9 @@ const SLIDES = [
   },
   {
     src: "/hero-section-vid2.mp4",
-    title: "AI in Focus",
+    title: "Powered by AI, guided by people.",
     subtext:
-      "Timely analysis tracking the latest innovations and developments in artificial intelligence and their impact on global markets.",
+      "As one of the first in our field to embrace artificial intelligence, Keybase pairs cutting-edge technology with seasoned judgment — sharpening every insight, decision, and recommendation we deliver.",
   },
 ];
 
