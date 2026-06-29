@@ -1,0 +1,139 @@
+WEEKLY REPORT - KEYBASE FINANCIAL GROUP WEBSITE
+
+Week of:     June 22-26, 2026
+Prepared by: Dax Sukhraj
+Project:     Keybase Financial Group corporate website (Next.js)
+Status:      Built, committed, and deployed to production (Vercel)
+
+====================================================================
+
+SUMMARY
+
+This week I built out and launched the Keybase Financial Group website.
+The work covered the full public-facing site - homepage, About,
+leadership pages, an advisor directory, a new Newsroom, and a new
+Careers section with a working job-application form - plus site-wide
+navigation (a services mega-menu and a language selector). All changes
+were committed to GitHub and deployed live on Vercel.
+
+====================================================================
+
+WHAT WAS BUILT AND CHANGED
+
+1. HOMEPAGE
+   - Renamed the four service categories under "A complete approach to
+     your financial life" to Wealth Planning, Financial Advice,
+     Investment Solutions, and Preservation Strategies, and rewrote the
+     supporting copy for each while keeping the existing design.
+   - Reworked the hero video messaging: the second slide now reads
+     "Powered by AI, guided by people," positioning Keybase as an early
+     adopter of AI paired with human judgment.
+   - Updated the featured carousel to use a cleaner advisor-consultation
+     image on the lead slide.
+
+2. ABOUT PAGE (FULL REBUILD)
+   - Replaced the old content with new, structured sections:
+     - Hero with a looping video background and "Independent Advice.
+       National Reach. Built for the Future."
+     - Who We Are and Our Vision narrative sections.
+     - What Defines Us - six redesigned, elevated value cards
+       (Independent by Design, Human-Centered, Built on Trust,
+       Entrepreneurial at the Core, National in Reach, Committed to
+       Impact) with hover effects and numbered accents.
+     - The Keybase Standard section with a full-width background image
+       and tuned overlay.
+   - Removed the outdated stats band (which contained placeholder
+     figures) and the bottom call-to-action block.
+
+3. CEO MESSAGE PAGE
+   - Removed the dark banner and restyled the top to match the
+     leadership pages (breadcrumb + "Message from the CEO" heading).
+   - Moved the CEO portrait to the right and center-aligned the
+     name/title.
+   - Published the new CEO letter (founder & president message) with
+     consistent typography.
+
+4. KEY EXECUTIVES PAGE
+   - Built an interactive leadership grid where clicking a person
+     expands their bio directly beneath their row.
+   - Final lineup across three rows, with "Coming Soon" placeholders for
+     photos still to be supplied:
+     - Dax Sukhraj (President & CEO)
+     - Don Cook (VP, Chief Financial Officer)
+     - Keith Sutherland (VP, System Development and Support)
+     - Krissy Sukhraj (Director of Marketing & Corporate Strategy)
+     - Mark Garcia (Chief Compliance Officer) - new profile photo
+     - Pushpa Shivanthan (VP, Back Office Administration)
+     - Jerome Pare (Senior I.T. Specialist)
+   - Cleaned up the layout: compact bios, square/sharp portrait frames
+     with adjusted height, "Read a message from our CEO" shown only for
+     the CEO, and removed the "View full profile" buttons.
+
+5. OUR ADVISORS PAGE (REDESIGN)
+   - Replaced the old hero with a clean breadcrumb + heading matching the
+     leadership pages.
+   - Rebuilt the advisor cards into a professional directory format:
+     photo, name & role, email and phone, divider, and a concise list of
+     specialties.
+   - Populated real contact details for the current advisors (Darko
+     Strukan, Neil Alford, Shomari Hutchinson, Johnathan Leung) and added
+     "Coming Soon" placeholders where photos are pending.
+   - Added a second and third row of additional advisor placeholders to
+     show the full team structure.
+
+6. NEWSROOM PAGE (NEW)
+   - Created a dedicated Newsroom with a category filter bar (Markets,
+     Retirement, Investing, Tax & Estate, Insurance, Firm News), a live
+     search, and an article list - all styled to the Keybase brand.
+
+7. CAREERS PAGE (NEW) WITH ONLINE APPLICATIONS
+   - Built a recruiting page with a hero, a list of open roles (Financial
+     Advisor, Associate Advisor, Compliance Analyst, Client Service
+     Associate, Marketing Coordinator, IT Support Specialist), and a
+     job-application form.
+   - Clicking Apply on a role pre-fills the form and scrolls to it; there
+     is also a "General Application" option.
+   - Applications submit to a backend endpoint that validates the data,
+     logs every submission, and can forward applications to email/HR
+     systems once a webhook is configured.
+
+8. SITE-WIDE NAVIGATION
+   - Added an "Our Services" mega-menu with three columns: Wealth
+     Planning, Investment Solutions (Plans + Products), and Preservation
+     Strategies.
+   - Added a language selector in the header (English, French, Chinese,
+     Korean, Spanish, Hindi).
+   - Wired the Newsroom and Careers menu links to the new pages.
+   - Restyled the Contact Us button (filled by default, inverts on
+     hover).
+
+====================================================================
+
+MEETINGS & COORDINATION
+
+   - Met with Keith Sutherland on Friday, June 26. Keith walked me
+     through the API he built. We plan to test it on Monday, June 29,
+     when I'm in the office, to see whether I can begin building the CRM
+     directly on top of it.
+
+====================================================================
+
+DEPLOYMENT
+
+   - All work was committed to the GitHub repository and deployed to
+     production on Vercel, with builds completing successfully.
+
+====================================================================
+
+OPEN ITEMS / NEXT STEPS
+
+   - Supply final photos for the "Coming Soon" executives and advisors.
+   - Provide real specialties / bios to replace placeholder copy where
+     noted.
+   - Connect the careers application form to the destination (email or HR
+     system) via the webhook setting.
+   - Decide whether the language selector should fully translate the site
+     (requires setting up internationalization) or remain a selector for
+     now.
+   - Provide real service-menu links and newsroom articles when
+     available.

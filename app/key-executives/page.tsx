@@ -24,20 +24,20 @@ const LEADERSHIP: Executive[] = [
     ],
   },
   {
-    name: "Don Cook",
+    name: "Linda Yang",
     title: "Vice President, Chief Financial Officer",
     comingSoon: true,
-    lead: "Don Cook is Vice President and Chief Financial Officer at Keybase Financial Group.",
+    lead: "Linda Yang is Vice President and Chief Financial Officer at Keybase Financial Group.",
     paragraphs: [
-      "Mr. Cook oversees the firm's financial management, reporting, and capital planning, ensuring a strong and disciplined financial foundation.",
-      "He brings extensive experience in finance and corporate strategy across the financial services industry, with a focus on stability, transparency, and responsible growth.",
-      "Mr. Cook is dedicated to maintaining the financial integrity that underpins the trust clients and advisors place in Keybase.",
+      "Ms. Yang oversees the firm's financial management, reporting, and capital planning, ensuring a strong and disciplined financial foundation.",
+      "She brings extensive experience in finance and corporate strategy across the financial services industry, with a focus on stability, transparency, and responsible growth.",
+      "Ms. Yang is dedicated to maintaining the financial integrity that underpins the trust clients and advisors place in Keybase.",
     ],
   },
   {
     name: "Keith Sutherland",
     title: "Vice President, System Development and Support",
-    comingSoon: true,
+    photo: "/keith-profile.jpg",
     lead: "Keith Sutherland is Vice President, System Development and Support at Keybase Financial Group.",
     paragraphs: [
       "Mr. Sutherland leads the firm's technology systems, development, and support, building the digital infrastructure that powers a modern advisory experience.",
@@ -48,7 +48,8 @@ const LEADERSHIP: Executive[] = [
   {
     name: "Krissy Sukhraj",
     title: "Director of Marketing & Corporate Strategy",
-    comingSoon: true,
+    photo: "/krissy-newprofile.jpg",
+    photoClassName: "scale-110",
     lead: "Krissy Sukhraj is Director of Marketing & Corporate Strategy at Keybase Financial Group.",
     paragraphs: [
       "Ms. Sukhraj shapes the firm's brand, client experience, and long-term strategic direction, connecting the Keybase story with the families and institutions it serves.",
@@ -72,7 +73,7 @@ const LEADERSHIP: Executive[] = [
   {
     name: "Pushpa Shivanthan",
     title: "Vice President, Back Office Administration",
-    comingSoon: true,
+    photo: "/pushpa-profile.jpg",
     lead: "Pushpa Shivanthan is Vice President, Back Office Administration at Keybase Financial Group.",
     paragraphs: [
       "Mr. Shivanthan leads the firm's back office and administrative operations, ensuring accurate, timely, and seamless support across every client and advisor interaction.",

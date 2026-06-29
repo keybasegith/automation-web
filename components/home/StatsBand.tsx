@@ -55,10 +55,22 @@ function useCountUp(target: number, active: boolean) {
   return value;
 }
 
-function Stat({ stat, active }: { stat: (typeof STATS)[number]; active: boolean }) {
+function Stat({
+  stat,
+  active,
+  index,
+}: {
+  stat: (typeof STATS)[number];
+  active: boolean;
+  index: number;
+}) {
   const count = useCountUp(stat.value, active);
   return (
-    <div className="lg:border-l lg:border-black/15 lg:pl-12">
+    <div
+      className="reveal lg:border-l lg:border-black/15 lg:pl-12"
+      data-shown={active}
+      style={{ transitionDelay: `${index * 120}ms` }}
+    >
       <div className="font-serif text-6xl font-normal leading-none tracking-tight text-[#0a1f33] sm:text-7xl">
         {stat.prefix && (
           <span className="align-top text-3xl sm:text-4xl">{stat.prefix}</span>
@@ -102,8 +114,8 @@ export default function StatsBand() {
   return (
     <section ref={sectionRef} className="bg-white">
       <div className="mx-auto grid max-w-[1280px] gap-y-12 px-5 pb-12 pt-20 sm:px-8 sm:pb-14 sm:pt-28 lg:grid-cols-3 lg:gap-x-16">
-        {STATS.map((stat) => (
-          <Stat key={stat.label} stat={stat} active={active} />
+        {STATS.map((stat, i) => (
+          <Stat key={stat.label} stat={stat} active={active} index={i} />
         ))}
       </div>
     </section>

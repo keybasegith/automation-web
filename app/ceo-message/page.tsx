@@ -92,6 +92,11 @@ export default function CeoMessagePage() {
 
             {/* Signature */}
             <div className="mt-12 border-t border-black/10 pt-8">
+              <img
+                src="/dax-signature.jpg"
+                alt="Dax Sukhraj signature"
+                className="mb-4 h-20 w-auto"
+              />
               <p className="font-serif text-[28px] font-normal italic text-[#0a1f33]">
                 Dax Sukhraj
               </p>

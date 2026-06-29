@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowRight, Check, MapPin, Briefcase } from "lucide-react";
+import { ArrowRight, Check, MapPin, Briefcase, Upload, FileText, X } from "lucide-react";
 
 type Role = {
   title: string;
@@ -73,7 +73,6 @@ type FormState = {
   email: string;
   phone: string;
   position: string;
-  resumeLink: string;
   linkedin: string;
   message: string;
   consent: boolean;
@@ -85,13 +84,23 @@ const INITIAL: FormState = {
   email: "",
   phone: "",
   position: "",
-  resumeLink: "",
   linkedin: "",
   message: "",
   consent: false,
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const MAX_RESUME_BYTES = 5 * 1024 * 1024;
+const RESUME_EXT_RE = /\.(pdf|doc|docx)$/i;
+const RESUME_ACCEPT =
+  ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+const formatBytes = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 const fieldClass =
   "w-full border border-black/15 bg-white px-4 py-3 text-[15px] text-[#1a2433] outline-none transition-colors placeholder:text-[#9aa3ad] focus:border-[#0a1f33]";
@@ -100,6 +109,8 @@ const labelClass =
 
 export default function Careers() {
   const [form, setForm] = useState<FormState>(INITIAL);
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [dragging, setDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -107,6 +118,26 @@ export default function Careers() {
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
+  };
+
+  const acceptFile = (file?: File | null) => {
+    if (!file) return;
+    if (!RESUME_EXT_RE.test(file.name)) {
+      setError("Please upload a PDF or Word document.");
+      return;
+    }
+    if (file.size > MAX_RESUME_BYTES) {
+      setError("Your resume must be 5MB or smaller.");
+      return;
+    }
+    setError(null);
+    setResumeFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setDragging(false);
+    acceptFile(e.dataTransfer.files?.[0]);
   };
 
   const applyFor = (title: string) => {
@@ -130,9 +161,9 @@ export default function Careers() {
       setError("Please select the role you're applying for.");
       return;
     }
-    if (!form.resumeLink.trim() && !form.message.trim()) {
+    if (!resumeFile && !form.message.trim()) {
       setError(
-        "Please add a resume link or a short note about your background.",
+        "Please attach your resume or add a short note about your background.",
       );
       return;
     }
@@ -143,10 +174,20 @@ export default function Careers() {
 
     setSubmitting(true);
     try {
+      const fd = new FormData();
+      fd.append("firstName", form.firstName.trim());
+      fd.append("lastName", form.lastName.trim());
+      fd.append("email", form.email.trim());
+      fd.append("phone", form.phone.trim());
+      fd.append("position", form.position.trim());
+      fd.append("linkedin", form.linkedin.trim());
+      fd.append("message", form.message.trim());
+      fd.append("consent", String(form.consent));
+      if (resumeFile) fd.append("resume", resumeFile);
+
       const res = await fetch("/api/careers", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: fd,
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -343,33 +384,85 @@ export default function Careers() {
                 </select>
               </div>
 
-              <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="resumeLink" className={labelClass}>
-                    Resume link
+              <div className="mt-5">
+                <span className={labelClass}>Resume</span>
+                {resumeFile ? (
+                  <div className="flex items-center gap-3 border border-black/15 bg-[#f7f9fa] px-4 py-3">
+                    <FileText
+                      className="h-5 w-5 flex-shrink-0 text-[#006d6e]"
+                      strokeWidth={1.75}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[14px] font-medium text-[#1a2433]">
+                        {resumeFile.name}
+                      </p>
+                      <p className="text-[12px] text-[#9aa3ad]">
+                        {formatBytes(resumeFile.size)}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setResumeFile(null)}
+                      aria-label="Remove resume"
+                      className="flex-shrink-0 rounded p-1 text-[#9aa3ad] transition-colors hover:bg-black/5 hover:text-[#1a2433]"
+                    >
+                      <X className="h-4 w-4" strokeWidth={2} />
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="resume"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragging(true);
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      setDragging(false);
+                    }}
+                    onDrop={handleDrop}
+                    className={`flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed px-4 py-8 text-center transition-colors ${
+                      dragging
+                        ? "border-[#0a1f33] bg-[#eef3f6]"
+                        : "border-black/25 bg-white hover:border-[#0a1f33] hover:bg-[#f7f9fa]"
+                    }`}
+                  >
+                    <Upload
+                      className="h-6 w-6 text-[#9aa3ad]"
+                      strokeWidth={1.75}
+                    />
+                    <span className="text-[14px] text-[#5b6573]">
+                      <span className="font-semibold text-[#0a1f33]">
+                        Click to upload
+                      </span>{" "}
+                      or drag and drop
+                    </span>
+                    <span className="text-[12px] text-[#9aa3ad]">
+                      PDF or Word · up to 5MB
+                    </span>
+                    <input
+                      id="resume"
+                      type="file"
+                      accept={RESUME_ACCEPT}
+                      className="sr-only"
+                      onChange={(e) => acceptFile(e.target.files?.[0])}
+                    />
                   </label>
-                  <input
-                    id="resumeLink"
-                    type="url"
-                    value={form.resumeLink}
-                    onChange={(e) => update("resumeLink", e.target.value)}
-                    className={fieldClass}
-                    placeholder="Google Drive, Dropbox, etc."
-                  />
-                </div>
-                <div>
-                  <label htmlFor="linkedin" className={labelClass}>
-                    LinkedIn / Portfolio
-                  </label>
-                  <input
-                    id="linkedin"
-                    type="url"
-                    value={form.linkedin}
-                    onChange={(e) => update("linkedin", e.target.value)}
-                    className={fieldClass}
-                    placeholder="linkedin.com/in/…"
-                  />
-                </div>
+                )}
+              </div>
+
+              <div className="mt-5">
+                <label htmlFor="linkedin" className={labelClass}>
+                  LinkedIn / Portfolio
+                </label>
+                <input
+                  id="linkedin"
+                  type="url"
+                  value={form.linkedin}
+                  onChange={(e) => update("linkedin", e.target.value)}
+                  className={fieldClass}
+                  placeholder="linkedin.com/in/…"
+                />
               </div>
 
               <div className="mt-5">

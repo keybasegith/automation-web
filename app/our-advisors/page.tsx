@@ -36,6 +36,17 @@ const TEAM: Member[] = [
     href: "/businesscard-darko",
   },
   {
+    name: "Jaxon Keelan",
+    title: "Financial Advisor",
+    photo: "/jaxon-newprofile.jpg",
+    email: "jkeelan@keybase.com",
+    phone: "905-709-7911",
+    specialties: [
+      "Providing personalized investment strategies for long-term financial growth and security",
+    ],
+    href: "/businesscard-jaxon",
+  },
+  {
     name: "Neil Alford",
     title: "Financial & Insurance Advisor",
     photo: "/neil-profile-background.jpg",

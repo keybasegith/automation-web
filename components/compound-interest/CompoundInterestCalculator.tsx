@@ -21,9 +21,9 @@ import {
 
 // Palette mapped onto the Keybase design tokens.
 const C = {
-  brand: "#006d6e",
-  brandHover: "#00585a",
-  brandSoft: "#e6f1f1",
+  brand: "#0a1f33", // Keybase navy
+  brandHover: "#0e2a45",
+  brandSoft: "#e6ecf2",
   ink: "#0f172a", // slate-900
   inkSoft: "#475569", // slate-600
   muted: "#64748b", // slate-500
@@ -32,9 +32,9 @@ const C = {
   lineSoft: "#f1f5f9", // slate-100
   white: "#ffffff",
   // Chart / accent series
-  balance: "#006d6e", // brand teal
+  balance: "#0a1f33", // brand navy
   contrib: "#94a3b8", // slate
-  green: "#15803d",
+  green: "#3f6f9f", // steel-blue positive accent (kept name for semantic role)
   red: "#b91c1c",
 };
 
@@ -216,7 +216,7 @@ function InputSlider({
   const pct = ((value - min) / (max - min)) * 100;
 
   return (
-    <div className="mb-5">
+    <div className="mb-4">
       <div className="mb-1.5 flex items-center justify-between">
         <label className="flex items-center text-[13px] font-medium text-slate-700">
           {label}
@@ -256,7 +256,7 @@ function InputSlider({
           className="absolute left-0 h-1.5 rounded-full transition-[width] duration-150"
           style={{
             width: `${pct}%`,
-            background: `linear-gradient(90deg, ${C.brand}, #0a8a8c)`,
+            background: `linear-gradient(90deg, ${C.brand}, #2c4a72)`,
           }}
         />
         <input
@@ -300,7 +300,7 @@ function SegmentedControl({ options, value, onChange }: SegmentedControlProps) {
             onClick={() => onChange(opt.value)}
             className={`flex-1 rounded-lg px-1.5 py-2 text-[12px] transition ${
               active
-                ? "bg-brand font-semibold text-white shadow-sm"
+                ? "bg-[#0a1f33] font-semibold text-white shadow-sm"
                 : "font-medium text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -536,7 +536,7 @@ function MiniChart({ data, width, height, showInflation, showTax }: MiniChartPro
               ry="10"
               fill={C.ink}
             />
-            <text x="12" y="20" fontSize="11" fontWeight="700" fill="#7dd3d4" fontFamily={tipFont} letterSpacing="0.06em">
+            <text x="12" y="20" fontSize="11" fontWeight="700" fill="#9db8d6" fontFamily={tipFont} letterSpacing="0.06em">
               YEAR {hd.year}
             </text>
             <line x1="12" y1="27" x2="148" y2="27" stroke="rgba(255,255,255,0.14)" strokeWidth="1" />
@@ -581,10 +581,10 @@ interface StatCardProps {
 function StatCard({ label, value, subValue, accent, icon }: StatCardProps) {
   return (
     <div
-      className="flex-1 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-      style={{ minWidth: 160, borderLeft: `3px solid ${accent}` }}
+      className="flex-1 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+      style={{ minWidth: 150, borderLeft: `3px solid ${accent}` }}
     >
-      <div className="mb-2 flex items-center gap-2">
+      <div className="mb-1.5 flex items-center gap-2">
         <span
           className="flex h-7 w-7 items-center justify-center rounded-lg"
           style={{ background: `${accent}1a`, color: accent }}
@@ -595,7 +595,7 @@ function StatCard({ label, value, subValue, accent, icon }: StatCardProps) {
           {label}
         </span>
       </div>
-      <div className="text-2xl font-semibold tracking-tight text-slate-900 tabular-nums">
+      <div className="text-xl font-semibold tracking-tight text-slate-900 tabular-nums">
         {value}
       </div>
       {subValue && <div className="mt-1 text-[11px] text-slate-400">{subValue}</div>}
@@ -619,7 +619,7 @@ function MilestoneTracker({ data, milestones }: MilestoneTrackerProps) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
-        <Flag className="h-4 w-4 text-brand" />
+        <Flag className="h-4 w-4 text-[#0a1f33]" />
         Milestone Tracker
       </h3>
       <div className="flex flex-col gap-3">
@@ -673,7 +673,7 @@ function YearlyTable({ data, showInflation, showTax }: YearlyTableProps) {
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 px-5 py-4">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-          <TableIcon className="h-4 w-4 text-brand" />
+          <TableIcon className="h-4 w-4 text-[#0a1f33]" />
           Year by Year Breakdown
         </h3>
       </div>
@@ -733,7 +733,7 @@ function YearlyTable({ data, showInflation, showTax }: YearlyTableProps) {
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="w-full bg-slate-50 py-3 text-xs font-semibold tracking-wide text-brand transition hover:bg-slate-100"
+          className="w-full bg-slate-50 py-3 text-xs font-semibold tracking-wide text-[#0a1f33] transition hover:bg-slate-100"
         >
           {expanded ? "Show less" : `Show all ${data.length} years`}
         </button>
@@ -788,7 +788,7 @@ export default function CompoundInterestCalculator() {
   return (
     <div>
       {/* Stats Row */}
-      <div className="mb-6 flex flex-wrap gap-3">
+      <div className="mb-4 flex flex-wrap gap-3">
         <StatCard
           label="Total Balance"
           value={formatCurrency(finalData.balance)}
@@ -813,10 +813,10 @@ export default function CompoundInterestCalculator() {
       </div>
 
       {/* Two Column Layout */}
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(280px,360px)_1fr]">
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(260px,340px)_1fr]">
         {/* Left: Inputs */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-5 text-sm font-semibold text-slate-900">Your Inputs</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-sm font-semibold text-slate-900">Your Inputs</h2>
 
           <InputSlider label="Initial Investment" value={principal} onChange={setPrincipal} min={0} max={2000000} step={1000} prefix="$" tooltip="The starting amount you invest today" />
           <InputSlider label="Monthly Contribution" value={monthlyContrib} onChange={setMonthlyContrib} min={0} max={50000} step={50} prefix="$" tooltip="How much you add each month" />
@@ -850,7 +850,7 @@ export default function CompoundInterestCalculator() {
         </div>
 
         {/* Right: Results */}
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4">
           {/* Chart / Table Toggle */}
           <div className="flex gap-2">
             {(["chart", "table"] as const).map((tab) => {
@@ -862,7 +862,7 @@ export default function CompoundInterestCalculator() {
                   onClick={() => setActiveTab(tab)}
                   className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-semibold transition ${
                     active
-                      ? "border-brand bg-white text-slate-900 shadow-sm"
+                      ? "border-[#0a1f33] bg-white text-slate-900 shadow-sm"
                       : "border-slate-200 bg-transparent text-slate-500 hover:text-slate-700"
                   }`}
                 >
@@ -881,7 +881,7 @@ export default function CompoundInterestCalculator() {
           </div>
 
           {activeTab === "chart" && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               {/* Legend */}
               <div className="mb-3 flex flex-wrap gap-4 pl-2">
                 <div className="flex items-center gap-1.5">
@@ -905,7 +905,7 @@ export default function CompoundInterestCalculator() {
                   </div>
                 )}
               </div>
-              <MiniChart data={data} width={560} height={320} showInflation={showInflation} showTax={showTax} />
+              <MiniChart data={data} width={560} height={260} showInflation={showInflation} showTax={showTax} />
             </div>
           )}
 
@@ -919,25 +919,25 @@ export default function CompoundInterestCalculator() {
           {/* Insight Cards */}
           <div className="grid grid-cols-2 gap-3">
             <div
-              className="rounded-2xl p-5 text-white"
+              className="rounded-2xl p-4 text-white"
               style={{ background: `linear-gradient(135deg, ${C.brand}, ${C.brandHover})` }}
             >
               <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/70">
                 Power of Compounding
               </div>
-              <div className="text-2xl font-semibold tracking-tight tabular-nums">
+              <div className="text-xl font-semibold tracking-tight tabular-nums">
                 {((finalData.interest / Math.max(finalData.contributions - principal, 1)) * 100).toFixed(0)}%
               </div>
               <div className="mt-1 text-[11px] text-white/60">Return on your contributions</div>
             </div>
             <div
-              className="rounded-2xl p-5 text-white"
+              className="rounded-2xl p-4 text-white"
               style={{ background: `linear-gradient(135deg, ${C.brand}, ${C.brandHover})` }}
             >
               <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/70">
                 Effective Monthly Income
               </div>
-              <div className="text-2xl font-semibold tracking-tight tabular-nums">
+              <div className="text-xl font-semibold tracking-tight tabular-nums">
                 {formatCurrency((finalData.balance * (annualRate / 100)) / 12)}
               </div>
               <div className="mt-1 text-[11px] text-white/60">
@@ -968,7 +968,7 @@ export default function CompoundInterestCalculator() {
 
       {/* Footer Disclaimer */}
       <div
-        className="mt-10 rounded-xl bg-slate-900/[0.03] px-6 py-5"
+        className="mt-6 rounded-xl bg-slate-900/[0.03] px-6 py-4"
         style={{ borderLeft: `3px solid ${C.faint}` }}
       >
         <p className="m-0 text-[11px] leading-relaxed text-slate-500">

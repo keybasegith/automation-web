@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Search, Menu, X, ChevronDown, Globe, Check } from "lucide-react";
@@ -26,11 +26,11 @@ const SERVICES_MENU: ServiceColumn[] = [
     groups: [
       {
         links: [
-          { label: "Education Planning", href: S },
-          { label: "Estate Planning", href: S },
-          { label: "Retirement Planning", href: S },
-          { label: "Tax Planning", href: S },
-          { label: "Wealth Building", href: S },
+          { label: "Education Planning", href: "/education-planning" },
+          { label: "Estate Planning", href: "/estate-planning" },
+          { label: "Retirement Planning", href: "/retirement-planning" },
+          { label: "Tax Planning", href: "/tax-planning" },
+          { label: "Wealth Building", href: "/wealth-building" },
         ],
       },
     ],
@@ -93,7 +93,6 @@ const NAV: NavItem[] = [
     label: "Our Team",
     children: [
       { label: "Key Executives", href: "/key-executives" },
-      { label: "Our Advisors", href: "/our-advisors" },
     ],
   },
   { label: "Our Services", mega: SERVICES_MENU },
@@ -107,6 +106,19 @@ export default function SiteHeader() {
   const [openMobileMenu, setOpenMobileMenu] = useState<string | null>(null);
   const [lang, setLang] = useState("EN");
   const [langOpen, setLangOpen] = useState(false);
+
+  // The mega menu sits below the header, leaving a small gap between the
+  // trigger and the panel. Close on a short delay so moving the pointer across
+  // that gap into the panel doesn't dismiss the menu.
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openMenuNow = (label: string) => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setOpenMenu(label);
+  };
+  const closeMenuSoon = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setOpenMenu(null), 120);
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/10 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
@@ -129,8 +141,8 @@ export default function SiteHeader() {
               <div
                 key={item.label}
                 className="static"
-                onMouseEnter={() => setOpenMenu(item.label)}
-                onMouseLeave={() => setOpenMenu(null)}
+                onMouseEnter={() => openMenuNow(item.label)}
+                onMouseLeave={closeMenuSoon}
               >
                 <button
                   type="button"

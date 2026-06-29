@@ -1,0 +1,41 @@
+keyweb.ca API connectivity test
+Run at: 2026-06-29 19:05:58 UTC
+Tool: curl 8.7.1
+========================================================
+
+$ curl -i https://keyweb.ca/api/api_call.aspx
+HTTP/2 525 
+date: Mon, 29 Jun 2026 19:06:00 GMT
+content-type: text/plain; charset=UTF-8
+content-length: 16
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+server: cloudflare
+cf-ray: a13734b96c54ccd9-YYZ
+alt-svc: h3=":443"; ma=86400
+
+error code: 525
+
+--------------------------------------------------------
+$ curl -i https://keyweb.ca/   (the main homepage, for comparison)
+HTTP/2 525 
+date: Mon, 29 Jun 2026 19:06:01 GMT
+content-type: text/plain; charset=UTF-8
+content-length: 16
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+server: cloudflare
+cf-ray: a13734be8d6561e8-YYZ
+alt-svc: h3=":443"; ma=86400
+
+error code: 525
+
+========================================================
+Note: 521 / 525 are Cloudflare origin errors. Cloudflare
+(the front-facing layer) responded, but the keyweb origin
+server did not. The same error occurs on the homepage,
+confirming the origin server is down -- not the request.

@@ -8,6 +8,7 @@ export type Executive = {
   name: string;
   title: string;
   photo?: string;
+  photoClassName?: string;
   comingSoon?: boolean;
   ceoMessage?: boolean;
   lead: string;
@@ -22,22 +23,42 @@ export default function KeyExecutives({ people }: { people: Executive[] }) {
 
   // Split into rows so the expanded bio can drop directly beneath the row that
   // contains the selected person — not at the bottom of the whole grid.
+  // The first person (CEO) gets a row to themselves; everyone else flows in
+  // rows of ROW_SIZE.
   const rows: Executive[][] = [];
-  for (let i = 0; i < people.length; i += ROW_SIZE) {
-    rows.push(people.slice(i, i + ROW_SIZE));
+  if (people.length > 0) {
+    rows.push([people[0]]);
+    for (let i = 1; i < people.length; i += ROW_SIZE) {
+      rows.push(people.slice(i, i + ROW_SIZE));
+    }
   }
+
+  // Cumulative start index of each row, so portrait/bio lookups stay correct
+  // even though rows have different lengths.
+  let acc = 0;
+  const rowStarts = rows.map((row) => {
+    const start = acc;
+    acc += row.length;
+    return start;
+  });
 
   return (
     <div className="space-y-8 sm:space-y-12">
       {rows.map((row, rowIndex) => {
-        const rowStart = rowIndex * ROW_SIZE;
+        const rowStart = rowStarts[rowIndex];
         const activeInRow =
           active !== null && active >= rowStart && active < rowStart + row.length;
 
         return (
           <div key={rowIndex}>
             {/* Portrait row */}
-            <div className="grid grid-cols-3 gap-4 sm:gap-8 lg:gap-12">
+            <div
+              className={
+                row.length === 1
+                  ? "flex justify-center"
+                  : "grid grid-cols-3 gap-4 sm:gap-8 lg:gap-12"
+              }
+            >
               {row.map((exec, j) => {
                 const i = rowStart + j;
                 const open = active === i;
@@ -63,7 +84,7 @@ export default function KeyExecutives({ people }: { people: Executive[] }) {
                         <img
                           src={exec.photo}
                           alt={`${exec.name} portrait`}
-                          className="aspect-[6/7] w-full object-cover object-top"
+                          className={`aspect-[6/7] w-full object-cover object-top ${exec.photoClassName ?? ""}`}
                         />
                       )}
                     </span>
