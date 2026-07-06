@@ -16,10 +16,6 @@ type NavItem = {
   mega?: ServiceColumn[];
 };
 
-// All service links currently point at the on-page services section until
-// dedicated pages exist.
-const S = "/#what-we-do";
-
 const SERVICES_MENU: ServiceColumn[] = [
   {
     title: "Wealth Planning",
@@ -41,19 +37,19 @@ const SERVICES_MENU: ServiceColumn[] = [
       {
         heading: "Plans",
         links: [
-          { label: "Non-Registered Investments", href: S },
-          { label: "Registered Disability Savings Plan (RDSP)", href: S },
-          { label: "Registered Education Savings Plan (RESP)", href: S },
-          { label: "Registered Retirement Savings Plan (RRSP)", href: S },
-          { label: "Tax-Free Savings Account (TFSA)", href: S },
-          { label: "First Home Savings Account (FHSA)", href: S },
+          { label: "Non-Registered Investments", href: "/non-registered-investments" },
+          { label: "Registered Disability Savings Plan (RDSP)", href: "/rdsp" },
+          { label: "Registered Education Savings Plan (RESP)", href: "/resp" },
+          { label: "Registered Retirement Savings Plan (RRSP)", href: "/rrsp" },
+          { label: "Tax-Free Savings Account (TFSA)", href: "/tfsa" },
+          { label: "First Home Savings Account (FHSA)", href: "/fhsa" },
         ],
       },
       {
         heading: "Products",
         links: [
-          { label: "Traditional Investments", href: S },
-          { label: "Alternative Investments", href: S },
+          { label: "Traditional Investments", href: "/traditional-investments" },
+          { label: "Alternative Investments", href: "/alternative-investments" },
         ],
       },
     ],
@@ -63,9 +59,9 @@ const SERVICES_MENU: ServiceColumn[] = [
     groups: [
       {
         links: [
-          { label: "Insurance", href: S },
-          { label: "Travel Insurance", href: S },
-          { label: "Segregated Funds", href: S },
+          { label: "Insurance", href: "/insurance" },
+          { label: "Travel Insurance", href: "/travel-insurance" },
+          { label: "Segregated Funds", href: "/segregated-funds" },
         ],
       },
     ],

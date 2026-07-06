@@ -42,7 +42,7 @@ export default function TaxPlanningPage() {
           aria-hidden
         />
 
-        <div className="relative mx-auto max-w-[1280px] px-5 pb-20 pt-28 sm:px-8 sm:pb-28 sm:pt-40">
+        <div className="relative mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
           {/* Breadcrumb */}
           <nav
             aria-label="Breadcrumb"
