@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Menu, X, ChevronDown, Globe, Check } from "lucide-react";
+import { Search, Menu, X, ChevronDown, Globe, Check, Lock, UserRound, ArrowRight } from "lucide-react";
 
 type ServiceLink = { label: string; href: string };
 type ServiceGroup = { heading?: string; links: ServiceLink[] };
@@ -117,7 +117,51 @@ export default function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/10 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <>
+      {/* ---------- Top utility bar ---------- */}
+      <div className="bg-[#0a1420] text-white">
+        <div className="mx-auto flex h-[44px] max-w-[1280px] items-center justify-between gap-4 px-5 sm:px-8">
+          {/* Left: advisor recruitment promo */}
+          <Link
+            href="/become-an-advisor"
+            className="flex min-w-0 items-center gap-2 text-[13px] sm:text-[14px]"
+          >
+            <span className="truncate">
+              <span className="hidden sm:inline">Join our team. </span>
+              Are you ready to grow your business?
+            </span>
+            <span className="hidden items-center gap-1 font-medium text-[#5ed3c6] transition-colors hover:text-[#8ce6dc] sm:flex">
+              Find out more
+              <ArrowRight className="h-4 w-4" strokeWidth={2} />
+            </span>
+          </Link>
+
+          {/* Right: access portals */}
+          <div className="flex shrink-0 items-center gap-3 sm:gap-4">
+            <a
+              href="https://winvestor.keybase.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-[13px] font-medium transition-colors hover:text-[#5ed3c6] sm:text-[14px]"
+            >
+              <Lock className="h-4 w-4" strokeWidth={2} />
+              <span className="whitespace-nowrap">Client Access</span>
+            </a>
+            <span className="h-4 w-px bg-white/25" aria-hidden="true" />
+            <a
+              href="https://www.keyweb.ca"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-[13px] font-medium transition-colors hover:text-[#5ed3c6] sm:text-[14px]"
+            >
+              <UserRound className="h-4 w-4" strokeWidth={2} />
+              <span className="whitespace-nowrap">Advisor Access</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <header className="sticky top-0 z-50 border-b border-black/10 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <div className="mx-auto flex h-[68px] max-w-[1280px] items-center justify-between gap-6 px-5 sm:px-8">
         <Link href="/" aria-label="Keybase Financial Group home" className="flex items-center">
           <Image
@@ -473,5 +517,6 @@ export default function SiteHeader() {
         </div>
       )}
     </header>
+    </>
   );
 }

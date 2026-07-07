@@ -1,32 +1,34 @@
 import Image from "next/image";
 import Link from "next/link";
+import ComplaintHandlingProcess from "./ComplaintHandlingProcess";
+import PrivacyPolicy from "./PrivacyPolicy";
 
 const COLUMNS: { heading: string; links: { label: string; href: string }[] }[] = [
   {
     heading: "What We Do",
     links: [
-      { label: "Wealth Management", href: "#what-we-do" },
-      { label: "Investment Advisory", href: "#what-we-do" },
-      { label: "Retirement & Estate", href: "#what-we-do" },
-      { label: "Insurance Solutions", href: "#what-we-do" },
+      { label: "Wealth Management", href: "/wealth-building" },
+      { label: "Investment Advisory", href: "/traditional-investments" },
+      { label: "Retirement & Estate", href: "/retirement-planning" },
+      { label: "Insurance Solutions", href: "/insurance" },
     ],
   },
   {
     heading: "Our Firm",
     links: [
-      { label: "About Keybase", href: "#our-firm" },
-      { label: "Our Approach", href: "#our-firm" },
-      { label: "Leadership", href: "#our-firm" },
-      { label: "Insights", href: "#insights" },
+      { label: "About Keybase", href: "/about" },
+      { label: "Our Approach", href: "/ceo-message" },
+      { label: "Leadership", href: "/key-executives" },
+      { label: "Insights", href: "/newsroom" },
     ],
   },
   {
     heading: "Connect",
     links: [
       { label: "Contact Us", href: "/contact" },
-      { label: "Careers", href: "#careers" },
+      { label: "Careers", href: "/careers" },
       { label: "Book a Meeting", href: "/contact" },
-      { label: "Insights", href: "#insights" },
+      { label: "Insights", href: "/newsroom" },
     ],
   },
 ];
@@ -130,9 +132,8 @@ export default function SiteFooter() {
           <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
             <p>© {new Date().getFullYear()} Keybase Financial Group. All rights reserved.</p>
             <div className="flex flex-wrap gap-x-6 gap-y-2">
-              <Link href="#" className="font-semibold text-[#1a2433] hover:text-[#006d6e]">
-                Privacy Policy
-              </Link>
+              <ComplaintHandlingProcess />
+              <PrivacyPolicy />
               <Link href="#" className="font-semibold text-[#1a2433] hover:text-[#006d6e]">
                 Terms of Use
               </Link>
@@ -140,6 +141,15 @@ export default function SiteFooter() {
                 Disclosures
               </Link>
             </div>
+          </div>
+          <div className="flex justify-end pt-2">
+            <Image
+              src="/CIRO_Logo.jpg"
+              alt="Canadian Investment Regulatory Organization (CIRO)"
+              width={320}
+              height={120}
+              className="h-12 w-auto"
+            />
           </div>
         </div>
       </div>
