@@ -23,15 +23,6 @@ export default function ComplaintHandlingProcess() {
         </a>
         .
       </p>
-      <p>
-        <span className="font-semibold text-[#1a2433]">
-          Client Complaint Information Form:
-        </span>{" "}
-        We also provide new clients and clients who complain about separate
-        information [or &ldquo;separate documents&rdquo;] called the Client
-        Complaint Information Form (&ldquo;CCIF&rdquo;) that provides general
-        information about their options for making a complaint.
-      </p>
 
       <div>
         <h3 className={heading}>The Client Complaint Information Form</h3>
@@ -132,8 +123,8 @@ export default function ComplaintHandlingProcess() {
         <p className="mt-2 flex gap-1.5">
           <sup>2</sup>
           <span>
-            As defined in the Policies of the Mutual Fund Dealers Association of
-            Canada of which Keybase Financial Group Inc. is a Member.
+            As defined in the Policies of the CIRO of which Keybase Financial
+            Group Inc. is a Member.
           </span>
         </p>
       </div>
