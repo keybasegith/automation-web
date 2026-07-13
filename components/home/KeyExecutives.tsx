@@ -19,7 +19,7 @@ export type Executive = {
 const ROW_SIZE = 3;
 
 export default function KeyExecutives({ people }: { people: Executive[] }) {
-  const [active, setActive] = useState<number | null>(0);
+  const [active, setActive] = useState<number | null>(null);
 
   // Split into rows so the expanded bio can drop directly beneath the row that
   // contains the selected person — not at the bottom of the whole grid.

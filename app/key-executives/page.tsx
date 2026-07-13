@@ -37,7 +37,7 @@ const LEADERSHIP: Executive[] = [
   {
     name: "Keith Sutherland",
     title: "Vice President, System Development and Support",
-    photo: "/keith-profile.jpg",
+    photo: "/keith-profile2.jpg",
     lead: "Keith Sutherland is Vice President, System Development and Support at Keybase Financial Group.",
     paragraphs: [
       "Mr. Sutherland leads the firm's technology systems, development, and support, building the digital infrastructure that powers a modern advisory experience.",
@@ -73,7 +73,7 @@ const LEADERSHIP: Executive[] = [
   {
     name: "Pushpa Shivanthan",
     title: "Vice President, Back Office Administration",
-    photo: "/pushpa-profile.jpg",
+    photo: "/pushpa-profile2.jpg",
     lead: "Pushpa Shivanthan is Vice President, Back Office Administration at Keybase Financial Group.",
     paragraphs: [
       "Mr. Shivanthan leads the firm's back office and administrative operations, ensuring accurate, timely, and seamless support across every client and advisor interaction.",
@@ -84,7 +84,7 @@ const LEADERSHIP: Executive[] = [
   {
     name: "Jerome Pare",
     title: "Senior I.T. Specialist",
-    comingSoon: true,
+    photo: "/jerome-profile.jpg",
     lead: "Jerome Pare is Senior I.T. Specialist at Keybase Financial Group.",
     paragraphs: [
       "Mr. Pare supports the firm's information technology systems, ensuring secure, reliable, and responsive infrastructure across the organization.",

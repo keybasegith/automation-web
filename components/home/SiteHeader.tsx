@@ -89,6 +89,7 @@ const NAV: NavItem[] = [
     label: "Our Team",
     children: [
       { label: "Key Executives", href: "/key-executives" },
+      { label: "Our Advisors", href: "/our-advisors" },
     ],
   },
   { label: "Our Services", mega: SERVICES_MENU },
