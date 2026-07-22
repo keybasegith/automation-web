@@ -1,0 +1,8 @@
+Wire Order #,Dealer,Currency,Fund #,Plan ID,Trust Transaction Date,Trust Settled Date,Transaction Type,Amount,Bank Code,Transaction Status,Settlement Status
+O1001,9744,CAD,123,P500,2026-07-06,2026-07-07,Deposit,"5,000.00",001,Not Settled,Not Settled
+W9999,9744,CAD,456,P600,2026-07-06,2026-07-07,Deposit,"2,500.00",001,Not Settled,Not Settled
+O1003,9744,CAD,123,P510,2026-07-06,2026-07-07,Deposit,"4,950.00",001,Not Settled,Not Settled
+O1004,9744,CAD,123,P520,2026-07-06,2026-07-07,Deposit,"1,000.00",,Not Settled,Not Settled
+WA05,9744,CAD,789,P700,2026-07-06,2026-07-07,Deposit,"1,000.00",001,Not Settled,Not Settled
+WB05,9744,CAD,789,P700,2026-07-06,2026-07-07,Deposit,"2,000.00",001,Not Settled,Not Settled
+W1007,9744,CAD,555,P900,2026-07-06,2026-07-07,Deposit,"600.00",001,Not Settled,Not Settled

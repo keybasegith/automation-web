@@ -1,0 +1,12 @@
+[
+  {
+    "rep_code": "1234",
+    "advisor_name": "Jane Doe",
+    "email": "jdoe@firm.example"
+  },
+  {
+    "rep_code": "5678",
+    "advisor_name": "John Smith",
+    "email": "jsmith@firm.example"
+  }
+]
