@@ -33,7 +33,8 @@ export default function PdfViewer({ src }: Props) {
         if (cancelled || !container) return;
 
         container.replaceChildren();
-        const containerWidth = container.clientWidth;
+        const containerWidth =
+          container.clientWidth || Math.min(window.innerWidth, 900);
         const dpr = Math.min(window.devicePixelRatio || 1, 3);
 
         for (let i = 1; i <= doc.numPages; i++) {
@@ -102,11 +103,9 @@ export default function PdfViewer({ src }: Props) {
           </a>
         </div>
       ) : null}
-      <div
-        ref={containerRef}
-        className="mx-auto w-full max-w-[900px]"
-        style={{ display: status === "ready" ? "block" : "none" }}
-      />
+      {/* Always laid out (never display:none) so clientWidth is measurable
+          while the PDF renders; it is empty until pages are appended. */}
+      <div ref={containerRef} className="mx-auto w-full max-w-[900px]" />
     </main>
   );
 }
