@@ -16,6 +16,8 @@ import {
 import type { ExecutiveItem, ExecutivesContent } from "@/lib/cms/types";
 import { randomId } from "@/lib/cms/id";
 import { useCmsDoc } from "@/components/admin/cms/useCmsDoc";
+import { uploadMediaFile } from "@/components/admin/cms/uploadMedia";
+import { resolveMediaRef } from "@/lib/cms/media/url";
 import { ToastProvider, useToast } from "@/components/admin/cms/Toast";
 import PublishBar from "@/components/admin/cms/PublishBar";
 
@@ -218,14 +220,11 @@ function ExecCard({
   async function upload(file: File) {
     setUploading(true);
     try {
-      const body = new FormData();
-      body.append("file", file);
-      const res = await fetch("/api/website-admin-cms/media", { method: "POST", body });
-      const data = await res.json();
-      if (res.ok) onChange({ photoUrl: data.item?.fileUrl ?? data.url, comingSoon: false });
-      else toast.error(data?.error ?? "Upload failed.");
-    } catch {
-      toast.error("Upload failed.");
+      // Content stores the object-storage KEY; URLs are attached at render.
+      const item = await uploadMediaFile(file);
+      onChange({ photoUrl: item.fileKey, comingSoon: false });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed.");
     } finally {
       setUploading(false);
     }
@@ -291,7 +290,7 @@ function ExecCard({
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={exec.photoUrl}
+              src={resolveMediaRef(exec.photoUrl) ?? undefined}
               alt={exec.name}
               className={`h-full w-full object-cover object-top ${exec.photoClass ?? ""}`}
             />

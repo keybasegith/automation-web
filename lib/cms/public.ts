@@ -1,4 +1,5 @@
 import { draftMode } from "next/headers";
+import { resolveMediaRef } from "@/lib/cms/media/url";
 import { readDoc, readPublished } from "@/lib/cms/store";
 import type { CmsResource } from "@/lib/cms/types";
 import {
@@ -61,11 +62,19 @@ async function readView<T>(resource: CmsResource, seed: () => T): Promise<T> {
 }
 
 export async function getPublishedGlobalSettings(): Promise<GlobalSettings> {
-  try {
-    return await readPublished("global-settings", seedGlobalSettings);
-  } catch {
-    return seedGlobalSettings();
-  }
+  const settings = await (async () => {
+    try {
+      return await readPublished("global-settings", seedGlobalSettings);
+    } catch {
+      return seedGlobalSettings();
+    }
+  })();
+  return {
+    ...settings,
+    logoUrl: resolveMediaRef(settings.logoUrl) ?? settings.logoUrl,
+    defaultSocialImage:
+      resolveMediaRef(settings.defaultSocialImage) ?? settings.defaultSocialImage,
+  };
 }
 
 export async function getPublishedFooter(): Promise<FooterContent> {
@@ -86,11 +95,20 @@ export async function getPublishedNavigation(): Promise<NavContent> {
 
 /** All published executives, in order, including hidden ones. */
 export async function getPublishedExecutivesContent(): Promise<ExecutivesContent> {
-  try {
-    return await readPublished("executives", seedExecutives);
-  } catch {
-    return seedExecutives();
-  }
+  const content = await (async () => {
+    try {
+      return await readPublished("executives", seedExecutives);
+    } catch {
+      return seedExecutives();
+    }
+  })();
+  return {
+    ...content,
+    people: content.people.map((p) => ({
+      ...p,
+      photoUrl: resolveMediaRef(p.photoUrl),
+    })),
+  };
 }
 
 /** Only the executives an admin has marked visible — for the public page. */
@@ -113,12 +131,15 @@ export async function getPublishedServicePage(
     if (!seeded) throw new Error(`Unknown service page: ${slug}`);
     return seeded;
   };
-  try {
-    const view = await readView("service-pages", seedServicePages);
-    return view.pages.find((p) => p.slug === slug) ?? seedEntry();
-  } catch {
-    return seedEntry();
-  }
+  const page = await (async () => {
+    try {
+      const view = await readView("service-pages", seedServicePages);
+      return view.pages.find((p) => p.slug === slug) ?? seedEntry();
+    } catch {
+      return seedEntry();
+    }
+  })();
+  return { ...page, heroImage: resolveMediaRef(page.heroImage) ?? page.heroImage };
 }
 
 /** Careers content (hero + all roles, including hidden). Draft in preview. */

@@ -1,47 +1,25 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { randomUUID } from "crypto";
 import type { CmsDoc, CmsResource, CmsVersion } from "@/lib/cms/types";
+import { getCmsBackend } from "@/lib/cms/storage";
 
 /**
- * Generic file-backed store for CMS documents.
+ * The draft/publish/version engine shared by every CMS resource.
  *
- * Each resource is one JSON file under `data/cms/<resource>.json` holding a
- * {@link CmsDoc}: a working `draft`, the live `published` copy, and a trail of
- * previous published `versions`. Writes are atomic (temp file + rename) so a
- * crash mid-write can never corrupt the live content. On first read a document
+ * Each resource is one {@link CmsDoc}: a working `draft`, the live `published`
+ * copy, and a trail of previous published `versions`. On first read a document
  * is seeded from the supplied factory and both draft and published start equal
  * — so a freshly installed site already shows the current hardcoded content.
  *
- * This mirrors lib/admin/executivesRepo.ts and needs no external database.
+ * Persistence is delegated to a {@link import("./storage/backend").CmsBackend}
+ * (Postgres in production, files for explicit local development); this module
+ * owns the document semantics and never touches storage directly.
  */
 
-/**
- * Where CMS documents live. Defaults to `<project>/data/cms`; override with
- * CMS_DATA_DIR to relocate runtime content (e.g. a mounted volume, or a temp
- * dir in tests).
- */
-function cmsDir(): string {
-  const root = process.env.CMS_DATA_DIR;
-  return root ? path.join(root, "cms") : path.join(process.cwd(), "data", "cms");
-}
-
-/** Cap version history so files can't grow without bound. */
+/** Cap version history so documents can't grow without bound. */
 const MAX_VERSIONS = 25;
-
-function fileFor(resource: CmsResource): string {
-  return path.join(cmsDir(), `${resource}.json`);
-}
 
 function nowIso(): string {
   return new Date().toISOString();
-}
-
-async function atomicWrite(file: string, data: unknown): Promise<void> {
-  await fs.mkdir(path.dirname(file), { recursive: true });
-  const tmp = `${file}.${randomUUID()}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(data, null, 2), "utf8");
-  await fs.rename(tmp, file);
 }
 
 /**
@@ -52,15 +30,9 @@ export async function readDoc<T>(
   resource: CmsResource,
   seed: () => T
 ): Promise<CmsDoc<T>> {
-  try {
-    const raw = await fs.readFile(fileFor(resource), "utf8");
-    const parsed = JSON.parse(raw) as CmsDoc<T>;
-    if (parsed && typeof parsed === "object" && "draft" in parsed) {
-      return parsed;
-    }
-  } catch {
-    // Missing or unreadable → seed below.
-  }
+  const backend = getCmsBackend();
+  const existing = await backend.loadDoc(resource);
+  if (existing) return existing as CmsDoc<T>;
 
   const seeded = seed();
   const iso = nowIso();
@@ -74,7 +46,7 @@ export async function readDoc<T>(
     publishedAt: iso,
     publishedBy: "system (seed)",
   };
-  await atomicWrite(fileFor(resource), doc);
+  await backend.saveDoc(doc);
   return doc;
 }
 
@@ -98,7 +70,7 @@ export async function saveDraft<T>(
   doc.draft = nextDraft;
   doc.draftUpdatedAt = nowIso();
   doc.draftUpdatedBy = editedBy;
-  await atomicWrite(fileFor(resource), doc);
+  await getCmsBackend().saveDoc(doc);
   return doc;
 }
 
@@ -131,7 +103,7 @@ export async function publishDraft<T>(
   doc.published = doc.draft;
   doc.publishedAt = iso;
   doc.publishedBy = publishedBy;
-  await atomicWrite(fileFor(resource), doc);
+  await getCmsBackend().saveDoc(doc);
   return doc;
 }
 
@@ -146,7 +118,7 @@ export async function discardDraft<T>(
     doc.draft = doc.published;
     doc.draftUpdatedAt = nowIso();
     doc.draftUpdatedBy = editedBy;
-    await atomicWrite(fileFor(resource), doc);
+    await getCmsBackend().saveDoc(doc);
   }
   return doc;
 }
@@ -167,7 +139,7 @@ export async function restoreVersion<T>(
   doc.draft = version.snapshot;
   doc.draftUpdatedAt = nowIso();
   doc.draftUpdatedBy = editedBy;
-  await atomicWrite(fileFor(resource), doc);
+  await getCmsBackend().saveDoc(doc);
   return doc;
 }
 

@@ -1,33 +1,28 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { promises as fs } from "fs";
-import os from "os";
-import path from "path";
 import { applyAction, getDocForAdmin } from "@/lib/cms/service";
 import type { ExecutivesContent } from "@/lib/cms/types";
+import {
+  STORE_MODES,
+  enterStoreMode,
+  exitStoreMode,
+} from "@/lib/cms/storage/testModes";
 
 /**
  * End-to-end resource tests through the service layer: adding/editing an
  * executive, hidden people staying out of the visible set, publishing recording
  * a version, and restore creating a draft without changing live content.
+ * Runs once per storage backend (file always; postgres when
+ * CMS_TEST_DATABASE_URL is set).
  */
-
-let tmp: string;
-
-beforeEach(async () => {
-  tmp = await fs.mkdtemp(path.join(os.tmpdir(), "cms-svc-"));
-  process.env.CMS_DATA_DIR = tmp;
-});
-
-afterEach(async () => {
-  delete process.env.CMS_DATA_DIR;
-  await fs.rm(tmp, { recursive: true, force: true });
-});
 
 function draftOf(doc: Awaited<ReturnType<typeof getDocForAdmin>>): ExecutivesContent {
   return doc.draft as ExecutivesContent;
 }
 
-describe("executives via service", () => {
+describe.each(STORE_MODES)("executives via service [%s]", (mode) => {
+  beforeEach(() => enterStoreMode(mode));
+  afterEach(() => exitStoreMode());
+
   it("adds and edits an executive, then publishes with a recorded version", async () => {
     // Seeded doc exists; replace the draft with a single custom person.
     const content: ExecutivesContent = {

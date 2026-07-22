@@ -67,6 +67,20 @@ export function safeUrl(value: string, label = "Link"): FieldResult {
   );
 }
 
+/**
+ * A stored media reference: an object-storage key issued by the media library
+ * (e.g. "uploads/1721650000-ab12cd34-photo.jpg"), or anything safeUrl accepts
+ * (legacy absolute URLs and site-relative paths).
+ */
+const MEDIA_KEY_RE = /^[a-zA-Z0-9][a-zA-Z0-9._-]*(\/[a-zA-Z0-9][a-zA-Z0-9._-]*)*$/;
+
+export function mediaRef(value: string, label = "Image"): FieldResult {
+  const v = value.trim();
+  if (v.length === 0) return ok;
+  if (MEDIA_KEY_RE.test(v) && !v.includes("..")) return ok;
+  return safeUrl(v, label);
+}
+
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export function slug(value: string, label = "Slug"): FieldResult {

@@ -9,7 +9,9 @@ import {
   ImageOff,
 } from "lucide-react";
 import type { ServicePageContent, ServicePagesContent } from "@/lib/cms/types";
-import { required, safeUrl } from "@/lib/cms/validation";
+import { mediaRef, required, safeUrl } from "@/lib/cms/validation";
+import { uploadMediaFile } from "./uploadMedia";
+import { resolveMediaRef } from "@/lib/cms/media/url";
 import { useCmsDoc } from "./useCmsDoc";
 import { ToastProvider, useToast } from "./Toast";
 import PublishBar from "./PublishBar";
@@ -20,13 +22,10 @@ function validateServicePages(content: ServicePagesContent): string | null {
   for (const p of content.pages) {
     if (!required(p.heading).ok) return `${p.breadcrumbLabel} needs a heading.`;
     if (!required(p.intro).ok) return `${p.breadcrumbLabel} needs an intro paragraph.`;
-    for (const [v, label] of [
-      [p.heroImage, `${p.breadcrumbLabel} hero image`],
-      [p.ctaUrl, `${p.breadcrumbLabel} button link`],
-    ] as const) {
-      const r = safeUrl(v, label);
-      if (!r.ok) return r.message;
-    }
+    const heroCheck = mediaRef(p.heroImage, `${p.breadcrumbLabel} hero image`);
+    if (!heroCheck.ok) return heroCheck.message;
+    const ctaCheck = safeUrl(p.ctaUrl, `${p.breadcrumbLabel} button link`);
+    if (!ctaCheck.ok) return ctaCheck.message;
   }
   return null;
 }
@@ -140,14 +139,11 @@ function PageCard({
   async function uploadImage(file: File) {
     setUploading(true);
     try {
-      const body = new FormData();
-      body.append("file", file);
-      const res = await fetch("/api/website-admin-cms/media", { method: "POST", body });
-      const data = await res.json();
-      if (res.ok) onChange({ heroImage: data.item?.fileUrl ?? data.url });
-      else toast.error(data?.error ?? "Upload failed.");
-    } catch {
-      toast.error("Upload failed.");
+      // Content stores the object-storage KEY; URLs are attached at render.
+      const item = await uploadMediaFile(file);
+      onChange({ heroImage: item.fileKey });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed.");
     } finally {
       setUploading(false);
     }
@@ -164,7 +160,7 @@ function PageCard({
           <span className="flex h-10 w-14 shrink-0 items-center justify-center overflow-hidden rounded bg-slate-100">
             {page.heroImage ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={page.heroImage} alt="" className="h-full w-full object-cover" />
+              <img src={resolveMediaRef(page.heroImage) ?? undefined} alt="" className="h-full w-full object-cover" />
             ) : (
               <ImageOff className="h-4 w-4 text-slate-300" />
             )}
@@ -219,7 +215,7 @@ function PageCard({
                 <span className="flex h-14 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100 ring-1 ring-black/5">
                   {page.heroImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={page.heroImage} alt="" className="h-full w-full object-cover" />
+                    <img src={resolveMediaRef(page.heroImage) ?? undefined} alt="" className="h-full w-full object-cover" />
                   ) : (
                     <ImageOff className="h-4 w-4 text-slate-300" />
                   )}

@@ -5,6 +5,7 @@ import {
   maxLength,
   required,
   safeUrl,
+  mediaRef,
 } from "@/lib/cms/validation";
 import { seedContentPages, seedServicePages } from "@/lib/cms/seeds";
 import { randomId } from "@/lib/cms/id";
@@ -93,10 +94,10 @@ export function normalizeGlobalSettings(
   const supportEmail = asString(d.supportEmail).trim();
 
   const linkErr = firstError(
-    safeUrl(logoUrl, "Logo URL"),
+    mediaRef(logoUrl, "Logo URL"),
     safeUrl(primaryCtaUrl, "Call-to-action link"),
     safeUrl(headerAnnouncementUrl, "Announcement link"),
-    safeUrl(asString(d.defaultSocialImage).trim(), "Default social image"),
+    mediaRef(asString(d.defaultSocialImage).trim(), "Default social image"),
     vEmail(generalEmail, "General email"),
     vEmail(supportEmail, "Support email")
   );
@@ -320,7 +321,7 @@ export function normalizeServicePages(
       required(intro, `${name || slug} intro`),
       maxLength(asString(p?.seoTitle), 200, `${name || slug} SEO title`),
       maxLength(asString(p?.seoDescription), 400, `${name || slug} SEO description`),
-      safeUrl(asString(p?.heroImage).trim(), `${name || slug} hero image`),
+      mediaRef(asString(p?.heroImage).trim(), `${name || slug} hero image`),
       safeUrl(asString(p?.ctaUrl).trim(), `${name || slug} button link`)
     );
     if (err) return { error: err };

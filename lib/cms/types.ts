@@ -235,13 +235,19 @@ export interface ContentPagesContent {
 
 export interface MediaItem {
   id: string;
+  /** Object-storage key (path inside the bucket). The stable identifier. */
+  fileKey: string;
   fileName: string;
-  fileUrl: string;
   fileType: string;
   fileSize: number;
   altText: string;
   uploadedBy: string;
   uploadedAt: string;
+}
+
+/** A media item plus its resolved public URL, as returned by the admin API. */
+export interface MediaItemWithUrl extends MediaItem {
+  fileUrl: string;
 }
 
 // ---------------------------------------------------------------------------

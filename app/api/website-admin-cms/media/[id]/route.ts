@@ -58,9 +58,9 @@ export async function DELETE(req: Request, ctx: { params: Promise<{ id: string }
     if (!item) {
       return NextResponse.json({ error: "Image not found." }, { status: 404 });
     }
-    // Block deletion of an in-use image unless the admin explicitly confirms.
+    // Block deletion of an in-use file unless the admin explicitly confirms.
     if (!force) {
-      const usage = await findMediaUsage(item.fileUrl);
+      const usage = await findMediaUsage(item);
       if (usage.length > 0) {
         return NextResponse.json(
           {

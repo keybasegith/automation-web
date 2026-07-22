@@ -1,110 +1,128 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { randomUUID } from "crypto";
 import { sanitizeFileName } from "@/lib/cms/validation";
-import type { MediaItem } from "@/lib/cms/types";
+import { getCmsBackend } from "@/lib/cms/storage";
+import { getMediaObjectStore } from "@/lib/cms/media/objectStore";
+import { maxBytesFor, validateUpload } from "@/lib/cms/media/policy";
+import { resolveMediaRef } from "@/lib/cms/media/url";
+import type { MediaItem, MediaItemWithUrl } from "@/lib/cms/types";
 
 /**
- * File-backed media library. Uploaded images are stored under
- * `public/media/` (so Next serves them directly) and their metadata in
- * `data/cms-media.json`. Filenames are sanitized and made unique to prevent
- * collisions and path traversal.
+ * Media library — metadata in the CMS backend (Postgres in production),
+ * binaries in S3-compatible object storage (lib/cms/media/objectStore.ts).
+ *
+ * Uploads are presigned: beginUpload() validates the request and hands the
+ * browser a short-lived PUT URL; completeUpload() verifies the object that
+ * actually landed in storage (size and type, server-side) before the metadata
+ * row is created. An object that fails verification is deleted again.
  */
 
-const MEDIA_INDEX = path.join(process.cwd(), "data", "cms-media.json");
-const MEDIA_DIR = path.join(process.cwd(), "public", "media");
-const URL_PREFIX = "/media";
-
-export const MEDIA_MAX_BYTES = 8 * 1024 * 1024; // 8 MB
-export const MEDIA_ALLOWED_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-  "image/svg+xml",
-];
-
-async function readIndex(): Promise<MediaItem[]> {
-  try {
-    const raw = await fs.readFile(MEDIA_INDEX, "utf8");
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) return parsed as MediaItem[];
-  } catch {
-    // Missing index → empty library.
-  }
-  return [];
+function withUrl(item: MediaItem): MediaItemWithUrl {
+  return { ...item, fileUrl: resolveMediaRef(item.fileKey) ?? item.fileKey };
 }
 
-async function writeIndex(items: MediaItem[]): Promise<void> {
-  await fs.mkdir(path.dirname(MEDIA_INDEX), { recursive: true });
-  const tmp = `${MEDIA_INDEX}.${randomUUID()}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(items, null, 2), "utf8");
-  await fs.rename(tmp, MEDIA_INDEX);
+export async function listMedia(): Promise<MediaItemWithUrl[]> {
+  return (await getCmsBackend().listMedia()).map(withUrl);
 }
 
-export async function listMedia(): Promise<MediaItem[]> {
-  const items = await readIndex();
-  return items.sort((a, b) => (a.uploadedAt < b.uploadedAt ? 1 : -1));
+export async function getMedia(id: string): Promise<MediaItemWithUrl | null> {
+  const item = await getCmsBackend().getMedia(id);
+  return item ? withUrl(item) : null;
 }
 
-export async function saveMedia(args: {
+export interface PendingUpload {
+  key: string;
+  uploadUrl: string;
+  expiresInSeconds: number;
+  maxBytes: number;
+}
+
+/** Validate an upload request and issue a presigned PUT URL for it. */
+export async function beginUpload(args: {
   fileName: string;
   fileType: string;
-  bytes: Buffer;
-  uploadedBy: string;
-}): Promise<MediaItem> {
-  await fs.mkdir(MEDIA_DIR, { recursive: true });
+  fileSize: number;
+}): Promise<{ ok: true; upload: PendingUpload } | { ok: false; error: string }> {
+  const rejection = validateUpload(args);
+  if (rejection) return { ok: false, error: rejection };
 
-  const safe = sanitizeFileName(args.fileName || "image");
-  const storedName = `${Date.now()}-${randomUUID().slice(0, 8)}-${safe}`;
-  // Resolve + guard against writing outside the media directory.
-  const target = path.join(MEDIA_DIR, storedName);
-  if (!target.startsWith(MEDIA_DIR + path.sep)) {
-    throw new Error("Invalid file path.");
+  const safe = sanitizeFileName(args.fileName || "file");
+  const key = `uploads/${Date.now()}-${randomUUID().slice(0, 8)}-${safe}`;
+  const { uploadUrl, expiresInSeconds } = await getMediaObjectStore().presignUpload({
+    key,
+    contentType: args.fileType,
+  });
+  return {
+    ok: true,
+    upload: { key, uploadUrl, expiresInSeconds, maxBytes: maxBytesFor(args.fileType) },
+  };
+}
+
+/**
+ * Verify the uploaded object server-side and record its metadata. The browser
+ * calls this after the presigned PUT succeeds.
+ */
+export async function completeUpload(args: {
+  key: string;
+  fileName: string;
+  uploadedBy: string;
+  altText?: string;
+}): Promise<{ ok: true; item: MediaItemWithUrl } | { ok: false; error: string }> {
+  // Only accept keys this repo could have issued — never arbitrary paths.
+  if (!/^uploads\/[0-9]+-[0-9a-f]{8}-[^/]+$/.test(args.key)) {
+    return { ok: false, error: "Unknown upload key." };
   }
-  await fs.writeFile(target, args.bytes);
+
+  const objectStore = getMediaObjectStore();
+  const head = await objectStore.head(args.key);
+  if (!head) {
+    return { ok: false, error: "The upload did not reach storage. Please try again." };
+  }
+
+  const rejection = validateUpload({
+    fileName: args.fileName,
+    fileType: head.contentType,
+    fileSize: head.contentLength,
+  });
+  if (rejection) {
+    // The object that landed violates policy (size/type) — remove it.
+    await objectStore.delete(args.key).catch(() => {});
+    return { ok: false, error: rejection };
+  }
 
   const item: MediaItem = {
     id: randomUUID(),
-    fileName: storedName,
-    fileUrl: `${URL_PREFIX}/${storedName}`,
-    fileType: args.fileType,
-    fileSize: args.bytes.byteLength,
-    altText: "",
+    fileKey: args.key,
+    fileName: args.fileName,
+    fileType: head.contentType,
+    fileSize: head.contentLength,
+    altText: args.altText ?? "",
     uploadedBy: args.uploadedBy,
     uploadedAt: new Date().toISOString(),
   };
-
-  const items = await readIndex();
-  await writeIndex([item, ...items]);
-  return item;
+  await getCmsBackend().insertMedia(item);
+  return { ok: true, item: withUrl(item) };
 }
 
-export async function updateMediaAlt(id: string, altText: string): Promise<MediaItem | null> {
-  const items = await readIndex();
-  const idx = items.findIndex((m) => m.id === id);
-  if (idx === -1) return null;
-  items[idx] = { ...items[idx], altText };
-  await writeIndex(items);
-  return items[idx];
+export async function updateMediaAlt(
+  id: string,
+  altText: string
+): Promise<MediaItemWithUrl | null> {
+  const backend = getCmsBackend();
+  const item = await backend.getMedia(id);
+  if (!item) return null;
+  const updated: MediaItem = { ...item, altText };
+  await backend.updateMedia(updated);
+  return withUrl(updated);
 }
 
-export async function getMedia(id: string): Promise<MediaItem | null> {
-  const items = await readIndex();
-  return items.find((m) => m.id === id) ?? null;
-}
-
+/** Remove the metadata row and the stored object. */
 export async function deleteMedia(id: string): Promise<void> {
-  const items = await readIndex();
-  const item = items.find((m) => m.id === id);
+  const backend = getCmsBackend();
+  const item = await backend.getMedia(id);
   if (!item) return;
-
-  // Remove the file, then the index entry. Ignore a missing file.
-  const target = path.join(MEDIA_DIR, path.basename(item.fileName));
-  try {
-    await fs.unlink(target);
-  } catch {
-    // already gone
-  }
-  await writeIndex(items.filter((m) => m.id !== id));
+  await backend.deleteMedia(id);
+  // Best-effort: a leftover object is orphaned storage, not broken content.
+  await getMediaObjectStore()
+    .delete(item.fileKey)
+    .catch((err) => console.error("[cms] media object delete failed:", err));
 }

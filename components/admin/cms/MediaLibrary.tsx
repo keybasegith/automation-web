@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, Upload, Trash2, Search, Check, ImageOff } from "lucide-react";
-import type { MediaItem } from "@/lib/cms/types";
+import type { MediaItemWithUrl } from "@/lib/cms/types";
+import { MEDIA_ACCEPT_ATTR } from "@/lib/cms/media/policy";
+import { uploadMediaFile } from "./uploadMedia";
 import { ToastProvider, useToast } from "./Toast";
 import ConfirmDialog from "./ConfirmDialog";
 
@@ -27,12 +29,12 @@ function formatSize(bytes: number): string {
 
 function Library() {
   const toast = useToast();
-  const [items, setItems] = useState<MediaItem[]>([]);
+  const [items, setItems] = useState<MediaItemWithUrl[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<{ item: MediaItem; usage: string[] } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ item: MediaItemWithUrl; usage: string[] } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -47,7 +49,7 @@ function Library() {
       }
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Failed to load.");
-      setItems(data.items as MediaItem[]);
+      setItems(data.items as MediaItemWithUrl[]);
       setLoadError(null);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Failed to load.");
@@ -66,26 +68,19 @@ function Library() {
     setUploading(true);
     let anyOk = false;
     for (const file of Array.from(files)) {
-      const body = new FormData();
-      body.append("file", file);
       try {
-        const res = await fetch("/api/website-admin-cms/media", { method: "POST", body });
-        const data = await res.json();
-        if (res.ok) {
-          setItems((prev) => [data.item as MediaItem, ...prev]);
-          anyOk = true;
-        } else {
-          toast.error(`${file.name}: ${data?.error ?? "Upload failed."}`);
-        }
-      } catch {
-        toast.error(`${file.name}: Upload failed.`);
+        const item = await uploadMediaFile(file);
+        setItems((prev) => [item, ...prev]);
+        anyOk = true;
+      } catch (err) {
+        toast.error(`${file.name}: ${err instanceof Error ? err.message : "Upload failed."}`);
       }
     }
-    if (anyOk) toast.success("Image uploaded.");
+    if (anyOk) toast.success("Uploaded.");
     setUploading(false);
   }
 
-  async function saveAlt(item: MediaItem, altText: string) {
+  async function saveAlt(item: MediaItemWithUrl, altText: string) {
     setItems((prev) => prev.map((m) => (m.id === item.id ? { ...m, altText } : m)));
     try {
       await fetch(`/api/website-admin-cms/media/${item.id}`, {
@@ -98,7 +93,7 @@ function Library() {
     }
   }
 
-  async function requestDelete(item: MediaItem) {
+  async function requestDelete(item: MediaItemWithUrl) {
     // First attempt without force — the server tells us if it's in use.
     try {
       const res = await fetch(`/api/website-admin-cms/media/${item.id}`, { method: "DELETE" });
@@ -147,7 +142,7 @@ function Library() {
       <div className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white/90 px-6 py-3.5 backdrop-blur sm:px-10">
         <div>
           <h1 className="text-base font-semibold text-slate-900">Media Library</h1>
-          <p className="text-xs text-slate-400">Upload and manage images used across the website.</p>
+          <p className="text-xs text-slate-400">Upload and manage images and videos used across the website.</p>
         </div>
         <button
           type="button"
@@ -156,12 +151,12 @@ function Library() {
           className="inline-flex items-center gap-2 rounded-lg bg-[#006d6e] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#00585a] disabled:opacity-50"
         >
           {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          {uploading ? "Uploading…" : "Upload Image"}
+          {uploading ? "Uploading…" : "Upload"}
         </button>
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept={MEDIA_ACCEPT_ATTR}
           multiple
           className="hidden"
           onChange={(e) => {
@@ -241,7 +236,7 @@ function MediaCard({
   onSaveAlt,
   onDelete,
 }: {
-  item: MediaItem;
+  item: MediaItemWithUrl;
   onSaveAlt: (alt: string) => void;
   onDelete: () => void;
 }) {
@@ -252,8 +247,19 @@ function MediaCard({
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
       <div className="relative aspect-[4/3] bg-slate-100">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={item.fileUrl} alt={item.altText || item.fileName} className="h-full w-full object-cover" />
+        {item.fileType.startsWith("video/") ? (
+          <video
+            src={item.fileUrl}
+            className="h-full w-full object-cover"
+            muted
+            playsInline
+            controls
+            preload="metadata"
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.fileUrl} alt={item.altText || item.fileName} className="h-full w-full object-cover" />
+        )}
         <button
           type="button"
           title="Delete image"
