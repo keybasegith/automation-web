@@ -21,6 +21,8 @@ import {
   UserPlus,
   PlayCircle,
   CheckCircle2,
+  Scale,
+  Landmark,
   type LucideIcon,
 } from "lucide-react";
 
@@ -68,6 +70,18 @@ export const DEPARTMENTS: readonly Department[] = [
     icon: Briefcase,
     accent: "from-sky-500/15 to-sky-500/5 text-sky-700",
     tools: [
+      {
+        label: "Daily Settlement Check",
+        hint: "Identify Buy/Sell differences between Fundserv and Winfund",
+        href: "/bp-dailysettlement",
+        icon: Landmark,
+      },
+      {
+        label: "Settlement — daily process",
+        hint: "Reconcile Fundserv N$M against Winfund trust data",
+        href: "/net-settlement",
+        icon: Scale,
+      },
       {
         label: "Form Processing & Compliance",
         hint: "Process and compliance-check forms",

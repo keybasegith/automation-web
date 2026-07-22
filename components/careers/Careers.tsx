@@ -2,70 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ArrowRight, Check, MapPin, Briefcase, Upload, FileText, X } from "lucide-react";
-
-type Role = {
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  description: string;
-};
-
-const ROLES: Role[] = [
-  {
-    title: "Financial Advisor",
-    department: "Advisory",
-    location: "Toronto, ON · Hybrid",
-    type: "Full-time",
-    description:
-      "Build and grow your own practice with the backing of an independent national platform and a disciplined, client-first process.",
-  },
-  {
-    title: "Associate Advisor",
-    department: "Advisory",
-    location: "Mississauga, ON",
-    type: "Full-time",
-    description:
-      "Support senior advisors across planning, research, and client service while developing toward your own book of business.",
-  },
-  {
-    title: "Compliance Analyst",
-    department: "Compliance & Risk",
-    location: "Toronto, ON",
-    type: "Full-time",
-    description:
-      "Help uphold the firm's regulatory, risk, and governance standards and protect the trust clients place in Keybase.",
-  },
-  {
-    title: "Client Service Associate",
-    department: "Operations",
-    location: "Toronto, ON",
-    type: "Full-time",
-    description:
-      "Deliver a seamless, personal client experience across onboarding, administration, and day-to-day support.",
-  },
-  {
-    title: "Marketing Coordinator",
-    department: "Marketing",
-    location: "Remote · Canada",
-    type: "Full-time",
-    description:
-      "Shape the Keybase brand and client experience across content, campaigns, and communications.",
-  },
-  {
-    title: "IT Support Specialist",
-    department: "Technology",
-    location: "Toronto, ON",
-    type: "Full-time",
-    description:
-      "Keep the firm's systems secure, reliable, and responsive so advisors can focus on their clients.",
-  },
-];
-
-const POSITION_OPTIONS = [
-  ...ROLES.map((r) => r.title),
-  "General Application",
-];
+import type { JobPosting } from "@/lib/cms/types";
 
 type FormState = {
   firstName: string;
@@ -107,7 +44,8 @@ const fieldClass =
 const labelClass =
   "mb-2 block text-[13px] font-semibold tracking-wide text-[#1a2433]";
 
-export default function Careers() {
+export default function Careers({ roles }: { roles: JobPosting[] }) {
+  const POSITION_OPTIONS = [...roles.map((r) => r.title), "General Application"];
   const [form, setForm] = useState<FormState>(INITIAL);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -214,9 +152,9 @@ export default function Careers() {
         </div>
 
         <div className="mt-12 divide-y divide-black/10 border-y border-black/10">
-          {ROLES.map((role) => (
+          {roles.map((role) => (
             <div
-              key={role.title}
+              key={role.id}
               className="grid gap-5 py-7 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-10"
             >
               <div>

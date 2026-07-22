@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  ChevronRight,
   ArrowRight,
   Check,
   MapPin,
@@ -11,12 +10,13 @@ import {
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import Reveal from "@/components/home/Reveal";
+import ServiceHero from "@/components/home/ServiceHero";
+import { getPublishedServicePage } from "@/lib/cms/public";
 
-export const metadata = {
-  title: "Travel Insurance — Keybase Financial Group",
-  description:
-    "Travel insurance for Canadian residents, seniors, visitors to Canada, and students — covering emergency medical, trip cancellation, baggage, and more. Keybase advisors help you choose coverage that fits your destination, trip, and needs.",
-};
+export async function generateMetadata() {
+  const page = await getPublishedServicePage("travel-insurance");
+  return { title: page.seoTitle, description: page.seoDescription };
+}
 
 /* The situations travel insurance is built for. */
 const SCENARIOS = [
@@ -49,70 +49,14 @@ const COVERAGE = [
   "Student Travel Insurance",
 ];
 
-export default function TravelInsurancePage() {
+export default async function TravelInsurancePage() {
+  const page = await getPublishedServicePage("travel-insurance");
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
 
       {/* ---------- Hero ---------- */}
-      <section className="relative overflow-hidden border-b border-black/10 bg-[#0a1f33] text-white">
-        <img
-          src="/retirement-planning3.jpg"
-          alt=""
-          aria-hidden
-          className="ken-burns pointer-events-none absolute inset-0 h-full w-full object-cover"
-        />
-        {/* left-side scrim keeps the copy legible without darkening the image */}
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0a1f33]/80 via-[#0a1f33]/40 to-transparent"
-          aria-hidden
-        />
-
-        <div className="relative mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
-          {/* Breadcrumb */}
-          <nav
-            aria-label="Breadcrumb"
-            className="flex flex-wrap items-center gap-2 text-[14px] text-white/70"
-          >
-            <Link href="/" className="transition-colors hover:text-white">
-              Home
-            </Link>
-            <ChevronRight className="h-3.5 w-3.5 text-white/40" />
-            <Link href="/#what-we-do" className="transition-colors hover:text-white">
-              Preservation Strategies
-            </Link>
-            <ChevronRight className="h-3.5 w-3.5 text-white/40" />
-            <span className="text-white">Travel Insurance</span>
-          </nav>
-
-          <p className="mt-9 text-[13px] font-semibold uppercase tracking-[0.22em] text-white/70">
-            Preservation Strategies
-          </p>
-          <h1
-            className="mt-5 max-w-3xl font-serif text-[42px] font-normal leading-[1.06] tracking-tight sm:text-[60px]"
-            style={{ textShadow: "0 2px 28px rgba(0,0,0,0.5)" }}
-          >
-            Travel with peace of mind.
-          </h1>
-          <p
-            className="mt-7 max-w-2xl text-lg leading-relaxed text-white/85"
-            style={{ textShadow: "0 1px 16px rgba(0,0,0,0.5)" }}
-          >
-            Whether you are travelling internationally, visiting another province,
-            welcoming family to Canada, or studying away from home, travel
-            insurance can be an important part of your overall protection plan.
-          </p>
-          <div className="mt-10">
-            <Link
-              href="/contact"
-              className="group inline-flex items-center gap-2 bg-white px-7 py-4 text-[15px] font-semibold text-[#0a1f33] shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#e6f1f1] hover:shadow-xl hover:shadow-black/20"
-            >
-              Speak with an Advisor
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <ServiceHero content={page} scrimClassName="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0a1f33]/80 via-[#0a1f33]/40 to-transparent" />
 
       {/* ---------- Why It Matters ---------- */}
       <section className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">

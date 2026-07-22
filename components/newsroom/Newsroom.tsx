@@ -2,83 +2,7 @@
 
 import { useState } from "react";
 import { Search } from "lucide-react";
-
-type Article = {
-  category: string;
-  title: string;
-  excerpt: string;
-  date: string;
-  author: string;
-};
-
-const CATEGORIES = [
-  "All",
-  "Markets",
-  "Retirement",
-  "Investing",
-  "Tax & Estate",
-  "Insurance",
-  "Firm News",
-];
-
-const ARTICLES: Article[] = [
-  {
-    category: "Markets",
-    title: "Positioning Portfolios for a Higher-for-Longer Rate Environment",
-    excerpt:
-      "What persistent rates mean for fixed income, equities, and the disciplined, goals-based portfolios we build for clients.",
-    date: "2026.06.22",
-    author: "Keybase Research",
-  },
-  {
-    category: "Retirement",
-    title: "Building Durable Income That Outlasts a 30-Year Retirement",
-    excerpt:
-      "A framework for turning a lifetime of savings into reliable, tax-efficient income that lasts through every market cycle.",
-    date: "2026.06.15",
-    author: "Keybase Planning Desk",
-  },
-  {
-    category: "Tax & Estate",
-    title: "Five Estate Strategies High-Net-Worth Families Should Revisit This Year",
-    excerpt:
-      "From intergenerational transfers to trust structures, the planning moves worth reviewing before year-end.",
-    date: "2026.06.08",
-    author: "Keybase Research",
-  },
-  {
-    category: "Insurance",
-    title: "How the Right Coverage Protects What You've Worked to Build",
-    excerpt:
-      "Why integrated protection — life, disability, and critical illness — belongs at the center of a complete financial plan.",
-    date: "2026.05.30",
-    author: "Keybase Planning Desk",
-  },
-  {
-    category: "Investing",
-    title: "The Case for Discipline When Markets Get Loud",
-    excerpt:
-      "Headlines move fast; sound plans don't. How an independent, research-driven process keeps clients on course.",
-    date: "2026.05.21",
-    author: "Keybase Research",
-  },
-  {
-    category: "Firm News",
-    title: "Keybase Expands Its Advisory Team Across Canada",
-    excerpt:
-      "New advisors and specialists join the firm as Keybase continues to grow its independent national platform.",
-    date: "2026.05.12",
-    author: "Keybase Financial Group",
-  },
-  {
-    category: "Markets",
-    title: "What Independent Advice Means in a Volatile Year",
-    excerpt:
-      "Free from product quotas and competing incentives, independence lets us focus on a single question: what is right for you.",
-    date: "2026.05.04",
-    author: "Keybase Research",
-  },
-];
+import type { NewsArticle } from "@/lib/cms/types";
 
 function ArticleImage({ category }: { category: string }) {
   return (
@@ -100,12 +24,15 @@ function ArticleImage({ category }: { category: string }) {
   );
 }
 
-export default function Newsroom() {
+export default function Newsroom({ articles }: { articles: NewsArticle[] }) {
   const [active, setActive] = useState("All");
   const [query, setQuery] = useState("");
 
+  // Categories are derived from the articles so new ones appear automatically.
+  const CATEGORIES = ["All", ...Array.from(new Set(articles.map((a) => a.category)))];
+
   const q = query.trim().toLowerCase();
-  const filtered = ARTICLES.filter((a) => {
+  const filtered = articles.filter((a) => {
     const matchCat = active === "All" || a.category === active;
     const matchQ =
       !q ||
@@ -164,7 +91,7 @@ export default function Newsroom() {
       <div className="mt-12 space-y-6">
         {filtered.map((a) => (
           <article
-            key={a.title}
+            key={a.id}
             className="group flex flex-col gap-6 rounded-2xl border border-black/10 p-6 transition-shadow hover:shadow-[0_24px_60px_-32px_rgba(10,31,51,0.35)] sm:p-8 lg:flex-row lg:items-stretch lg:gap-10"
           >
             <div className="flex flex-1 flex-col">

@@ -8,6 +8,7 @@ import {
   ScanLine,
   FileSpreadsheet,
   Calculator,
+  Scale,
   type LucideIcon,
 } from "lucide-react";
 
@@ -76,6 +77,15 @@ const ADMIN_MENU: readonly MenuItem[] = [
   { label: "Audit Logs", href: "/dashboard/audit" },
 ];
 
+const SETTLEMENT_MENU: readonly MenuItem[] = [
+  {
+    label: "Net Settlement",
+    href: "/net-settlement",
+    matchPaths: ["/net-settlement"],
+    icon: Scale,
+  },
+];
+
 const FINANCE_MENU: readonly MenuItem[] = [
   {
     label: "Monthly Account Analysis",
@@ -92,6 +102,7 @@ const FINANCE_MENU: readonly MenuItem[] = [
 const SECTIONS: readonly MenuSection[] = [
   { items: MAIN_MENU },
   { title: "Client Onboarding", items: ONBOARDING_MENU },
+  { title: "Business Processing", items: SETTLEMENT_MENU },
   { title: "Finance Intelligence", items: FINANCE_MENU },
   { title: "Compliance", items: ADMIN_MENU },
 ];

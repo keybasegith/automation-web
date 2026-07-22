@@ -3,6 +3,7 @@ import { ChevronRight } from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import KeyExecutives, { type Executive } from "@/components/home/KeyExecutives";
+import { getVisiblePublishedExecutives } from "@/lib/cms/public";
 
 export const metadata = {
   title: "Key Executives — Keybase Financial Group",
@@ -10,7 +11,12 @@ export const metadata = {
     "Meet the leadership team of Keybase Financial Group — seasoned professionals across wealth management, compliance, and corporate strategy.",
 };
 
-const LEADERSHIP: Executive[] = [
+// Always render fresh so edits made in the /admin ERP appear immediately.
+export const dynamic = "force-dynamic";
+
+// Fallback list used only if the CMS store can't be read. The /admin ERP is the
+// source of truth; its seed already contains this same content.
+const FALLBACK_LEADERSHIP: Executive[] = [
   {
     name: "Dax Sukhraj",
     title: "President & CEO",
@@ -94,6 +100,27 @@ const LEADERSHIP: Executive[] = [
   },
 ];
 
+async function loadLeadership(): Promise<Executive[]> {
+  try {
+    const people = await getVisiblePublishedExecutives();
+    if (people.length === 0) return FALLBACK_LEADERSHIP;
+    return people.map((r) => ({
+      name: r.name,
+      title: r.title,
+      lead: r.lead,
+      paragraphs: r.paragraphs,
+      photo: r.photoUrl ?? undefined,
+      photoClassName: r.photoClass ?? undefined,
+      comingSoon: r.comingSoon,
+      ceoMessage: r.ceoMessage,
+      href: r.href ?? undefined,
+    }));
+  } catch {
+    // Never let a store hiccup take down a public marketing page.
+    return FALLBACK_LEADERSHIP;
+  }
+}
+
 function Crumb({ label, href }: { label: string; href?: string }) {
   return href ? (
     <Link href={href} className="text-[#9aa3ad] transition-colors hover:text-[#006d6e]">
@@ -104,7 +131,9 @@ function Crumb({ label, href }: { label: string; href?: string }) {
   );
 }
 
-export default function KeyExecutivesPage() {
+export default async function KeyExecutivesPage() {
+  const leadership = await loadLeadership();
+
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
@@ -128,7 +157,7 @@ export default function KeyExecutivesPage() {
 
         {/* Interactive executives */}
         <div className="mt-10 sm:mt-12">
-          <KeyExecutives people={LEADERSHIP} />
+          <KeyExecutives people={leadership} />
         </div>
       </main>
 

@@ -17,3 +17,10 @@ uploads
 documents
 client-data
 test-data
+
+# Website ERP runtime content (edited via /admin, lives on the server's disk)
+/data/executives.json
+/data/cms
+/data/cms-audit.json
+/public/executives
+/public/media

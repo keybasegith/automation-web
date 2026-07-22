@@ -8,12 +8,12 @@ import {
 } from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
+import { getPublishedContentPage } from "@/lib/cms/public";
 
-export const metadata = {
-  title: "About Us — Keybase Financial Group",
-  description:
-    "Founded in 1997, Keybase Financial Group is a Canadian, independently owned advisory firm helping Canadians build, protect, and preserve their personal wealth through trusted independent financial advice.",
-};
+export async function generateMetadata() {
+  const page = await getPublishedContentPage("about");
+  return { title: page.seoTitle, description: page.seoDescription };
+}
 
 const VALUES = [
   {
@@ -48,7 +48,8 @@ const VALUES = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const page = await getPublishedContentPage("about");
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
@@ -74,21 +75,19 @@ export default function AboutPage() {
 
         <div className="relative mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
           <p className="text-[13px] font-semibold uppercase tracking-[0.22em] text-white/70">
-            About Keybase Financial Group
+            {page.eyebrow}
           </p>
           <h1
             className="mt-5 max-w-3xl font-serif text-[42px] font-normal leading-[1.06] tracking-tight sm:text-[60px]"
             style={{ textShadow: "0 2px 28px rgba(0,0,0,0.5)" }}
           >
-            Independent Advice. National Reach. Built for the Future.
+            {page.heading}
           </h1>
           <p
             className="mt-7 max-w-2xl text-lg leading-relaxed text-white/85"
             style={{ textShadow: "0 1px 16px rgba(0,0,0,0.5)" }}
           >
-            Founded in 1997, Keybase Financial Group was built with a clear
-            purpose: to help Canadians build, protect, and preserve their
-            personal wealth through trusted independent financial advice.
+            {page.intro}
           </p>
         </div>
       </section>

@@ -115,7 +115,7 @@ export default function PrivacyPolicy() {
       </div>
 
       <div>
-        <h3 className={heading}>What is personal information</h3>
+        <h3 className={heading}>1. What is personal information?</h3>
         <p className="mt-2">
           &ldquo;Personal information&rdquo; can generally be defined as information
           that identifies you as an individual. It includes, but is not limited to:
@@ -226,7 +226,8 @@ export default function PrivacyPolicy() {
         <p className="mt-3">
           We may also share your information with self-regulatory authorities when
           Keybase Financial Group Inc. is so required. These self regulatory
-          organizations, such as the Mutual Funds Dealer Association (MFDA), require
+          organizations, such as the Canadian Investment Regulatory Organization
+          (CIRO), require
           access to personal information for regulatory purposes. This includes:
           surveillance of trading-related activity, sales, financial compliance and
           regulatory audits; investigation of potential regulatory and statutory

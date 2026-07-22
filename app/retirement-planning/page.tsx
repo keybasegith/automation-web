@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  ChevronRight,
   ArrowRight,
   Wallet,
   PiggyBank,
@@ -12,12 +11,13 @@ import {
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import Reveal from "@/components/home/Reveal";
+import ServiceHero from "@/components/home/ServiceHero";
+import { getPublishedServicePage } from "@/lib/cms/public";
 
-export const metadata = {
-  title: "Retirement Planning — Keybase Financial Group",
-  description:
-    "Retire on your terms. Keybase advisors help you build durable, tax-efficient retirement income — coordinating savings, government benefits, and investments into a plan designed to last a lifetime.",
-};
+export async function generateMetadata() {
+  const page = await getPublishedServicePage("retirement-planning");
+  return { title: page.seoTitle, description: page.seoDescription };
+}
 
 const PILLARS = [
   {
@@ -71,70 +71,14 @@ const STEPS = [
   },
 ];
 
-export default function RetirementPlanningPage() {
+export default async function RetirementPlanningPage() {
+  const page = await getPublishedServicePage("retirement-planning");
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
 
       {/* ---------- Hero ---------- */}
-      <section className="relative overflow-hidden border-b border-black/10 bg-[#0a1f33] text-white">
-        <img
-          src="/retirement-planning2.jpg"
-          alt=""
-          aria-hidden
-          className="ken-burns pointer-events-none absolute inset-0 h-full w-full object-cover"
-        />
-        {/* light left-side scrim keeps the copy legible without darkening the image */}
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0a1f33]/45 via-[#0a1f33]/15 to-transparent"
-          aria-hidden
-        />
-
-        <div className="relative mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
-          {/* Breadcrumb */}
-          <nav
-            aria-label="Breadcrumb"
-            className="flex flex-wrap items-center gap-2 text-[14px] text-white/70"
-          >
-            <Link href="/" className="transition-colors hover:text-white">
-              Home
-            </Link>
-            <ChevronRight className="h-3.5 w-3.5 text-white/40" />
-            <Link href="/#what-we-do" className="transition-colors hover:text-white">
-              Our Services
-            </Link>
-            <ChevronRight className="h-3.5 w-3.5 text-white/40" />
-            <span className="text-white">Retirement Planning</span>
-          </nav>
-
-          <p className="mt-9 text-[13px] font-semibold uppercase tracking-[0.22em] text-white/70">
-            Wealth Planning
-          </p>
-          <h1
-            className="mt-5 max-w-3xl font-serif text-[42px] font-normal leading-[1.06] tracking-tight sm:text-[60px]"
-            style={{ textShadow: "0 2px 28px rgba(0,0,0,0.5)" }}
-          >
-            Retire on your terms, with confidence.
-          </h1>
-          <p
-            className="mt-7 max-w-2xl text-lg leading-relaxed text-white/85"
-            style={{ textShadow: "0 1px 16px rgba(0,0,0,0.5)" }}
-          >
-            Retirement is the reward for a lifetime of work. Keybase helps you turn
-            savings, benefits, and investments into durable, tax-efficient income
-            — so you can step into this next chapter with clarity and confidence.
-          </p>
-          <div className="mt-10">
-            <Link
-              href="/contact"
-              className="group inline-flex items-center gap-2 bg-white px-7 py-4 text-[15px] font-semibold text-[#0a1f33] shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#e6f1f1] hover:shadow-xl hover:shadow-black/20"
-            >
-              Start a Retirement Plan
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <ServiceHero content={page} scrimClassName="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0a1f33]/45 via-[#0a1f33]/15 to-transparent" />
 
       {/* ---------- Why it matters ---------- */}
       <section className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">

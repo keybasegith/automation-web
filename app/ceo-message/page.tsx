@@ -1,14 +1,15 @@
 import Link from "next/link";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
+import { getPublishedContentPage } from "@/lib/cms/public";
 
-export const metadata = {
-  title: "A Message from our CEO — Keybase Financial Group",
-  description:
-    "A personal message from Dax Sukhraj, President & CEO of Keybase Financial Group, on the firm's philosophy and its promise to every client.",
-};
+export async function generateMetadata() {
+  const page = await getPublishedContentPage("ceo-message");
+  return { title: page.seoTitle, description: page.seoDescription };
+}
 
-export default function CeoMessagePage() {
+export default async function CeoMessagePage() {
+  const page = await getPublishedContentPage("ceo-message");
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
@@ -37,7 +38,7 @@ export default function CeoMessagePage() {
           <span className="font-semibold text-[#0a1f33]">CEO Message</span>
         </nav>
         <h1 className="mt-8 font-serif text-[44px] font-normal leading-[1.06] tracking-tight text-[#0a1f33] sm:text-[64px]">
-          Message from the CEO
+          {page.heading}
         </h1>
       </section>
 

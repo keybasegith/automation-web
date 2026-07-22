@@ -85,6 +85,28 @@ export interface DepartmentMessageRow {
   created_at: string;
 }
 
+/**
+ * A leadership-team member shown on the public /key-executives page and
+ * managed through the /admin website ERP. Persisted as a file-backed record
+ * (see lib/admin/executivesRepo.ts), not a Supabase table.
+ */
+export interface SiteExecutiveRow {
+  id: string;
+  name: string;
+  title: string;
+  lead: string;
+  paragraphs: string[];
+  photo_url: string | null;
+  photo_class: string | null;
+  coming_soon: boolean;
+  ceo_message: boolean;
+  href: string | null;
+  sort_order: number;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AuditLogRow {
   id: string;
   user_id: string;
