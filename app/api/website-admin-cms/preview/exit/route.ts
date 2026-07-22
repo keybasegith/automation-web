@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   const draft = await draftMode();
   draft.disable();
   const url = new URL(req.url);
-  const path = url.searchParams.get("path") || "/admin";
-  const safe = path.startsWith("/") && !path.startsWith("//") ? path : "/admin";
+  const path = url.searchParams.get("path") || "/website-admin-cms";
+  const safe = path.startsWith("/") && !path.startsWith("//") ? path : "/website-admin-cms";
   return NextResponse.redirect(new URL(safe, url.origin));
 }

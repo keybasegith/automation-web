@@ -24,7 +24,7 @@ import type { CmsResource } from "@/lib/cms/types";
 /**
  * Central registry mapping each editable resource to its seed factory, its
  * server-side normalizer, and a friendly label. The generic admin API route
- * (app/api/admin/cms/[resource]) uses this so every resource shares one
+ * (app/api/website-admin-cms/cms/[resource]) uses this so every resource shares one
  * audited draft/publish/restore code path.
  */
 

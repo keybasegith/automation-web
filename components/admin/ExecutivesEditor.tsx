@@ -220,7 +220,7 @@ function ExecCard({
     try {
       const body = new FormData();
       body.append("file", file);
-      const res = await fetch("/api/admin/media", { method: "POST", body });
+      const res = await fetch("/api/website-admin-cms/media", { method: "POST", body });
       const data = await res.json();
       if (res.ok) onChange({ photoUrl: data.item?.fileUrl ?? data.url, comingSoon: false });
       else toast.error(data?.error ?? "Upload failed.");

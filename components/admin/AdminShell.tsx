@@ -29,17 +29,17 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { label: "Overview", href: "/admin", icon: LayoutDashboard },
-  { label: "Key Executives", href: "/admin/executives", icon: Users },
-  { label: "Company Pages", href: "/admin/company-pages", icon: Building2 },
-  { label: "Service Pages", href: "/admin/service-pages", icon: FileText },
-  { label: "Careers", href: "/admin/careers", icon: Briefcase },
-  { label: "Newsroom", href: "/admin/newsroom", icon: Newspaper },
-  { label: "Navigation", href: "/admin/navigation", icon: Menu },
-  { label: "Footer", href: "/admin/footer", icon: PanelBottom },
-  { label: "Global Settings", href: "/admin/global-settings", icon: Settings },
-  { label: "Media Library", href: "/admin/media", icon: ImageIcon },
-  { label: "Version History", href: "/admin/history", icon: History },
+  { label: "Overview", href: "/website-admin-cms", icon: LayoutDashboard },
+  { label: "Key Executives", href: "/website-admin-cms/executives", icon: Users },
+  { label: "Company Pages", href: "/website-admin-cms/company-pages", icon: Building2 },
+  { label: "Service Pages", href: "/website-admin-cms/service-pages", icon: FileText },
+  { label: "Careers", href: "/website-admin-cms/careers", icon: Briefcase },
+  { label: "Newsroom", href: "/website-admin-cms/newsroom", icon: Newspaper },
+  { label: "Navigation", href: "/website-admin-cms/navigation", icon: Menu },
+  { label: "Footer", href: "/website-admin-cms/footer", icon: PanelBottom },
+  { label: "Global Settings", href: "/website-admin-cms/global-settings", icon: Settings },
+  { label: "Media Library", href: "/website-admin-cms/media", icon: ImageIcon },
+  { label: "Version History", href: "/website-admin-cms/history", icon: History },
 ];
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
@@ -51,7 +51,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     let active = true;
-    fetch("/api/admin/session")
+    fetch("/api/website-admin-cms/session")
       .then((r) => r.json())
       .then((d) => {
         if (!active) return;
@@ -59,13 +59,13 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           setStatus("authed");
         } else {
           setStatus("guest");
-          router.replace("/admin/login");
+          router.replace("/website-admin-cms");
         }
       })
       .catch(() => {
         if (!active) return;
         setStatus("guest");
-        router.replace("/admin/login");
+        router.replace("/website-admin-cms");
       });
     return () => {
       active = false;
@@ -73,8 +73,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   }, [router]);
 
   const handleLogout = async () => {
-    await fetch("/api/admin/logout", { method: "POST" }).catch(() => {});
-    router.replace("/admin/login");
+    await fetch("/api/website-admin-cms/logout", { method: "POST" }).catch(() => {});
+    router.replace("/website-admin-cms");
   };
 
   if (status !== "authed") {
@@ -106,8 +106,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <nav className="flex-1 space-y-1 px-3 py-4">
           {NAV.map((item) => {
             const active =
-              item.href === "/admin"
-                ? pathname === "/admin"
+              item.href === "/website-admin-cms"
+                ? pathname === "/website-admin-cms"
                 : (item.match ?? [item.href]).some((p) =>
                     pathname.startsWith(p)
                   );

@@ -10,8 +10,9 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
 
-  // The login screen renders bare — no sidebar, no auth guard.
-  if (pathname === "/admin/login") {
+  // The root route decides between the sign-in form and the dashboard itself,
+  // so it renders bare — no sidebar, no client-side auth guard.
+  if (pathname === "/website-admin-cms") {
     return <>{children}</>;
   }
 

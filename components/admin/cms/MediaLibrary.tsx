@@ -40,9 +40,9 @@ function Library() {
   // trigger a synchronous setState inside the effect.
   async function load() {
     try {
-      const res = await fetch("/api/admin/media");
+      const res = await fetch("/api/website-admin-cms/media");
       if (res.status === 401) {
-        window.location.href = "/admin/login";
+        window.location.href = "/website-admin-cms";
         return;
       }
       const data = await res.json();
@@ -69,7 +69,7 @@ function Library() {
       const body = new FormData();
       body.append("file", file);
       try {
-        const res = await fetch("/api/admin/media", { method: "POST", body });
+        const res = await fetch("/api/website-admin-cms/media", { method: "POST", body });
         const data = await res.json();
         if (res.ok) {
           setItems((prev) => [data.item as MediaItem, ...prev]);
@@ -88,7 +88,7 @@ function Library() {
   async function saveAlt(item: MediaItem, altText: string) {
     setItems((prev) => prev.map((m) => (m.id === item.id ? { ...m, altText } : m)));
     try {
-      await fetch(`/api/admin/media/${item.id}`, {
+      await fetch(`/api/website-admin-cms/media/${item.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ altText }),
@@ -101,7 +101,7 @@ function Library() {
   async function requestDelete(item: MediaItem) {
     // First attempt without force — the server tells us if it's in use.
     try {
-      const res = await fetch(`/api/admin/media/${item.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/website-admin-cms/media/${item.id}`, { method: "DELETE" });
       if (res.ok) {
         setItems((prev) => prev.filter((m) => m.id !== item.id));
         toast.success("Image deleted.");
@@ -122,7 +122,7 @@ function Library() {
     if (!pendingDelete) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/admin/media/${pendingDelete.item.id}?force=true`, {
+      const res = await fetch(`/api/website-admin-cms/media/${pendingDelete.item.id}?force=true`, {
         method: "DELETE",
       });
       if (res.ok) {

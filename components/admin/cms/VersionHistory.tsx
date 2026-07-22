@@ -45,9 +45,9 @@ function History_() {
   // State updates happen only after the await (see useCmsDoc for rationale).
   async function load() {
     try {
-      const res = await fetch("/api/admin/summary");
+      const res = await fetch("/api/website-admin-cms/summary");
       if (res.status === 401) {
-        window.location.href = "/admin/login";
+        window.location.href = "/website-admin-cms";
         return;
       }
       const data = await res.json();
@@ -72,7 +72,7 @@ function History_() {
     if (!pending) return;
     setRestoring(true);
     try {
-      const res = await fetch(`/api/admin/cms/${pending.resource}`, {
+      const res = await fetch(`/api/website-admin-cms/cms/${pending.resource}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "restore_version", versionId: pending.versionId }),

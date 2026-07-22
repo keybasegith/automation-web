@@ -142,7 +142,7 @@ function PageCard({
     try {
       const body = new FormData();
       body.append("file", file);
-      const res = await fetch("/api/admin/media", { method: "POST", body });
+      const res = await fetch("/api/website-admin-cms/media", { method: "POST", body });
       const data = await res.json();
       if (res.ok) onChange({ heroImage: data.item?.fileUrl ?? data.url });
       else toast.error(data?.error ?? "Upload failed.");

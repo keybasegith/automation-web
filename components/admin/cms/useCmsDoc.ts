@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 /**
  * Client hook that drives the draft → publish workflow for one CMS resource.
  *
- * It loads the document from /api/admin/cms/<resource>, keeps a local editable
+ * It loads the document from /api/website-admin-cms/cms/<resource>, keeps a local editable
  * draft, tracks unsaved vs unpublished state, and exposes save / publish /
  * discard / restore actions. Every editor screen uses this so the workflow and
  * status semantics are identical everywhere.
@@ -69,9 +69,9 @@ export function useCmsDoc<T>(resource: string): CmsDocController<T> {
   // effect that calls this on mount stays side-effect-clean.
   const load = useCallback(async () => {
     try {
-      const res = await fetch(`/api/admin/cms/${resource}`);
+      const res = await fetch(`/api/website-admin-cms/cms/${resource}`);
       if (res.status === 401) {
-        window.location.href = "/admin/login";
+        window.location.href = "/website-admin-cms";
         return;
       }
       const data = await res.json();
@@ -128,13 +128,13 @@ export function useCmsDoc<T>(resource: string): CmsDocController<T> {
       inFlight.current = true;
       setActionError(null);
       try {
-        const res = await fetch(`/api/admin/cms/${resource}`, {
+        const res = await fetch(`/api/website-admin-cms/cms/${resource}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
         if (res.status === 401) {
-          window.location.href = "/admin/login";
+          window.location.href = "/website-admin-cms";
           return false;
         }
         const data = await res.json();

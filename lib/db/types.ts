@@ -87,7 +87,7 @@ export interface DepartmentMessageRow {
 
 /**
  * A leadership-team member shown on the public /key-executives page and
- * managed through the /admin website ERP. Persisted as a file-backed record
+ * managed through the /website-admin-cms website ERP. Persisted as a file-backed record
  * (see lib/admin/executivesRepo.ts), not a Supabase table.
  */
 export interface SiteExecutiveRow {

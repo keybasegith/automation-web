@@ -1,29 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-export default function AdminLoginPage() {
-  const router = useRouter();
+/**
+ * Sign-in form shown at /website-admin-cms when there is no valid admin
+ * session. The server component at that route decides whether to render this
+ * or the dashboard, so on success we hard-reload the same URL and let the
+ * server see the new cookie.
+ */
+export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  // If already signed in, skip straight to the ERP.
-  useEffect(() => {
-    let active = true;
-    fetch("/api/admin/session")
-      .then((r) => r.json())
-      .then((d) => {
-        if (active && d?.authenticated) router.replace("/admin/executives");
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,13 +21,13 @@ export default function AdminLoginPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/admin/login", {
+      const res = await fetch("/api/website-admin-cms/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
       if (res.ok) {
-        router.push("/admin/executives");
+        window.location.href = "/website-admin-cms";
         return;
       }
       const data = await res.json().catch(() => ({}));

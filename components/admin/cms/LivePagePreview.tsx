@@ -43,7 +43,7 @@ export default function LivePagePreview<T>({
     return () => clearTimeout(t);
   }, [unsaved, canSave, saveDraft]);
 
-  const previewUrl = `/api/admin/preview?path=${encodeURIComponent(path)}&v=${version}`;
+  const previewUrl = `/api/website-admin-cms/preview?path=${encodeURIComponent(path)}&v=${version}`;
 
   return (
     <div>

@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 
 /**
- * Lightweight session auth for the website ERP (/admin).
+ * Lightweight session auth for the website ERP (/website-admin-cms).
  *
  * Staff sign in with an email + password from the ADMIN_USERS allow-list below.
  * On success the server sets an httpOnly cookie holding an opaque token derived
@@ -62,6 +62,15 @@ export function verifyCredentials(
 /** The session token to store for a validated user. */
 export function sessionTokenFor(user: AdminUser): string {
   return tokenFor(user);
+}
+
+/**
+ * Validate a raw session-cookie value. For server components that read the
+ * cookie via next/headers rather than off a Request object.
+ */
+export function isValidSessionToken(value: string | null | undefined): boolean {
+  if (!value) return false;
+  return ADMIN_USERS.some((u) => tokenFor(u) === value);
 }
 
 /** Read the raw admin session token off an incoming request, if present. */

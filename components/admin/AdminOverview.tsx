@@ -32,7 +32,7 @@ import {
  * unpublished changes, when the site was last published and by whom, recently
  * edited areas, and recent activity — plus quick actions.
  */
-export default function AdminOverviewPage() {
+export default function AdminOverview() {
   const [resources, setResources] = useState<ResourceSummary[]>([]);
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,9 +42,9 @@ export default function AdminOverviewPage() {
     let active = true;
     (async () => {
       try {
-        const res = await fetch("/api/admin/summary");
+        const res = await fetch("/api/website-admin-cms/summary");
         if (res.status === 401) {
-          window.location.href = "/admin/login";
+          window.location.href = "/website-admin-cms";
           return;
         }
         const data = await res.json();
@@ -140,16 +140,16 @@ export default function AdminOverviewPage() {
           {/* Quick actions */}
           <h2 className="mb-3 mt-8 text-sm font-semibold text-slate-700">Manage content</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <ActionCard href="/admin/executives" icon={<Users className="h-5 w-5" />} title="Key Executives" desc="Add, edit, reorder, and publish the leadership team." />
-            <ActionCard href="/admin/company-pages" icon={<Building2 className="h-5 w-5" />} title="Company Pages" desc="Edit the About and CEO Message page content." />
-            <ActionCard href="/admin/service-pages" icon={<FileText className="h-5 w-5" />} title="Service Pages" desc="Edit hero copy, images, and SEO for the services pages." />
-            <ActionCard href="/admin/careers" icon={<Briefcase className="h-5 w-5" />} title="Careers" desc="Post open positions and edit the careers page." />
-            <ActionCard href="/admin/newsroom" icon={<Newspaper className="h-5 w-5" />} title="Newsroom" desc="Publish articles and insights." />
-            <ActionCard href="/admin/navigation" icon={<MenuIcon className="h-5 w-5" />} title="Navigation" desc="Edit the main menu and top-bar links." />
-            <ActionCard href="/admin/footer" icon={<PanelBottom className="h-5 w-5" />} title="Footer" desc="Update footer link columns and legal links." />
-            <ActionCard href="/admin/global-settings" icon={<Settings className="h-5 w-5" />} title="Global Settings" desc="Company details, contact info, social, and SEO." />
-            <ActionCard href="/admin/media" icon={<ImageIcon className="h-5 w-5" />} title="Media Library" desc="Upload and manage website images." />
-            <ActionCard href="/admin/history" icon={<History className="h-5 w-5" />} title="Version History" desc="Review and restore previously published versions." />
+            <ActionCard href="/website-admin-cms/executives" icon={<Users className="h-5 w-5" />} title="Key Executives" desc="Add, edit, reorder, and publish the leadership team." />
+            <ActionCard href="/website-admin-cms/company-pages" icon={<Building2 className="h-5 w-5" />} title="Company Pages" desc="Edit the About and CEO Message page content." />
+            <ActionCard href="/website-admin-cms/service-pages" icon={<FileText className="h-5 w-5" />} title="Service Pages" desc="Edit hero copy, images, and SEO for the services pages." />
+            <ActionCard href="/website-admin-cms/careers" icon={<Briefcase className="h-5 w-5" />} title="Careers" desc="Post open positions and edit the careers page." />
+            <ActionCard href="/website-admin-cms/newsroom" icon={<Newspaper className="h-5 w-5" />} title="Newsroom" desc="Publish articles and insights." />
+            <ActionCard href="/website-admin-cms/navigation" icon={<MenuIcon className="h-5 w-5" />} title="Navigation" desc="Edit the main menu and top-bar links." />
+            <ActionCard href="/website-admin-cms/footer" icon={<PanelBottom className="h-5 w-5" />} title="Footer" desc="Update footer link columns and legal links." />
+            <ActionCard href="/website-admin-cms/global-settings" icon={<Settings className="h-5 w-5" />} title="Global Settings" desc="Company details, contact info, social, and SEO." />
+            <ActionCard href="/website-admin-cms/media" icon={<ImageIcon className="h-5 w-5" />} title="Media Library" desc="Upload and manage website images." />
+            <ActionCard href="/website-admin-cms/history" icon={<History className="h-5 w-5" />} title="Version History" desc="Review and restore previously published versions." />
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-2">

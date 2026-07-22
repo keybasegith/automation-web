@@ -2,14 +2,14 @@ import type { CmsResource } from "@/lib/cms/types";
 
 /** Where each CMS resource is edited, and where its result shows on the site. */
 export const RESOURCE_EDIT_HREF: Record<CmsResource, string> = {
-  "global-settings": "/admin/global-settings",
-  footer: "/admin/footer",
-  navigation: "/admin/navigation",
-  executives: "/admin/executives",
-  "service-pages": "/admin/service-pages",
-  careers: "/admin/careers",
-  newsroom: "/admin/newsroom",
-  "content-pages": "/admin/company-pages",
+  "global-settings": "/website-admin-cms/global-settings",
+  footer: "/website-admin-cms/footer",
+  navigation: "/website-admin-cms/navigation",
+  executives: "/website-admin-cms/executives",
+  "service-pages": "/website-admin-cms/service-pages",
+  careers: "/website-admin-cms/careers",
+  newsroom: "/website-admin-cms/newsroom",
+  "content-pages": "/website-admin-cms/company-pages",
 };
 
 export function formatDateTime(iso: string | null): string {

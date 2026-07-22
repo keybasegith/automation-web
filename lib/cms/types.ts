@@ -4,7 +4,7 @@
  * The CMS stores every editable area of the public site as a "document" that
  * carries a draft copy, the currently published copy, and a trail of previous
  * published versions. The public website only ever reads the `published` copy;
- * the /admin ERP edits the `draft` copy and promotes it on Publish.
+ * the /website-admin-cms ERP edits the `draft` copy and promotes it on Publish.
  *
  * Storage is file-backed (see lib/cms/store.ts) to match the existing
  * executives store — no external database is required.

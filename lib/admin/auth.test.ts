@@ -13,7 +13,7 @@ import {
  */
 
 function reqWithCookie(value?: string): Request {
-  return new Request("http://localhost/api/admin/cms/footer", {
+  return new Request("http://localhost/api/website-admin-cms/cms/footer", {
     headers: value ? { cookie: `${ADMIN_COOKIE_NAME}=${value}` } : {},
   });
 }

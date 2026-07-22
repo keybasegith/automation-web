@@ -11,10 +11,10 @@ export const metadata = {
     "Meet the leadership team of Keybase Financial Group — seasoned professionals across wealth management, compliance, and corporate strategy.",
 };
 
-// Always render fresh so edits made in the /admin ERP appear immediately.
+// Always render fresh so edits made in the /website-admin-cms ERP appear immediately.
 export const dynamic = "force-dynamic";
 
-// Fallback list used only if the CMS store can't be read. The /admin ERP is the
+// Fallback list used only if the CMS store can't be read. The /website-admin-cms ERP is the
 // source of truth; its seed already contains this same content.
 const FALLBACK_LEADERSHIP: Executive[] = [
   {
