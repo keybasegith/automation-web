@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function BikeFestPage() {
-  return <PdfViewer src="/bike-fest.pdf" />;
+  return <PdfViewer src="/bike-feast.pdf" />;
 }

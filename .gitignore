@@ -12,7 +12,7 @@ tsconfig.tsbuildinfo
 # Sensitive / private files
 *.pdf
 # Public event flyer served at /bike-fest — safe to publish
-!public/bike-fest.pdf
+!public/bike-feast.pdf
 *.docx
 *.xlsx
 uploads
