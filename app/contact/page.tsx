@@ -13,19 +13,19 @@ const DETAILS = [
   {
     icon: Phone,
     label: "Call us",
-    value: "416-450-9000",
-    href: "tel:+14164509000",
+    value: "905-709-7911",
+    href: "tel:+19057097911",
   },
   {
     icon: Mail,
     label: "Email us",
-    value: "info@keybasefinancial.ca",
-    href: "mailto:info@keybasefinancial.ca",
+    value: "info@keybase.com",
+    href: "mailto:info@keybase.com",
   },
   {
     icon: MapPin,
     label: "Visit us",
-    value: "Toronto, Ontario, Canada",
+    value: ["1725 16th Avenue Suite 101", "Richmond Hill, ON L4B 0B3"],
   },
 ];
 
@@ -68,6 +68,8 @@ export default function ContactPage() {
                           <a href={d.href} className="hover:underline">
                             {d.value}
                           </a>
+                        ) : Array.isArray(d.value) ? (
+                          d.value.map((line) => <div key={line}>{line}</div>)
                         ) : (
                           d.value
                         )}

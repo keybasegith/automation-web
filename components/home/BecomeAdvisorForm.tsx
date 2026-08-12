@@ -165,8 +165,8 @@ export default function BecomeAdvisorForm() {
           A member of our advisor development team will review your details and
           reach out within two business days to discuss the opportunity. If your
           matter is time-sensitive, please call us at{" "}
-          <a href="tel:+14164509000" className="font-semibold text-[#0a1f33]">
-            416-450-9000
+          <a href="tel:+19057097911" className="font-semibold text-[#0a1f33]">
+            905-709-7911
           </a>
           .
         </p>
