@@ -56,7 +56,7 @@ export default async function AboutPage() {
 
       {/* ---------- Hero ---------- */}
       <section className="relative overflow-hidden border-b border-black/10 bg-[#0a1f33] text-white">
-        {/* background video — reuses the first home-page hero clip */}
+        {/* background video */}
         <video
           className="pointer-events-none absolute inset-0 h-full w-full object-cover"
           autoPlay
@@ -65,7 +65,7 @@ export default async function AboutPage() {
           playsInline
           aria-hidden
         >
-          <source src="/hero-section-vid1.mp4" type="video/mp4" />
+          <source src="/aboutus-video1.mp4" type="video/mp4" />
         </video>
         {/* dark overlay keeps the copy legible over the video */}
         <div

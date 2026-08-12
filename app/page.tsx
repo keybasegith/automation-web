@@ -148,33 +148,10 @@ export default function Home() {
         <div className="mx-auto max-w-[1280px] px-5 pb-24 sm:px-8 sm:pb-28">
           <Reveal className="group overflow-hidden">
             <img
-              src="/consult-advisors.jpg"
+              src="/mainhomepage2.jpg"
               alt="A Keybase advisor consulting with a client"
-              className="h-[280px] w-full object-cover object-[center_40%] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] sm:h-[360px] lg:h-[420px]"
+              className="h-[280px] w-full object-cover object-[center_20%] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] sm:h-[360px] lg:h-[420px]"
             />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ---------- Compound Interest Calculator ---------- */}
-      <section id="growth-calculator" className="border-t border-black/10 bg-[#f7f9fa]">
-        <div className="mx-auto max-w-[1280px] px-5 py-16 sm:px-8 sm:py-20">
-          <Reveal className="max-w-2xl">
-            <p className="text-[13px] font-semibold uppercase tracking-[0.22em] text-[#0a1f33]">
-              Plan Ahead
-            </p>
-            <h2 className="mt-4 font-serif text-[36px] font-normal leading-[1.1] tracking-tight text-[#0a1f33] sm:text-[44px]">
-              See how your wealth can grow.
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-[#5b6573]">
-              Small, consistent investing adds up. Adjust the inputs below to
-              explore how compounding, contributions, and time can shape your
-              long-term financial future.
-            </p>
-          </Reveal>
-
-          <Reveal delay={120} className="mt-10">
-            <CompoundInterestCalculator />
           </Reveal>
         </div>
       </section>
@@ -217,6 +194,29 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ---------- Compound Interest Calculator ---------- */}
+      <section id="growth-calculator" className="border-t border-black/10 bg-[#f7f9fa]">
+        <div className="mx-auto max-w-[1280px] px-5 py-10 sm:px-8 sm:py-12">
+          <Reveal className="max-w-2xl">
+            <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#0a1f33]">
+              Plan Ahead
+            </p>
+            <h2 className="mt-2 font-serif text-[26px] font-normal leading-[1.12] tracking-tight text-[#0a1f33] sm:text-[30px]">
+              See how your wealth can grow.
+            </h2>
+            <p className="mt-3 text-[15px] leading-relaxed text-[#5b6573]">
+              Small, consistent investing adds up. Adjust the inputs below to
+              explore how compounding, contributions, and time can shape your
+              long-term financial future.
+            </p>
+          </Reveal>
+
+          <Reveal delay={120} className="mt-6">
+            <CompoundInterestCalculator compact />
+          </Reveal>
         </div>
       </section>
 

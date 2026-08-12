@@ -6,17 +6,20 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 
 const NAVY = "#0a1f33";
 
+// Only the opening seconds of each clip are used before handing off to the next.
+const SEGMENT_SECONDS = 7;
+
 // Each slide pairs a background clip with its headline + subtext. The text
 // changes in sync with the clip currently playing.
 const SLIDES = [
   {
-    src: "/hero-section-vid1.mp4",
+    src: "/keybase-mainhero1.mp4",
     title: "Building and preserving wealth for generations.",
     subtext:
       "Keybase Financial Group partners with individuals, families, and institutions to deliver disciplined, independent financial advice — grounded in trust and built for the long term.",
   },
   {
-    src: "/hero-section-vid2.mp4",
+    src: "/keybase-mainhero3.mp4",
     title: "Powered by AI, guided by people.",
     subtext:
       "As one of the first in our field to embrace artificial intelligence, Keybase pairs cutting-edge technology with seasoned judgment — sharpening every insight, decision, and recommendation we deliver.",
@@ -25,17 +28,27 @@ const SLIDES = [
 
 export default function Hero() {
   const ref = useRef<HTMLVideoElement>(null);
+  const advanced = useRef(false);
   const [index, setIndex] = useState(0);
   const slide = SLIDES[index];
 
   // The `key` remount gives a fresh element per clip; this is a safety net for
   // browsers that need an explicit play() after the source swaps.
   useEffect(() => {
+    advanced.current = false;
     const v = ref.current;
     if (!v) return;
     const played = v.play();
     if (played && typeof played.catch === "function") played.catch(() => {});
   }, [index]);
+
+  // timeupdate fires several times a second, so guard against advancing twice
+  // before the state change remounts the element.
+  const next = () => {
+    if (advanced.current) return;
+    advanced.current = true;
+    setIndex((i) => (i + 1) % SLIDES.length);
+  };
 
   return (
     <section
@@ -44,8 +57,9 @@ export default function Hero() {
         background: `linear-gradient(135deg, ${NAVY} 0%, #0e2a45 55%, #0a3d3e 130%)`,
       }}
     >
-      {/* background videos — drop files at public/hero-section-vid1.mp4 and
-          public/hero-section-vid2.mp4 (they play back-to-back and loop). */}
+      {/* background videos — public/keybase-mainhero1.mp4 and
+          public/keybase-mainhero3.mp4. Only the first SEGMENT_SECONDS of each
+          plays before alternating to the other, on a loop. */}
       <video
         key={index}
         ref={ref}
@@ -54,20 +68,13 @@ export default function Hero() {
         muted
         playsInline
         aria-hidden
-        onEnded={() => setIndex((i) => (i + 1) % SLIDES.length)}
+        onTimeUpdate={(e) => {
+          if (e.currentTarget.currentTime >= SEGMENT_SECONDS) next();
+        }}
+        onEnded={next}
       >
         <source src={slide.src} type="video/mp4" />
       </video>
-
-      {/* subtle dark scrim so the headline holds contrast over any frame */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        aria-hidden
-        style={{
-          background:
-            "linear-gradient(90deg, rgba(10,31,51,0.72) 0%, rgba(10,31,51,0.45) 45%, rgba(10,31,51,0.12) 100%)",
-        }}
-      />
 
       {/* teal glow */}
       <div

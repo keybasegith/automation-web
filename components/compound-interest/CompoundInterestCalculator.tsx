@@ -576,17 +576,22 @@ interface StatCardProps {
   subValue?: string;
   accent: string;
   icon: React.ReactNode;
+  compact?: boolean;
 }
 
-function StatCard({ label, value, subValue, accent, icon }: StatCardProps) {
+function StatCard({ label, value, subValue, accent, icon, compact }: StatCardProps) {
   return (
     <div
-      className="flex-1 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+      className={`flex-1 rounded-2xl border border-slate-200 bg-white shadow-sm ${
+        compact ? "p-3" : "p-4"
+      }`}
       style={{ minWidth: 150, borderLeft: `3px solid ${accent}` }}
     >
-      <div className="mb-1.5 flex items-center gap-2">
+      <div className={`flex items-center gap-2 ${compact ? "mb-1" : "mb-1.5"}`}>
         <span
-          className="flex h-7 w-7 items-center justify-center rounded-lg"
+          className={`flex items-center justify-center rounded-lg ${
+            compact ? "h-6 w-6" : "h-7 w-7"
+          }`}
           style={{ background: `${accent}1a`, color: accent }}
         >
           {icon}
@@ -595,10 +600,14 @@ function StatCard({ label, value, subValue, accent, icon }: StatCardProps) {
           {label}
         </span>
       </div>
-      <div className="text-xl font-semibold tracking-tight text-slate-900 tabular-nums">
+      <div
+        className={`font-semibold tracking-tight text-slate-900 tabular-nums ${
+          compact ? "text-lg" : "text-xl"
+        }`}
+      >
         {value}
       </div>
-      {subValue && <div className="mt-1 text-[11px] text-slate-400">{subValue}</div>}
+      {subValue && <div className="mt-0.5 text-[11px] text-slate-400">{subValue}</div>}
     </div>
   );
 }
@@ -742,7 +751,16 @@ function YearlyTable({ data, showInflation, showTax }: YearlyTableProps) {
   );
 }
 
-export default function CompoundInterestCalculator() {
+/**
+ * `compact` tightens padding, type sizes, and chart height for embedding the
+ * calculator inside a page section (e.g. the homepage) rather than giving it a
+ * full page of its own.
+ */
+export default function CompoundInterestCalculator({
+  compact = false,
+}: {
+  compact?: boolean;
+} = {}) {
   const [principal, setPrincipal] = useState(10000);
   const [monthlyContrib, setMonthlyContrib] = useState(500);
   const [annualRate, setAnnualRate] = useState(7);
@@ -788,13 +806,14 @@ export default function CompoundInterestCalculator() {
   return (
     <div>
       {/* Stats Row */}
-      <div className="mb-4 flex flex-wrap gap-3">
+      <div className={`flex flex-wrap ${compact ? "mb-3 gap-2" : "mb-4 gap-3"}`}>
         <StatCard
           label="Total Balance"
           value={formatCurrency(finalData.balance)}
           subValue={`After ${years} years`}
           accent={C.brand}
           icon={<Wallet className="h-4 w-4" />}
+          compact={compact}
         />
         <StatCard
           label="Total Contributed"
@@ -802,6 +821,7 @@ export default function CompoundInterestCalculator() {
           subValue={`${formatCurrency(monthlyContrib)}/mo`}
           accent={C.contrib}
           icon={<PiggyBank className="h-4 w-4" />}
+          compact={compact}
         />
         <StatCard
           label="Interest Earned"
@@ -809,14 +829,23 @@ export default function CompoundInterestCalculator() {
           subValue={`${interestPct}% of total`}
           accent={C.green}
           icon={<Sparkles className="h-4 w-4" />}
+          compact={compact}
         />
       </div>
 
       {/* Two Column Layout */}
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(260px,340px)_1fr]">
+      <div
+        className={`grid items-start lg:grid-cols-[minmax(260px,340px)_1fr] ${
+          compact ? "gap-3" : "gap-4"
+        }`}
+      >
         {/* Left: Inputs */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold text-slate-900">Your Inputs</h2>
+        <div
+          className={`rounded-2xl border border-slate-200 bg-white shadow-sm ${
+            compact ? "p-4" : "p-5"
+          }`}
+        >
+          <h2 className="mb-3 text-sm font-semibold text-slate-900">Your Inputs</h2>
 
           <InputSlider label="Initial Investment" value={principal} onChange={setPrincipal} min={0} max={2000000} step={1000} prefix="$" tooltip="The starting amount you invest today" />
           <InputSlider label="Monthly Contribution" value={monthlyContrib} onChange={setMonthlyContrib} min={0} max={50000} step={50} prefix="$" tooltip="How much you add each month" />
@@ -850,7 +879,7 @@ export default function CompoundInterestCalculator() {
         </div>
 
         {/* Right: Results */}
-        <div className="flex flex-col gap-4">
+        <div className={`flex flex-col ${compact ? "gap-3" : "gap-4"}`}>
           {/* Chart / Table Toggle */}
           <div className="flex gap-2">
             {(["chart", "table"] as const).map((tab) => {
@@ -860,7 +889,9 @@ export default function CompoundInterestCalculator() {
                   key={tab}
                   type="button"
                   onClick={() => setActiveTab(tab)}
-                  className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-semibold transition ${
+                  className={`inline-flex items-center gap-2 rounded-xl border text-[13px] font-semibold transition ${
+                    compact ? "px-3.5 py-2" : "px-4 py-2.5"
+                  } ${
                     active
                       ? "border-[#0a1f33] bg-white text-slate-900 shadow-sm"
                       : "border-slate-200 bg-transparent text-slate-500 hover:text-slate-700"
@@ -881,9 +912,13 @@ export default function CompoundInterestCalculator() {
           </div>
 
           {activeTab === "chart" && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div
+              className={`rounded-2xl border border-slate-200 bg-white shadow-sm ${
+                compact ? "p-3" : "p-4"
+              }`}
+            >
               {/* Legend */}
-              <div className="mb-3 flex flex-wrap gap-4 pl-2">
+              <div className={`flex flex-wrap gap-4 pl-2 ${compact ? "mb-2" : "mb-3"}`}>
                 <div className="flex items-center gap-1.5">
                   <span className="h-[3px] w-3.5 rounded-full" style={{ background: C.balance }} />
                   <span className="text-[11px] font-medium text-slate-500">Total Balance</span>
@@ -905,7 +940,7 @@ export default function CompoundInterestCalculator() {
                   </div>
                 )}
               </div>
-              <MiniChart data={data} width={560} height={260} showInflation={showInflation} showTax={showTax} />
+              <MiniChart data={data} width={560} height={compact ? 200 : 260} showInflation={showInflation} showTax={showTax} />
             </div>
           )}
 
