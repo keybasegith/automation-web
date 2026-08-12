@@ -481,13 +481,13 @@ export function seedServicePages(): ServicePagesContent {
       breadcrumbLabel: "Traditional Investments",
       heading: "Time-tested ways to build wealth.",
       intro:
-        "Traditional investments include publicly traded stocks, bonds, cash, mutual funds, ETFs, and guaranteed investment certificates — used to build portfolios focused on growth, income, capital preservation, or a combination of all three.",
+        "Traditional investments include publicly traded stocks, bonds, cash, mutual funds, mutual fund ETFs, and guaranteed investment certificates — used to build portfolios focused on growth, income, capital preservation, or a combination of all three.",
       heroImage: "/estate-planning1.jpg",
       ctaLabel: "Speak with an Advisor",
       ctaUrl: "/contact",
       seoTitle: "Traditional Investments — Keybase Financial Group",
       seoDescription:
-        "Traditional investments — stocks, bonds, cash, mutual funds, ETFs, and GICs — used to build portfolios for growth, income, and capital preservation. Keybase advisors help you choose solutions aligned with your goals, time horizon, and risk tolerance.",
+        "Traditional investments — stocks, bonds, cash, mutual funds, mutual fund ETFs, and GICs — used to build portfolios for growth, income, and capital preservation. Keybase advisors help you choose solutions aligned with your goals, time horizon, and risk tolerance.",
     },
     {
       slug: "alternative-investments",
