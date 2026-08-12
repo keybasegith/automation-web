@@ -1,3 +1,5 @@
+import type { PageIndicator } from "./pageIndicator";
+
 // Coarse legacy classification, kept for backward compatibility with the
 // initial MVP. New code paths key off `documentName` / `category` instead.
 export const DOCUMENT_TYPES = [
@@ -40,6 +42,11 @@ export interface PageClassification {
   extractedTextPreview: string;
   needsReview: boolean;
   source: ClassificationSource;
+  /**
+   * "Page 2 of 3" stamp parsed from the page's bottom margin, when present.
+   * Authoritative for grouping — see `pageIndicator.ts`.
+   */
+  pageIndicator?: PageIndicator;
 }
 
 export interface DocumentGroup {

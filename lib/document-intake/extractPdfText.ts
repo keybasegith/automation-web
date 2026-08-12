@@ -9,6 +9,14 @@ export interface ExtractedPage {
   headerText: string;
   /** Text items that fall in the bottom 15% of the page. */
   footerText: string;
+  /**
+   * Text drawn rotated (typically 90°), which on these forms is the label
+   * printed sideways in the page corner — e.g. the AIO order request's
+   * "Order Request - AIO" block. A rotated run's baseline can sit anywhere
+   * vertically, so band thresholds miss it entirely; it gets its own bucket
+   * and the classifier treats it as part of the identifying margin.
+   */
+  marginText: string;
 }
 
 const HEADER_FOOTER_BAND = 0.15;
@@ -30,6 +38,21 @@ async function ensurePdfJs() {
 
 function isTextItem(item: TextItem | unknown): item is TextItem {
   return !!item && typeof (item as TextItem).str === "string";
+}
+
+/**
+ * True when a text run is drawn rotated rather than left-to-right.
+ *
+ * The text matrix is [a, b, c, d, e, f]: horizontal text has the scale on
+ * `a`/`d` and ~0 on the skew terms `b`/`c`, while a quarter turn moves the
+ * magnitude onto `b`/`c`. Comparing |b| against |a| catches both 90° and
+ * 270° runs without needing the exact angle.
+ */
+export function isRotated(transform: number[] | readonly number[]): boolean {
+  const a = Number(transform[0]);
+  const b = Number(transform[1]);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
+  return Math.abs(b) > Math.abs(a);
 }
 
 /**
@@ -71,15 +94,21 @@ export async function extractPdfPageText(args: {
     const allParts: string[] = [];
     const headerParts: string[] = [];
     const footerParts: string[] = [];
+    const marginParts: string[] = [];
 
     for (const item of items) {
-      // PDF coords: origin bottom-left. transform[5] is the y position.
-      const y =
+      const transform =
         Array.isArray(item.transform) && item.transform.length >= 6
-          ? Number(item.transform[5])
-          : NaN;
+          ? item.transform
+          : null;
+      // PDF coords: origin bottom-left. transform[5] is the y position.
+      const y = transform ? Number(transform[5]) : NaN;
       allParts.push(item.str);
-      if (Number.isFinite(y)) {
+      if (!transform) continue;
+
+      if (isRotated(transform)) {
+        marginParts.push(item.str);
+      } else if (Number.isFinite(y)) {
         if (y >= headerThreshold) headerParts.push(item.str);
         else if (y <= footerThreshold) footerParts.push(item.str);
       }
@@ -93,6 +122,7 @@ export async function extractPdfPageText(args: {
       text: flatten(allParts),
       headerText: flatten(headerParts),
       footerText: flatten(footerParts),
+      marginText: flatten(marginParts),
     });
     if (args.onPageProgress) args.onPageProgress(pageNumber, totalPages);
     page.cleanup();

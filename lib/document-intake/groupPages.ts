@@ -2,6 +2,7 @@ import {
   CORE_DOCUMENT_REQUIREMENTS,
   findCatalogItemByName,
 } from "./documentCatalog";
+import { indicatorsAreConsecutive } from "./pageIndicator";
 import {
   UNSURE_DOCUMENT_NAME,
   type ClassificationSource,
@@ -178,60 +179,140 @@ function isAnchor(p: PageClassification): boolean {
 }
 
 /**
+ * How many pages this document may span.
+ *
+ * A "Page 2 of 3" stamp printed on the page wins over the catalog, because it
+ * is per-instance: forms like the KYC Update ship in both a 2-page and a
+ * 3-page variant, and the catalog's `expectedPageCount` can only describe one
+ * entry at a time. Falls back to the catalog when the page carries no stamp.
+ */
+function effectiveMaxPages(page: PageClassification): number | undefined {
+  return page.pageIndicator?.total ?? expectedMaxPages(page.documentName);
+}
+
+/** The page cap for an in-progress run: first stamp seen wins, else catalog. */
+function runMaxPages(run: PageClassification[]): number | undefined {
+  for (const p of run) {
+    if (p.pageIndicator) return p.pageIndicator.total;
+  }
+  return run.length > 0 ? expectedMaxPages(run[0].documentName) : undefined;
+}
+
+/** Copy an anchor's identity onto a page that belongs to the same document. */
+function adoptIdentity(
+  page: PageClassification,
+  anchor: PageClassification,
+  direction: "continuation" | "preceding"
+): PageClassification {
+  return {
+    ...page,
+    documentType: anchor.documentType,
+    documentName: anchor.documentName,
+    documentCode: anchor.documentCode,
+    category: anchor.category,
+    confidence: Math.max(page.confidence, 88),
+    reason: `${direction} page of ${anchor.documentName} (anchor at p${anchor.pageNumber})`,
+    needsReview: false,
+    source: "fallback",
+  };
+}
+
+/**
  * Anchor-and-expand. For each anchor page (a page with a confident catalog
- * match), claim immediately following Unsure pages as continuation pages of
- * the same form, up to the anchor's `expectedPageCount`.
+ * match), claim the surrounding Unsure pages as pages of the same form.
  *
  * This handles the case where only page 1 of a multi-page form prints the
  * form code in its header — pages 2..N have no code and would otherwise be
  * left as Unsure.
  *
- * Stops expanding if it hits another anchor (different doc) or runs past
- * the form's expected page count. Pages that already match the anchor's
- * document do not consume a slot but continue the run.
+ * Two things bound the expansion: the form's page count (from the page's own
+ * "Page N of M" stamp when it has one, else the catalog), and any conflicting
+ * stamp on a neighbouring page. Expansion also stops at another anchor so a
+ * run can never swallow a different document.
+ *
+ * Expansion runs backward as well as forward: when the code prints on page 2
+ * but not page 1, the anchor's own stamp ("Page 2 of 3") tells us a page of
+ * this form precedes it. Without the backward pass that leading page stays
+ * Unsure and — because the group takes its name from its first page — would
+ * name the whole document "Unsure".
  */
-function expandAnchorsForward(
+function expandAnchors(
   classifications: PageClassification[]
 ): PageClassification[] {
   const result = classifications.map((p) => ({ ...p }));
+
   for (let i = 0; i < result.length; i++) {
     const anchor = result[i];
     if (!isAnchor(anchor)) continue;
-    const expected = expectedMaxPages(anchor.documentName);
+    const expected = effectiveMaxPages(anchor);
     if (expected === undefined || expected <= 1) continue;
 
-    let claimed = 1;
-    for (let j = i + 1; j < result.length && claimed < expected; j++) {
+    // Where the anchor sits inside its own document. Without a stamp we can
+    // only assume it is the first page, which is the common case (the form
+    // code prints in the header of page 1).
+    const anchorIndex = anchor.pageIndicator?.index ?? 1;
+
+    // ---- forward ----
+    let position = anchorIndex;
+    for (let j = i + 1; j < result.length && position < expected; j++) {
       const next = result[j];
       // Must be the immediate next page (no gap).
       if (next.pageNumber !== result[j - 1].pageNumber + 1) break;
-
+      // A stamp on the neighbour is ground truth: it either confirms the next
+      // slot in this document or proves the document ended.
+      if (
+        next.pageIndicator &&
+        !(
+          next.pageIndicator.total === expected &&
+          next.pageIndicator.index === position + 1
+        )
+      ) {
+        break;
+      }
       // Same anchor doc already → continues the run, don't override.
       if (
         next.documentName === anchor.documentName &&
         next.category === anchor.category
       ) {
-        claimed += 1;
+        position += 1;
         continue;
       }
       // Hit another anchor (different document) → stop, don't overwrite.
       if (isAnchor(next)) break;
-      // Otherwise the page is Unsure / weak / Unknown — claim it as a
-      // continuation of the anchor's form.
-      result[j] = {
-        ...next,
-        documentType: anchor.documentType,
-        documentName: anchor.documentName,
-        documentCode: anchor.documentCode,
-        category: anchor.category,
-        confidence: Math.max(next.confidence, 88),
-        reason: `continuation page of ${anchor.documentName} (anchor at p${anchor.pageNumber})`,
-        needsReview: false,
-        source: "fallback",
-      };
-      claimed += 1;
+      // Otherwise the page is Unsure / weak / Unknown — claim it.
+      result[j] = adoptIdentity(next, anchor, "continuation");
+      position += 1;
+    }
+
+    // ---- backward ----
+    // Only meaningful when the anchor's stamp says pages precede it.
+    if (!anchor.pageIndicator || anchorIndex <= 1) continue;
+    position = anchorIndex;
+    for (let j = i - 1; j >= 0 && position > 1; j--) {
+      const prev = result[j];
+      if (prev.pageNumber !== result[j + 1].pageNumber - 1) break;
+      if (
+        prev.pageIndicator &&
+        !(
+          prev.pageIndicator.total === expected &&
+          prev.pageIndicator.index === position - 1
+        )
+      ) {
+        break;
+      }
+      if (
+        prev.documentName === anchor.documentName &&
+        prev.category === anchor.category
+      ) {
+        position -= 1;
+        continue;
+      }
+      if (isAnchor(prev)) break;
+      result[j] = adoptIdentity(prev, anchor, "preceding");
+      position -= 1;
     }
   }
+
   return result;
 }
 
@@ -304,10 +385,22 @@ function buildGroupFromPages(
  * same document interrupted by another document stay as separate groups so
  * the splitter can never accidentally absorb pages from a different form.
  *
- * Each group is also capped at the catalog's `expectedPageCount`. If a run
- * exceeds the cap (because weak keyword matches keep extending it), the
- * overflow pages are flushed as their own Unsure group so the employee can
- * decide what they actually are.
+ * "Page N of M" stamps override name/category agreement in both directions:
+ *
+ *  - A page stamped "Page 1 of M" always opens a new document, even when the
+ *    run in progress carries the same document name. This is what separates
+ *    two AIO order requests filed back to back — six pages that all classify
+ *    identically, but which are three distinct two-page documents.
+ *  - Two adjacent stamped pages that are NOT consecutive ("3 of 3" followed
+ *    by "1 of 3") end the run even if both pages classify the same way.
+ *  - Conversely, a stamp that continues the run holds an unnamed page inside
+ *    the document it belongs to.
+ *
+ * Each group is also capped at its page count — the stamp's total when there
+ * is one, otherwise the catalog's `expectedPageCount`. If a run exceeds the
+ * cap (because weak keyword matches keep extending it), the overflow pages
+ * are flushed as their own Unsure group so the employee can decide what they
+ * actually are.
  */
 export function groupPages(
   classifications: PageClassification[],
@@ -318,7 +411,7 @@ export function groupPages(
   const sortedRaw = [...classifications].sort(
     (a, b) => a.pageNumber - b.pageNumber
   );
-  const sorted = expandAnchorsForward(sortedRaw);
+  const sorted = expandAnchors(sortedRaw);
   const groups: DocumentGroup[] = [];
   let current: PageClassification[] = [];
 
@@ -328,17 +421,24 @@ export function groupPages(
     current = [];
   };
 
-  const flushAsUnsure = (page: PageClassification) => {
+  // `previousName` is passed in because the caller flushes the in-progress run
+  // before calling this — by then `current` is empty.
+  const flushAsUnsure = (page: PageClassification, previousName: string) => {
     const reclassified: PageClassification = {
       ...page,
       documentType: "Other",
       documentName: UNSURE_DOCUMENT_NAME,
       documentCode: undefined,
-      reason: `${page.reason} (overflow past expected page count for ${current[0]?.documentName ?? "previous group"})`,
+      reason: `${page.reason} (overflow past expected page count for ${previousName})`,
       needsReview: true,
       source: "fallback",
     };
     groups.push(buildGroupFromPages([reclassified], args));
+  };
+
+  const startNewGroup = (page: PageClassification) => {
+    flushCurrent();
+    current.push(page);
   };
 
   for (const page of sorted) {
@@ -349,22 +449,57 @@ export function groupPages(
     const last = current[current.length - 1];
     const sameDoc =
       last.documentName === page.documentName && last.category === page.category;
-    const consecutive = page.pageNumber === last.pageNumber + 1;
-    if (sameDoc && consecutive) {
-      const cap = expectedMaxPages(last.documentName);
-      if (cap !== undefined && current.length >= cap) {
-        // Already at the form's max — extra page can't belong to the same
-        // physical document. Flush the in-progress group and treat this page
-        // as Unsure so the reviewer picks a real type for it.
-        flushCurrent();
-        flushAsUnsure(page);
-        continue;
-      }
-      current.push(page);
-    } else {
-      flushCurrent();
-      current.push(page);
+
+    // A gap in page numbers always ends the run.
+    if (page.pageNumber !== last.pageNumber + 1) {
+      startNewGroup(page);
+      continue;
     }
+
+    // "Page 1 of M" — a fresh physical document starts here regardless of how
+    // this page classified, so back-to-back copies of the same form split.
+    if (page.pageIndicator?.index === 1) {
+      startNewGroup(page);
+      continue;
+    }
+
+    // Both pages stamped but not consecutive → different documents.
+    const stampedContinuation = indicatorsAreConsecutive(
+      last.pageIndicator,
+      page.pageIndicator
+    );
+    if (last.pageIndicator && page.pageIndicator && !stampedContinuation) {
+      startNewGroup(page);
+      continue;
+    }
+
+    // A stamp can hold an unnamed page inside the current document, but it may
+    // never absorb a page that confidently identifies as a different form.
+    const joins =
+      sameDoc || (stampedContinuation && !(isAnchor(page) && !sameDoc));
+    if (!joins) {
+      startNewGroup(page);
+      continue;
+    }
+
+    const cap = runMaxPages(current);
+    if (cap !== undefined && current.length >= cap) {
+      // Already at the form's max — this page can't belong to the same
+      // physical document, so the run ends here either way.
+      const previousName = current[0].documentName;
+      flushCurrent();
+      if (isAnchor(page)) {
+        // The page prints its own form code: it opens the next copy of the
+        // document (three AIO orders filed in a row), not an anomaly.
+        current.push(page);
+      } else {
+        // Genuinely unidentified overflow — surface it so the reviewer picks
+        // a real type rather than letting it inflate the previous document.
+        flushAsUnsure(page, previousName);
+      }
+      continue;
+    }
+    current.push(page);
   }
   flushCurrent();
 

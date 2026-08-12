@@ -1,8 +1,11 @@
 import {
   DOCUMENT_CATALOG,
   findCatalogCodesInText,
+  findCatalogTitlesInText,
+  normalizeTitleText,
   type DocumentCatalogItem,
 } from "./documentCatalog";
+import { parsePageIndicator } from "./pageIndicator";
 import {
   UNSURE_DOCUMENT_NAME,
   type ClassificationSource,
@@ -61,6 +64,51 @@ function deriveCoarseType(args: {
   if (args.documentName === "Unknown") return "Unknown";
   const fromCategory = COARSE_FROM_CATEGORY[args.category];
   return fromCategory ?? "Other";
+}
+
+/**
+ * Pick a printed-title hit only when it is unambiguous.
+ *
+ * `findCatalogTitlesInText` returns longest-title-first. A single hit is
+ * clear; several hits of the same length mean two forms claim this page, so
+ * we decline and let keyword scoring (and ultimately the reviewer) decide
+ * rather than guessing between them.
+ */
+function unambiguousTitle(
+  hits: DocumentCatalogItem[]
+): DocumentCatalogItem | undefined {
+  if (hits.length === 0) return undefined;
+  if (hits.length === 1) return hits[0];
+  const [first, second] = hits;
+  const firstLength = normalizeTitleText(first.printedTitles?.[0] ?? "").length;
+  const secondLength = normalizeTitleText(second.printedTitles?.[0] ?? "").length;
+  return firstLength > secondLength ? first : undefined;
+}
+
+function buildTitleClassification(args: {
+  item: DocumentCatalogItem;
+  pageNumber: number;
+  preview: string;
+  confidence: number;
+  where: string;
+}): PageClassification {
+  const { item, pageNumber, preview, confidence, where } = args;
+  return {
+    pageNumber,
+    documentType: deriveCoarseType({
+      documentName: item.documentName,
+      category: item.category,
+    }),
+    documentName: item.documentName,
+    documentCode: item.documentCode,
+    category: item.category,
+    confidence,
+    reason: `printed title "${item.printedTitles?.[0] ?? item.documentName}" found in ${where}`,
+    matchedKeywords: item.printedTitles?.slice(0, 1) ?? [],
+    extractedTextPreview: preview,
+    needsReview: false,
+    source: "keyword",
+  };
 }
 
 function normalize(text: string): string {
@@ -236,22 +284,14 @@ function computeConfidence(top: CatalogScore, secondScore: number): number {
   return 25;
 }
 
-/**
- * Classify a single page given its extracted text.
- *
- * `headerText` and `footerText` (when supplied) are the top/bottom 15% bands
- * of the page. A catalog form code (e.g. "10089") found in those bands is
- * treated as the dominant signal — Keybase forms print the code in the
- * header/footer of every page of a multi-page form, so a header-band hit
- * means the whole page belongs to that form regardless of body keywords.
- */
-export function classifyDocumentPage(args: {
+function classifyPageCore(args: {
   pageNumber: number;
   text: string;
   headerText?: string;
   footerText?: string;
+  marginText?: string;
 }): PageClassification {
-  const { pageNumber, text, headerText, footerText } = args;
+  const { pageNumber, text, headerText, footerText, marginText } = args;
   const cleanText = text ?? "";
   const preview = buildPreview(cleanText);
 
@@ -273,7 +313,9 @@ export function classifyDocumentPage(args: {
   // Dominant signal: a catalog form code printed in the page header or footer
   // (the strip Keybase uses to identify the form on every page). Exactly one
   // unique code in those bands → near-certain anchor.
-  const headerFooterText = `${headerText ?? ""}\n${footerText ?? ""}`.trim();
+  const headerFooterText = `${headerText ?? ""}\n${footerText ?? ""}\n${
+    marginText ?? ""
+  }`.trim();
   if (headerFooterText.length > 0) {
     const headerHits = findCatalogCodesInText(headerFooterText);
     if (headerHits.length === 1) {
@@ -319,6 +361,37 @@ export function classifyDocumentPage(args: {
       needsReview: false,
       source: "keyword",
     };
+  }
+
+  // Next best signal: the heading the form prints on itself. Checked only
+  // after the code paths above, because a form code names the exact variant
+  // whereas a heading usually only names the family.
+  //
+  // The band text includes rotated margin text, which is where the AIO order
+  // request prints its "Order Request - AIO" label — sideways in the corner,
+  // nowhere near the top of the page in raw coordinates.
+  const bandTitleHits = findCatalogTitlesInText(headerFooterText);
+  const bandTitle = unambiguousTitle(bandTitleHits);
+  if (bandTitle) {
+    return buildTitleClassification({
+      item: bandTitle,
+      pageNumber,
+      preview,
+      confidence: 96,
+      where: "page header/margin",
+    });
+  }
+
+  const fullTitleHits = findCatalogTitlesInText(cleanText);
+  const fullTitle = unambiguousTitle(fullTitleHits);
+  if (fullTitle) {
+    return buildTitleClassification({
+      item: fullTitle,
+      pageNumber,
+      preview,
+      confidence: 90,
+      where: "page",
+    });
   }
 
   // Special case: passport MRZ pattern is a near-certain identifier.
@@ -437,5 +510,47 @@ export function classifyDocumentPage(args: {
     extractedTextPreview: preview,
     needsReview: confidence < 85,
     source,
+  };
+}
+
+/**
+ * Classify a single page given its extracted text.
+ *
+ * `headerText` and `footerText` (when supplied) are the top/bottom 15% bands
+ * of the page. Two signals come out of those bands:
+ *
+ *  1. A catalog form code (e.g. "10089") — Keybase forms print the code in
+ *     the header/footer of every page of a multi-page form, so a band hit
+ *     means the whole page belongs to that form regardless of body keywords.
+ *  2. A "Page 2 of 3" stamp in the bottom margin, which tells the grouper
+ *     exactly where this document starts and ends. See `pageIndicator.ts`.
+ *
+ * The stamp is attached to every classification, including the low-confidence
+ * and Unsure ones — a page the classifier could not name is often exactly the
+ * page whose stamp lets `groupPages` attach it to the right document.
+ */
+export function classifyDocumentPage(args: {
+  pageNumber: number;
+  text: string;
+  headerText?: string;
+  footerText?: string;
+  marginText?: string;
+}): PageClassification {
+  const classification = classifyPageCore(args);
+
+  // Prefer the footer band. Fall back to whole-page text only when no band
+  // was supplied (or OCR mirrored the full text into it), accepting the
+  // higher false-positive rate because a stamp is better than no boundary.
+  const pageIndicator =
+    parsePageIndicator(args.footerText) ?? parsePageIndicator(args.text);
+
+  if (!pageIndicator) return classification;
+
+  // Record the stamp in the reason too — it is usually what decided this
+  // page's document boundary, and the review table shows `reason` verbatim.
+  return {
+    ...classification,
+    pageIndicator,
+    reason: `${classification.reason}; page ${pageIndicator.index} of ${pageIndicator.total} stamped on page`,
   };
 }

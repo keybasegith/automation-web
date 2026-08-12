@@ -17,6 +17,15 @@ export type DocumentCatalogItem = {
   category: string;
   aliases: string[];
   keywords: string[];
+  /**
+   * Headings this form actually prints on its first page, verbatim.
+   *
+   * Unlike `aliases` and `keywords` — which are shared across every item in a
+   * category and so can only narrow things down to a family — printed titles
+   * are per-item, which is what makes them able to name a specific document.
+   * Matched case- and punctuation-insensitively; see `findCatalogTitlesInText`.
+   */
+  printedTitles?: string[];
   expectedPageCount?: number | number[];
   isCoreDocument?: boolean;
   requiresReview?: boolean;
@@ -29,6 +38,7 @@ interface CatalogGroup {
   items: {
     documentCode?: string;
     documentName: string;
+    printedTitles?: string[];
     expectedPageCount?: number | number[];
     isCoreDocument?: boolean;
     requiresReview?: boolean;
@@ -73,6 +83,17 @@ const GROUPS: CatalogGroup[] = [
       "TCP",
     ],
     items: [
+      // The heading printed across the top of the form, under the Keybase
+      // letterhead. It does not state which page-count variant this is, so it
+      // identifies the family; the code entries below win when a code prints.
+      // Capped at 3 pages — the usual length — but a "Page N of M" stamp on
+      // the page overrides this per-instance.
+      {
+        documentName: "Know Your Client Update",
+        printedTitles: ["Know Your Client Update"],
+        expectedPageCount: 3,
+        isCoreDocument: true,
+      },
       { documentCode: "10002", documentName: "KYC Update - 2 Pages - 10002", expectedPageCount: 2, isCoreDocument: true },
       { documentCode: "10001", documentName: "KYC Update - 3 Pages - 10001", expectedPageCount: 3, isCoreDocument: true },
       { documentCode: "10079", documentName: "Trusted Contact Person TCP - 10079" },
@@ -204,10 +225,28 @@ const GROUPS: CatalogGroup[] = [
     items: [
       { documentCode: "10017", documentName: "Auto Switch Program - 10017" },
       { documentCode: "10019", documentName: "Commission Rebate Disclosure - 10019" },
-      { documentCode: "10099", documentName: "Order / PAC Request AIO 1st Plan - 10099" },
-      { documentCode: "10103", documentName: "Order / PAC Request AIO 2nd Plan - 10103" },
-      { documentCode: "10104", documentName: "Order / PAC Request AIO 3rd Plan - 10104" },
-      { documentCode: "10105", documentName: "Order / PAC Request AIO 4th Plan - 10105" },
+      // What the form actually prints: a rotated block in the page corner
+      // reading "Order Request - AIO". It carries no plan number, so it can
+      // only identify the form family — which is the right answer, because
+      // that is also how staff refer to it. When a plan-specific form code
+      // IS present the code match wins and yields the exact variant below.
+      {
+        documentName: "Order Request - AIO",
+        printedTitles: [
+          "Order Request - AIO",
+          "Order Request AIO",
+          "Transactions are executed by mutual fund codes, only",
+        ],
+        expectedPageCount: 2,
+      },
+      // The AIO order requests are always printed recto-verso — two sides of
+      // one sheet. Only the front prints the form code, so the page count is
+      // what stops a run of consecutive AIO orders being merged into one
+      // oversized document.
+      { documentCode: "10099", documentName: "Order / PAC Request AIO 1st Plan - 10099", expectedPageCount: 2 },
+      { documentCode: "10103", documentName: "Order / PAC Request AIO 2nd Plan - 10103", expectedPageCount: 2 },
+      { documentCode: "10104", documentName: "Order / PAC Request AIO 3rd Plan - 10104", expectedPageCount: 2 },
+      { documentCode: "10105", documentName: "Order / PAC Request AIO 4th Plan - 10105", expectedPageCount: 2 },
     ],
   },
   {
@@ -637,6 +676,7 @@ function expand(): DocumentCatalogItem[] {
         category: group.category,
         aliases: group.aliases,
         keywords: group.keywords,
+        printedTitles: item.printedTitles,
         expectedPageCount: item.expectedPageCount,
         isCoreDocument: item.isCoreDocument,
         requiresReview: item.requiresReview,
@@ -750,6 +790,54 @@ const CATALOG_CODE_REGEX = buildCatalogCodeRegex();
  * unique catalog items whose documentCode appears (case-insensitive, strict
  * boundaries).
  */
+/**
+ * Flatten text for title comparison: lowercase, and reduce every run of
+ * non-alphanumeric characters to a single space.
+ *
+ * This makes the match survive the ways a printed heading arrives in the
+ * extracted text — "Order Request - AIO", "Order Request-AIO", and the
+ * spaced-out "O r d e r  R e q u e s t" that PDF text layers sometimes
+ * produce all normalize toward the same form.
+ */
+export function normalizeTitleText(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Find catalog items whose printed title appears in `text`.
+ *
+ * Returns one entry per distinct document, longest title first so the caller
+ * can prefer the most specific heading when a form prints several.
+ */
+export function findCatalogTitlesInText(text: string): DocumentCatalogItem[] {
+  if (!text) return [];
+  const haystack = normalizeTitleText(text);
+  if (!haystack) return [];
+
+  const seen = new Set<string>();
+  const hits: Array<{ item: DocumentCatalogItem; length: number }> = [];
+
+  for (const item of DOCUMENT_CATALOG) {
+    if (!item.printedTitles) continue;
+    for (const title of item.printedTitles) {
+      const needle = normalizeTitleText(title);
+      // Guard against a degenerate short title matching half the corpus.
+      if (needle.length < 8) continue;
+      if (!haystack.includes(needle)) continue;
+      if (seen.has(item.documentName)) continue;
+      seen.add(item.documentName);
+      hits.push({ item, length: needle.length });
+      break;
+    }
+  }
+
+  return hits.sort((a, b) => b.length - a.length).map((h) => h.item);
+}
+
 export function findCatalogCodesInText(text: string): DocumentCatalogItem[] {
   if (!text) return [];
   CATALOG_CODE_REGEX.lastIndex = 0;

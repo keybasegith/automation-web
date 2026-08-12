@@ -384,8 +384,8 @@ export default function SmartDocumentIntake() {
             if (typeof ocred === "string" && ocred.length > p.text.length) {
               // Tesseract output is flattened — we don't get per-region
               // positions back from it. Mirror the full OCR text into
-              // header/footer so the classifier can still find a form code
-              // anywhere on the page.
+              // header/footer so the classifier can still find a form code or
+              // a printed title anywhere on the page.
               return {
                 ...p,
                 text: ocred,
@@ -435,6 +435,7 @@ export default function SmartDocumentIntake() {
           text: p.text,
           headerText: p.headerText,
           footerText: p.footerText,
+          marginText: p.marginText,
         })
       );
 
