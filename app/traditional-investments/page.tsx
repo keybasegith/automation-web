@@ -31,7 +31,7 @@ const ASSET_CLASSES = [
   "Bonds",
   "Cash",
   "Mutual Funds",
-  "ETFs",
+  "ETFs (Mutual Fund ETFs)",
   "GICs",
 ];
 
@@ -278,18 +278,28 @@ export default async function TraditionalInvestmentsPage() {
                   <h2 className="mt-4 font-serif text-[32px] font-normal leading-[1.12] tracking-tight sm:text-[40px]">
                     ETF Portfolios
                   </h2>
+                  <p className="mt-3 text-lg text-white/60">
+                    (Mutual Fund ETFs)
+                  </p>
                 </div>
                 <div className="space-y-6 text-lg leading-relaxed text-white/80 lg:pt-2">
                   <p>
-                    ETF portfolios provide exposure to exchange-traded funds within
-                    a managed investment structure. They can offer diversification,
-                    cost efficiency, and access to different markets or asset
-                    classes.
+                    The ETF solutions offered through Keybase are mutual fund ETFs
+                    — mutual funds that hold ETFs as their underlying investments.
+                    The fund manager selects and manages those underlying ETFs
+                    within a single, professionally managed portfolio, offered
+                    through our fund company partners.
                   </p>
                   <p>
-                    For investors who want the benefits of ETFs with the guidance of
-                    a managed portfolio, ETF-based solutions can provide a practical
-                    and streamlined approach.
+                    Because they are structured as mutual funds, they are typically
+                    priced once per day at net asset value (NAV), rather than
+                    trading on a stock exchange with prices that change throughout
+                    the trading day.
+                  </p>
+                  <p>
+                    For investors who want the diversification and cost efficiency
+                    of ETFs with the guidance of a managed portfolio, mutual fund
+                    ETFs can provide a practical and streamlined approach.
                   </p>
                 </div>
               </div>
