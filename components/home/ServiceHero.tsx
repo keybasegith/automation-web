@@ -34,20 +34,52 @@ export function serviceScrim(slug: string): string {
 }
 
 /**
+ * Per-page hero band height. Only pages that needed a shorter band appear here;
+ * everything else uses the component's default.
+ */
+const SERVICE_HERO_PADDING: Record<string, string> = {
+  "wealth-building": "py-14 sm:py-16",
+  "alternative-investments": "py-14 sm:py-16",
+};
+
+export function serviceHeroPadding(slug: string): string | undefined {
+  return SERVICE_HERO_PADDING[slug];
+}
+
+/**
+ * Per-page hero framing. Only pages whose photo needs a closer crop appear
+ * here; everything else uses the default push-in.
+ */
+const SERVICE_HERO_FRAMING: Record<string, string> = {
+  "wealth-building": "ken-burns-close",
+};
+
+export function serviceHeroFraming(slug: string): string | undefined {
+  return SERVICE_HERO_FRAMING[slug];
+}
+
+/**
  * Shared hero for every "Our Services" page. Renders the exact markup the pages
  * previously duplicated inline (dark band → ken-burns background image →
  * gradient scrim → breadcrumb → eyebrow → heading → intro → CTA), now driven by
  * CMS content so staff can edit the headline copy, image, and CTA.
  *
  * `scrimClassName` stays a per-page prop (a design detail, not content) so each
- * page keeps its exact background-image legibility gradient.
+ * page keeps its exact background-image legibility gradient. `paddingClassName`
+ * is the same kind of prop: pages whose copy runs long can dial the band down
+ * from the default height without affecting every other service page.
  */
 export default function ServiceHero({
   content,
   scrimClassName,
+  paddingClassName = "py-20 sm:py-28",
+  framingClassName = "ken-burns",
 }: {
   content: ServicePageContent;
   scrimClassName: string;
+  paddingClassName?: string;
+  /** Replaces the default push-in animation — see serviceHeroFraming(). */
+  framingClassName?: string;
 }) {
   return (
     <section className="relative overflow-hidden border-b border-black/10 bg-[#0a1f33] text-white">
@@ -57,12 +89,14 @@ export default function ServiceHero({
         src={content.heroImage}
         alt=""
         aria-hidden
-        className="ken-burns pointer-events-none absolute inset-0 h-full w-full object-cover"
+        className={`${framingClassName} pointer-events-none absolute inset-0 h-full w-full object-cover`}
       />
       {/* light left-side scrim keeps the copy legible without darkening the image */}
       <div className={scrimClassName} aria-hidden />
 
-      <div className="relative mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
+      <div
+        className={`relative mx-auto max-w-[1280px] px-5 sm:px-8 ${paddingClassName}`}
+      >
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"

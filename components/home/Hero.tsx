@@ -13,13 +13,13 @@ const SEGMENT_SECONDS = 7;
 // changes in sync with the clip currently playing.
 const SLIDES = [
   {
-    src: "/keybase-mainhero1.mp4",
+    src: "/mainhomepage-herovid1.mp4",
     title: "Building and preserving wealth for generations.",
     subtext:
       "Keybase Financial Group partners with individuals, families, and institutions to deliver disciplined, independent financial advice — grounded in trust and built for the long term.",
   },
   {
-    src: "/keybase-mainhero3.mp4",
+    src: "/mainhomepage-herovid2.mp4",
     title: "Powered by AI, guided by people.",
     subtext:
       "As one of the first in our field to embrace artificial intelligence, Keybase pairs cutting-edge technology with seasoned judgment — sharpening every insight, decision, and recommendation we deliver.",
@@ -57,9 +57,9 @@ export default function Hero() {
         background: `linear-gradient(135deg, ${NAVY} 0%, #0e2a45 55%, #0a3d3e 130%)`,
       }}
     >
-      {/* background videos — public/keybase-mainhero1.mp4 and
-          public/keybase-mainhero3.mp4. Only the first SEGMENT_SECONDS of each
-          plays before alternating to the other, on a loop. */}
+      {/* background videos — public/mainhomepage-herovid1.mp4 and
+          public/mainhomepage-herovid2.mp4. Only the first SEGMENT_SECONDS of
+          each plays before alternating to the other, on a loop. */}
       <video
         key={index}
         ref={ref}

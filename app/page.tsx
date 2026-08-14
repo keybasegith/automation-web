@@ -21,26 +21,35 @@ export const metadata = {
     "Keybase Financial Group partners with individuals, families, and institutions to deliver disciplined, independent financial advice built for the long term.",
 };
 
+/**
+ * `href` opens the services hub on a service representative of that card, which
+ * also selects the matching category tab. "Financial Advice" has no category of
+ * its own, so it goes to the advisors who deliver it.
+ */
 const SERVICES = [
   {
     icon: LineChart,
     title: "Wealth Planning",
     body: "Comprehensive, goals-based plans designed around your circumstances, time horizon, and long-term ambitions.",
+    href: "/services/wealth-building",
   },
   {
     icon: TrendingUp,
     title: "Financial Advice",
     body: "Independent, research-driven guidance that brings clarity to every decision across your financial life.",
+    href: "/our-advisors",
   },
   {
     icon: Landmark,
     title: "Investment Solutions",
     body: "Disciplined strategies across public and private markets, managed with institutional rigor and care.",
+    href: "/services/traditional-investments",
   },
   {
     icon: ShieldCheck,
     title: "Preservation Strategies",
     body: "Tax-efficient planning that protects what you've built and transfers wealth seamlessly across generations.",
+    href: "/services/insurance",
   },
 ];
 
@@ -96,21 +105,28 @@ export default function Home() {
               <Reveal
                 key={service.title}
                 delay={i * 110}
-                className="group flex h-full flex-col lg:border-l lg:border-black/15 lg:pl-12"
+                className="h-full lg:border-l lg:border-black/15 lg:pl-12"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#eaeef2] text-[#0a1f33] transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-[#0a1f33] group-hover:text-white group-hover:shadow-lg group-hover:shadow-[#0a1f33]/20">
-                  <Icon className="h-6 w-6" strokeWidth={1.75} />
-                </span>
-                <h3 className="mt-8 font-serif text-2xl font-normal text-[#0a1f33]">
-                  {service.title}
-                </h3>
-                <p className="mt-3 flex-1 text-[15px] leading-relaxed text-[#5b6573]">
-                  {service.body}
-                </p>
-                <span className="mt-8 inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#0a1f33]">
-                  Learn more
-                  <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
+                {/* The whole card is the link — the icon and chevron already
+                    animate off group-hover, so they follow it. */}
+                <Link
+                  href={service.href}
+                  className="group flex h-full flex-col"
+                >
+                  <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#eaeef2] text-[#0a1f33] transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-[#0a1f33] group-hover:text-white group-hover:shadow-lg group-hover:shadow-[#0a1f33]/20">
+                    <Icon className="h-6 w-6" strokeWidth={1.75} />
+                  </span>
+                  <h3 className="mt-8 font-serif text-2xl font-normal text-[#0a1f33]">
+                    {service.title}
+                  </h3>
+                  <p className="mt-3 flex-1 text-[15px] leading-relaxed text-[#5b6573]">
+                    {service.body}
+                  </p>
+                  <span className="mt-8 inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#0a1f33] transition-colors group-hover:text-[#006d6e]">
+                    Learn more
+                    <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Link>
               </Reveal>
             );
           })}

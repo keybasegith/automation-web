@@ -65,7 +65,7 @@ export default async function AboutPage() {
           playsInline
           aria-hidden
         >
-          <source src="/aboutus-video1.mp4" type="video/mp4" />
+          <source src="/about-vid1.mp4" type="video/mp4" />
         </video>
         {/* dark overlay keeps the copy legible over the video */}
         <div

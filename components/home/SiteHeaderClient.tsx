@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Search, Menu, X, ChevronDown, Globe, Check, Lock, UserRound, ArrowRight } from "lucide-react";
@@ -9,65 +9,10 @@ import type { NavContent, NavChild, NavItem as CmsNavItem } from "@/lib/cms/type
 /**
  * Interactive site header. Content (nav items, utility links, logo, CTA,
  * announcement) is passed in from the published CMS by the SiteHeader server
- * wrapper. The "Our Services" mega menu structure stays in code (SERVICES_MENU)
- * — the CMS only controls its label and visibility. Markup/styling unchanged.
+ * wrapper. "Our Services" is now an ordinary link to the /services hub, which
+ * indexes every service in its own tabs, so the header no longer carries a
+ * mega menu.
  */
-
-type ServiceLink = { label: string; href: string };
-type ServiceGroup = { heading?: string; links: ServiceLink[] };
-type ServiceColumn = { title: string; groups: ServiceGroup[] };
-
-const SERVICES_MENU: ServiceColumn[] = [
-  {
-    title: "Wealth Planning",
-    groups: [
-      {
-        links: [
-          { label: "Education Planning", href: "/education-planning" },
-          { label: "Estate Planning", href: "/estate-planning" },
-          { label: "Retirement Planning", href: "/retirement-planning" },
-          { label: "Tax Planning", href: "/tax-planning" },
-          { label: "Wealth Building", href: "/wealth-building" },
-        ],
-      },
-    ],
-  },
-  {
-    title: "Investment Solutions",
-    groups: [
-      {
-        heading: "Plans",
-        links: [
-          { label: "Non-Registered Investments", href: "/non-registered-investments" },
-          { label: "Registered Disability Savings Plan (RDSP)", href: "/rdsp" },
-          { label: "Registered Education Savings Plan (RESP)", href: "/resp" },
-          { label: "Registered Retirement Savings Plan (RRSP)", href: "/rrsp" },
-          { label: "Tax-Free Savings Account (TFSA)", href: "/tfsa" },
-          { label: "First Home Savings Account (FHSA)", href: "/fhsa" },
-        ],
-      },
-      {
-        heading: "Products",
-        links: [
-          { label: "Traditional Investments", href: "/traditional-investments" },
-          { label: "Alternative Investments", href: "/alternative-investments" },
-        ],
-      },
-    ],
-  },
-  {
-    title: "Preservation Strategies",
-    groups: [
-      {
-        links: [
-          { label: "Insurance", href: "/insurance" },
-          { label: "Travel Insurance", href: "/travel-insurance" },
-          { label: "Segregated Funds", href: "/segregated-funds" },
-        ],
-      },
-    ],
-  },
-];
 
 const LANGUAGES = [
   { code: "EN", label: "English" },
@@ -112,17 +57,6 @@ export default function SiteHeaderClient({
   const utilityLinks = nav.utilityLinks.filter((u) => u.isVisible);
   const visibleChildren = (item: CmsNavItem): NavChild[] =>
     item.children.filter((c) => c.isVisible);
-
-  // Close the mega menu on a short delay so crossing the gap doesn't dismiss it.
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const openMenuNow = (label: string) => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    setOpenMenu(label);
-  };
-  const closeMenuSoon = () => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setOpenMenu(null), 120);
-  };
 
   return (
     <>
@@ -180,73 +114,7 @@ export default function SiteHeaderClient({
         {/* Primary nav */}
         <nav className="hidden items-center gap-8 lg:flex">
           {items.map((item) =>
-            item.isServicesMega ? (
-              <div
-                key={item.label}
-                className="static"
-                onMouseEnter={() => openMenuNow(item.label)}
-                onMouseLeave={closeMenuSoon}
-              >
-                <button
-                  type="button"
-                  aria-haspopup="true"
-                  aria-expanded={openMenu === item.label}
-                  onClick={() =>
-                    setOpenMenu((cur) => (cur === item.label ? null : item.label))
-                  }
-                  className="flex items-center gap-1 text-[15px] font-medium text-[#1a2433] transition-colors hover:text-[#006d6e]"
-                >
-                  {item.label}
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${
-                      openMenu === item.label ? "rotate-180" : ""
-                    }`}
-                    strokeWidth={2}
-                  />
-                </button>
-
-                {openMenu === item.label && (
-                  <div className="absolute left-0 right-0 top-full pt-3">
-                    <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
-                      <div className="rounded-md border border-black/10 bg-white p-8 shadow-lg shadow-black/5">
-                        <div className="grid grid-cols-3 gap-8">
-                          {SERVICES_MENU.map((col) => (
-                            <div key={col.title}>
-                              <p className="text-[15px] font-semibold text-[#006d6e]">
-                                {col.title}
-                              </p>
-                              <div className="mt-4 space-y-4">
-                                {col.groups.map((group, gi) => (
-                                  <div key={gi}>
-                                    {group.heading && (
-                                      <p className="mb-2 text-[13px] font-bold text-[#1a2433]">
-                                        {group.heading}
-                                      </p>
-                                    )}
-                                    <div className="space-y-2">
-                                      {group.links.map((link) => (
-                                        <Link
-                                          key={link.label}
-                                          href={link.href}
-                                          onClick={() => setOpenMenu(null)}
-                                          className="block text-[14px] leading-snug text-[#5b6573] transition-colors hover:text-[#006d6e]"
-                                        >
-                                          {link.label}
-                                        </Link>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : visibleChildren(item).length > 0 ? (
+            visibleChildren(item).length > 0 ? (
               <div
                 key={item.label}
                 className="relative"
@@ -386,61 +254,7 @@ export default function SiteHeaderClient({
         <div className="border-t border-black/10 bg-white lg:hidden">
           <nav className="mx-auto flex max-w-[1280px] flex-col px-5 py-3 sm:px-8">
             {items.map((item) =>
-              item.isServicesMega ? (
-                <div key={item.label}>
-                  <button
-                    type="button"
-                    aria-expanded={openMobileMenu === item.label}
-                    onClick={() =>
-                      setOpenMobileMenu((cur) =>
-                        cur === item.label ? null : item.label
-                      )
-                    }
-                    className="flex w-full items-center justify-between border-b border-black/5 py-3 text-[15px] font-medium text-[#1a2433]"
-                  >
-                    {item.label}
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${
-                        openMobileMenu === item.label ? "rotate-180" : ""
-                      }`}
-                      strokeWidth={2}
-                    />
-                  </button>
-                  {openMobileMenu === item.label && (
-                    <div className="border-b border-black/5 bg-[#f7f9fa] py-2">
-                      {SERVICES_MENU.map((col) => (
-                        <div key={col.title} className="px-4 py-2">
-                          <p className="text-[14px] font-semibold text-[#006d6e]">
-                            {col.title}
-                          </p>
-                          {col.groups.map((group, gi) => (
-                            <div key={gi} className="mt-1">
-                              {group.heading && (
-                                <p className="mt-1 text-[12px] font-bold text-[#1a2433]">
-                                  {group.heading}
-                                </p>
-                              )}
-                              {group.links.map((link) => (
-                                <Link
-                                  key={link.label}
-                                  href={link.href}
-                                  onClick={() => {
-                                    setOpen(false);
-                                    setOpenMobileMenu(null);
-                                  }}
-                                  className="block py-1.5 pl-2 text-[14px] leading-snug text-[#5b6573]"
-                                >
-                                  {link.label}
-                                </Link>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : visibleChildren(item).length > 0 ? (
+              visibleChildren(item).length > 0 ? (
                 <div key={item.label}>
                   <button
                     type="button"

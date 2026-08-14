@@ -142,6 +142,24 @@ export async function getPublishedServicePage(
   return { ...page, heroImage: resolveMediaRef(page.heroImage) ?? page.heroImage };
 }
 
+/**
+ * Every published service page, in authoring order — the source for the
+ * /services hub, which groups them by `group` into its category tabs.
+ */
+export async function getPublishedServicePages(): Promise<ServicePageContent[]> {
+  const view = await (async () => {
+    try {
+      return await readView("service-pages", seedServicePages);
+    } catch {
+      return seedServicePages();
+    }
+  })();
+  return view.pages.map((page) => ({
+    ...page,
+    heroImage: resolveMediaRef(page.heroImage) ?? page.heroImage,
+  }));
+}
+
 /** Careers content (hero + all roles, including hidden). Draft in preview. */
 export async function getPublishedCareers(): Promise<CareersContent> {
   try {

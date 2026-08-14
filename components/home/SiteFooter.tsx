@@ -77,12 +77,14 @@ export default async function SiteFooter() {
       <div className="mx-auto max-w-[1280px] px-5 py-16 sm:px-8">
         {/* Top: brand + social */}
         <div className="flex flex-col gap-8 border-b border-black/10 pb-10 md:flex-row md:items-center md:justify-between">
+          {/* self-start: in the stacked mobile layout the column's default
+              stretch alignment would widen the logo and distort it */}
           <Image
             src={settings.logoUrl}
             alt={settings.logoAlt}
             width={553}
             height={126}
-            className="h-10 w-auto"
+            className="h-10 w-auto self-start"
           />
           <div className="flex items-center gap-3">
             <span className="mr-1 text-sm font-semibold tracking-wide text-[#5b6573]">

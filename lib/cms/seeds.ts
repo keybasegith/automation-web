@@ -121,10 +121,10 @@ export function seedNavigation(): NavContent {
       },
       {
         label: "Our Services",
-        url: "",
+        url: "/services",
         openInNewTab: false,
         isVisible: true,
-        isServicesMega: true,
+        isServicesMega: false,
         children: [],
       },
       {
@@ -332,7 +332,7 @@ export function seedServicePages(): ServicePagesContent {
       heading: "Protect what you’ve built. Pass it on with purpose.",
       intro:
         "A thoughtful estate plan brings clarity to one of life’s most important decisions — how your wealth, care, and legacy are handled. Keybase helps you protect your assets and transfer them seamlessly across generations.",
-      heroImage: "/estate-planning1.jpg",
+      heroImage: "/estate-planning.jpg",
       ctaLabel: "Start an Estate Plan",
       ctaUrl: "/contact",
       seoTitle: "Estate Planning — Keybase Financial Group",
@@ -347,7 +347,7 @@ export function seedServicePages(): ServicePagesContent {
       heading: "Retire on your terms, with confidence.",
       intro:
         "Retirement is the reward for a lifetime of work. Keybase helps you turn savings, benefits, and investments into durable, tax-efficient income — so you can step into this next chapter with clarity and confidence.",
-      heroImage: "/retirement-planning2.jpg",
+      heroImage: "/retirement-planning21.jpg",
       ctaLabel: "Start a Retirement Plan",
       ctaUrl: "/contact",
       seoTitle: "Retirement Planning — Keybase Financial Group",
@@ -392,7 +392,7 @@ export function seedServicePages(): ServicePagesContent {
       heading: "Grow wealth beyond registered plans.",
       intro:
         "A non-registered account is a flexible investment account designed to help you grow and manage wealth outside of registered plans such as RRSPs and TFSAs — with no contribution limits, withdrawal restrictions, or maturity requirements.",
-      heroImage: "/wealth-planning1.jpg",
+      heroImage: "/non-registered-investments1.jpg",
       ctaLabel: "Speak with an Advisor",
       ctaUrl: "/contact",
       seoTitle: "Non-Registered Investments — Keybase Financial Group",
@@ -407,7 +407,7 @@ export function seedServicePages(): ServicePagesContent {
       heading: "Build lasting security for the future.",
       intro:
         "A Registered Disability Savings Plan (RDSP) is a long-term savings plan designed to help eligible Canadians with disabilities and their families build financial security — with tax-deferred growth and valuable government support.",
-      heroImage: "/consult-advisors.jpg",
+      heroImage: "/rdsp1.jpg",
       ctaLabel: "Speak with an Advisor",
       ctaUrl: "/contact",
       seoTitle: "Registered Disability Savings Plan (RDSP) — Keybase Financial Group",
@@ -422,7 +422,7 @@ export function seedServicePages(): ServicePagesContent {
       heading: "Give their future a head start.",
       intro:
         "A Registered Education Savings Plan (RESP) is a tax-sheltered savings plan designed to help parents, grandparents, family members, and friends save for a child’s future education.",
-      heroImage: "/education-planning1.jpg",
+      heroImage: "/resp.jpg",
       ctaLabel: "Speak with an Advisor",
       ctaUrl: "/contact",
       seoTitle: "Registered Education Savings Plan (RESP) — Keybase Financial Group",
@@ -482,7 +482,7 @@ export function seedServicePages(): ServicePagesContent {
       heading: "Time-tested ways to build wealth.",
       intro:
         "Traditional investments include publicly traded stocks, bonds, cash, mutual funds, mutual fund ETFs, and guaranteed investment certificates — used to build portfolios focused on growth, income, capital preservation, or a combination of all three.",
-      heroImage: "/estate-planning1.jpg",
+      heroImage: "/traditional-investments.jpg",
       ctaLabel: "Speak with an Advisor",
       ctaUrl: "/contact",
       seoTitle: "Traditional Investments — Keybase Financial Group",
@@ -497,7 +497,7 @@ export function seedServicePages(): ServicePagesContent {
       heading: "Diversify beyond public markets.",
       intro:
         "Alternative investments reach beyond traditional asset classes like publicly traded stocks, bonds, and cash. For qualified investors, they can play a valuable role in portfolio diversification and long-term wealth planning.",
-      heroImage: "/wealth-planning1.jpg",
+      heroImage: "/alternative-investments.jpg",
       ctaLabel: "Speak with an Advisor",
       ctaUrl: "/contact",
       seoTitle: "Alternative Investments — Keybase Financial Group",
@@ -512,7 +512,7 @@ export function seedServicePages(): ServicePagesContent {
       heading: "Protect what you’ve built.",
       intro:
         "Insurance helps protect your income, preserve wealth, and provide financial security for the people and responsibilities that matter most — a safety net for life’s unexpected moments.",
-      heroImage: "/tax-planning1.jpg",
+      heroImage: "/insurance.jpg",
       ctaLabel: "Speak with an Advisor",
       ctaUrl: "/contact",
       seoTitle: "Insurance — Keybase Financial Group",
@@ -527,7 +527,7 @@ export function seedServicePages(): ServicePagesContent {
       heading: "Travel with peace of mind.",
       intro:
         "Whether you are travelling internationally, visiting another province, welcoming family to Canada, or studying away from home, travel insurance can be an important part of your overall protection plan.",
-      heroImage: "/retirement-planning3.jpg",
+      heroImage: "/travel-insurance.jpg",
       ctaLabel: "Speak with an Advisor",
       ctaUrl: "/contact",
       seoTitle: "Travel Insurance — Keybase Financial Group",
@@ -542,7 +542,7 @@ export function seedServicePages(): ServicePagesContent {
       heading: "Growth with a layer of protection.",
       intro:
         "Segregated funds are investment products offered by Canadian insurance companies that combine market-based investment potential with certain insurance benefits.",
-      heroImage: "/estate-planning1.jpg",
+      heroImage: "/segregated-funds.jpg",
       ctaLabel: "Speak with an Advisor",
       ctaUrl: "/contact",
       seoTitle: "Segregated Funds — Keybase Financial Group",
