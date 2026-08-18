@@ -84,13 +84,20 @@ const countAnchors = (text: string, anchors: string[]): number => {
 export const looksLikeNaaf = (text: string): boolean => countAnchors(text, NAAF_ANCHORS) >= 2;
 export const looksLikeCrq = (text: string): boolean => countAnchors(text, CRQ_ANCHORS) >= 2;
 
-/** Detect which of the three CRQ layouts was uploaded, from the header text. */
+/**
+ * Detect which of the three CRQ layouts was uploaded, from the header text.
+ *
+ * Matched against a whitespace-STRIPPED haystack, not merely a collapsed one:
+ * the Corporate form's title is letter-spaced on the page and comes out of the
+ * text layer as "C or p orate Account s", which no amount of space-collapsing
+ * turns back into "corporate".
+ */
 export function detectCrqVersion(text: string): CrqVersion | null {
-  const hay = flatten(text);
+  const hay = text.toLowerCase().replace(/\s+/g, "");
   // Order matters: the Joint and Corporate layouts also say "account holder".
-  if (/corporate/.test(hay)) return "Corporate";
-  if (/joint account holder/.test(hay)) return "Joint";
-  if (/individual/.test(hay)) return "Individual";
+  if (hay.includes("corporateaccount")) return "Corporate";
+  if (hay.includes("jointaccountholder")) return "Joint";
+  if (hay.includes("individualaccountholder")) return "Individual";
   return null;
 }
 

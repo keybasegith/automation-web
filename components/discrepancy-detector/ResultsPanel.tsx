@@ -67,13 +67,20 @@ export default function ResultsPanel({
     if (!selected) return null;
     return buildEmailDraft({
       report,
+      docKind: data.naaf.naaf_doc_kind,
       advisorName: selected.advisor_name,
       advisorEmail: selected.email,
       clientName: data.naaf.naaf_client_name,
       clientId: data.naaf.naaf_client_id,
       config: DEFAULT_CONFIG,
     });
-  }, [selected, report, data.naaf.naaf_client_name, data.naaf.naaf_client_id]);
+  }, [
+    selected,
+    report,
+    data.naaf.naaf_doc_kind,
+    data.naaf.naaf_client_name,
+    data.naaf.naaf_client_id,
+  ]);
 
   useEffect(() => {
     if (confirmed && selected) onDraftGenerated(selected);

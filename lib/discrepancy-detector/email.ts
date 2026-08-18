@@ -14,6 +14,19 @@
 
 import { DEFAULT_CONFIG, type DetectorConfig } from "./config";
 import type { EmailDraft, RuleResult, RulesReport } from "./types";
+import { type DocKind } from "./vocab";
+
+/** How each form is named in the body and the subject line. */
+const FORM_PHRASE: Record<DocKind, { long: string; subject: string }> = {
+  NAAF: {
+    long: "New Account Application Form (NAAF)",
+    subject: "New Account",
+  },
+  KYC: {
+    long: "Know Your Client Update (KYC)",
+    subject: "KYC Update",
+  },
+};
 
 /** "Doe, Jane" and "Jane Doe" both greet as "Jane". */
 function greetingName(fullName: string): string {
@@ -41,6 +54,11 @@ const bullet = (item: RuleResult): string =>
 
 export interface EmailDraftInput {
   report: RulesReport;
+  /**
+   * Which client-side form was reviewed. The advisor is being asked to correct
+   * a specific document, so naming the wrong one sends them to the wrong file.
+   */
+  docKind: DocKind;
   advisorName: string;
   advisorEmail: string;
   clientName: string;
@@ -61,8 +79,9 @@ export function buildEmailDraft(input: EmailDraftInput): EmailDraft {
   const lines: string[] = [];
   lines.push(`Hello ${greetingName(input.advisorName)},`);
   lines.push("");
+  const form = FORM_PHRASE[input.docKind];
   lines.push(
-    `We have reviewed the New Account Application Form (NAAF) and Client Risk Questionnaire (CRQ) submitted for ${client}. The following ${
+    `We have reviewed the ${form.long} and Client Risk Questionnaire (CRQ) submitted for ${client}. The following ${
       report.deficiencies.length === 1 ? "item needs" : "items need"
     } to be corrected before the account can be approved:`
   );
@@ -88,7 +107,7 @@ export function buildEmailDraft(input: EmailDraftInput): EmailDraft {
 
   return {
     to: input.advisorEmail,
-    subject: `New Account - Deficiency - ${client}`,
+    subject: `${form.subject} - Deficiency - ${client}`,
     body: lines.join("\n"),
   };
 }

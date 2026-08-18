@@ -12,8 +12,7 @@
 
 import { DEFAULT_CONFIG, type DetectorConfig } from "./config";
 import {
-  INCOME_BAND_LABEL,
-  canonicalizeIncomeBand,
+  compareIncomeBands,
   computeCrqRanking,
   isBlank,
   normalizeIdentifier,
@@ -24,13 +23,18 @@ import type {
   CrqData,
   NaafData,
   NaafPlan,
+  RiskAllocation,
   ReviewData,
   RuleCode,
   RuleResult,
   RulesReport,
 } from "./types";
 import {
+  DOC_KIND_LABEL,
+  NAAF_RISK_TOLERANCES,
   ORDINAL_TO_CRQ_RANKING,
+  SECTIONS,
+  sectionRef,
   RED_FLAG_RISK_TOLERANCES,
   RED_FLAG_TIME_HORIZONS,
   type NaafRiskTolerance,
@@ -74,18 +78,71 @@ const note = (
 // ---------------------------------------------------------------------------
 
 /**
- * The risk tolerance that governs a plan.
+ * Is any band of this allocation filled in? A spread of explicit zeros counts
+ * as filled — that is a completed block with a mistake in it, which is a
+ * different finding from a blank block.
+ */
+export function allocationIsBlank(alloc: RiskAllocation): boolean {
+  return NAAF_RISK_TOLERANCES.every((band) => alloc[band] === null);
+}
+
+/** Sum of the filled bands. Null bands contribute nothing. */
+export function allocationTotal(alloc: RiskAllocation): number {
+  return NAAF_RISK_TOLERANCES.reduce((sum, band) => sum + (alloc[band] ?? 0), 0);
+}
+
+/**
+ * The risk tolerance that governs a plan: the HIGHEST band carrying a non-zero
+ * allocation.
  *
+ * [CONFIRM #3] The printed block spreads risk across five bands (60% Medium /
+ * 40% High is a normal answer), so "the client's risk tolerance" has to be
+ * reduced to one band before X2 can compare it with the CRQ ranking. We take
+ * the highest funded band, because X2 asks whether the account takes MORE risk
+ * than the client's assessed capacity allows — and money sitting in the High
+ * band does that whether it is 40% of the plan or 1% of it.
+ *
+ * The alternative reading — the dominant (largest) band — would let a plan put
+ * a sliver above the client's ceiling without ever being flagged. Compliance
+ * should confirm which they intend; only this function changes either way.
+ */
+export function riskFromAllocation(
+  alloc: RiskAllocation
+): NaafRiskTolerance | null {
+  let highest: NaafRiskTolerance | null = null;
+  for (const band of NAAF_RISK_TOLERANCES) {
+    const pct = alloc[band];
+    if (pct !== null && pct > 0) highest = band;
+  }
+  return highest;
+}
+
+/**
  * [CONFIRM #2] Defaults to the New column (this is a new-account review),
  * falling back to Current when New is blank. Priority is config-driven.
+ *
+ * NOTE ON THE FORM: the AcroForm field names invite exactly the wrong guess.
+ * `{n}PRiskTolerence_*_Per` is the CURRENT column and `{n}zper_*` is the NEW
+ * one — confirmed by widget x-coordinates on public/form-KYC.pdf, where the
+ * printed header reads "Current | New" left to right. The mapping lives in
+ * ./extract; this function only sees the resolved columns.
  */
 export function effectivePlanRisk(
   plan: NaafPlan,
   config: DetectorConfig = DEFAULT_CONFIG
 ): NaafRiskTolerance | null {
-  return config.planRiskColumnPriority === "new"
-    ? plan.risk_tolerance_new ?? plan.risk_tolerance_current
-    : plan.risk_tolerance_current ?? plan.risk_tolerance_new;
+  const preferred =
+    config.planRiskColumnPriority === "new"
+      ? plan.risk_allocation_new
+      : plan.risk_allocation_current;
+  const fallback =
+    config.planRiskColumnPriority === "new"
+      ? plan.risk_allocation_current
+      : plan.risk_allocation_new;
+
+  return allocationIsBlank(preferred)
+    ? riskFromAllocation(fallback)
+    : riskFromAllocation(preferred);
 }
 
 /** Time horizon that governs a plan. Follows the same column priority as risk. */
@@ -235,25 +292,50 @@ function ruleX2(data: ReviewData, config: DetectorConfig): RuleResult | null {
 // ---------------------------------------------------------------------------
 
 function ruleX3(data: ReviewData): RuleResult | null {
-  const naafBand = canonicalizeIncomeBand(data.naaf.naaf_income_band);
-  const crqBand = canonicalizeIncomeBand(data.crq.crq_income_band);
+  const naafBand = data.naaf.naaf_income_band;
+  const crqBand = data.crq.crq_income_band;
+  const kind = data.naaf.naaf_doc_kind;
 
-  // A missing income band is N2's finding, not a mismatch.
+  // Nothing to compare — N2 already reports a missing income band.
   if (!naafBand || !crqBand) return null;
 
-  if (naafBand !== crqBand) {
-    return deficiency(
+  const agreement = compareIncomeBands(naafBand, crqBand);
+  if (agreement === null) return null;
+
+  if (agreement === "same") {
+    return ok(
       "X3",
       "Income band",
-      `The income band differs between the two documents: the NAAF shows "${INCOME_BAND_LABEL[naafBand]}" and the CRQ shows "${INCOME_BAND_LABEL[crqBand]}".`,
-      "Confirm the client's annual income and correct whichever document is wrong so both agree."
+      `The income band agrees on both documents (${naafBand}).`
     );
   }
 
-  return ok(
+  // crq24's bands are wider than the NAAF's — "$75,000 - $149,999" covers two of
+  // them — so a NAAF band sitting inside the CRQ band is the forms agreeing, not
+  // disagreeing. [CONFIRM #4] Compliance to confirm containment counts as a
+  // match; only this branch changes if they want an exact-range rule instead.
+  if (agreement === "contained") {
+    return ok(
+      "X3",
+      "Income band",
+      `The ${DOC_KIND_LABEL[kind]} records ${naafBand}, which falls inside the wider band selected on the CRQ (${crqBand}). The two documents agree.`
+    );
+  }
+
+  if (agreement === "overlapping") {
+    return deficiency(
+      "X3",
+      "Income band",
+      `The income bands only partly overlap: the ${DOC_KIND_LABEL[kind]} records ${naafBand} and the CRQ records ${crqBand}. Neither band contains the other, so the two answers cannot both be right.`,
+      "Confirm the client's annual income and correct whichever document is wrong."
+    );
+  }
+
+  return deficiency(
     "X3",
     "Income band",
-    `The income band agrees on both documents (${INCOME_BAND_LABEL[naafBand]}).`
+    `The income band on the ${DOC_KIND_LABEL[kind]} (${naafBand}) does not match the CRQ (${crqBand}).`,
+    "Confirm the client's annual income and correct whichever document is wrong."
   );
 }
 
@@ -278,9 +360,22 @@ function ruleX4(data: ReviewData, config: DetectorConfig): RuleResult | null {
     );
   }
 
+  // The two revisions score on different tables, so an unknown revision means
+  // the arithmetic cannot be re-derived. Say so rather than skipping silently:
+  // a reviewer who sees no X4 line reasonably assumes the scoring was checked.
+  if (!data.crq.crq_form_version) {
+    return note(
+      "X4",
+      "CRQ scoring",
+      "The CRQ revision could not be determined, and crq24 and v2-crq25 score on different tables, so the checked Risk Ranking was not re-derived from the score totals.",
+      "Set the CRQ revision on the verification screen and re-run, or confirm the Risk Ranking against the form by eye."
+    );
+  }
+
   const computed = computeCrqRanking(
     crq_risk_capacity_total,
     crq_risk_tolerance_total,
+    data.crq.crq_form_version,
     config
   );
   if (!computed) return null;
@@ -302,7 +397,12 @@ function ruleX4(data: ReviewData, config: DetectorConfig): RuleResult | null {
 }
 
 // ---------------------------------------------------------------------------
-// N1-N7 — NAAF internal completeness
+// N1-N7 — internal completeness of the NAAF or the KYC Update
+//
+// Sections A and C are lettered the same on both forms; the later sections are
+// not, so every message below builds its reference from SECTIONS rather than
+// naming a letter inline. Citing the wrong letter sends the advisor to the
+// wrong page of the form they actually hold.
 // ---------------------------------------------------------------------------
 
 /** Client IDs on this form are alphanumeric; we only reject obvious junk. */
@@ -312,34 +412,43 @@ function isPlausibleClientId(value: string): boolean {
 }
 
 function ruleN1(naaf: NaafData): RuleResult {
+  const kind = naaf.naaf_doc_kind;
+  const form = DOC_KIND_LABEL[kind];
+  const ref = sectionRef(kind, "clientId");
+  const title = `Section ${SECTIONS[kind].clientId} — Client ID`;
+
   if (isBlank(naaf.naaf_client_id)) {
     return deficiency(
       "N1",
-      "Section A — Client ID",
-      "Section A does not have a Client ID.",
-      "Add the Client ID to Section A of the NAAF."
+      title,
+      `${ref} does not have a Client ID.`,
+      `Add the Client ID to Section ${SECTIONS[kind].clientId} of the ${form}.`
     );
   }
   if (!isPlausibleClientId(naaf.naaf_client_id)) {
     return deficiency(
       "N1",
-      "Section A — Client ID",
-      `The Client ID in Section A ("${naaf.naaf_client_id.trim()}") does not look like a valid Client ID.`,
-      "Confirm and correct the Client ID in Section A of the NAAF."
+      title,
+      `The Client ID in ${ref} ("${naaf.naaf_client_id.trim()}") does not look like a valid Client ID.`,
+      `Confirm and correct the Client ID in Section ${SECTIONS[kind].clientId} of the ${form}.`
     );
   }
   if (isBlank(naaf.naaf_client_name)) {
     return deficiency(
       "N1",
-      "Section A — Client ID",
-      "Section A does not have a client name.",
-      "Add the account holder's surname and first name to Section A of the NAAF."
+      title,
+      `${ref} does not have a client name.`,
+      `Add the account holder's surname and first name to Section ${SECTIONS[kind].clientId} of the ${form}.`
     );
   }
-  return ok("N1", "Section A — Client ID", "Section A has a Client ID and client name.");
+  return ok("N1", title, `${ref} has a Client ID and client name.`);
 }
 
 function ruleN2(naaf: NaafData): RuleResult {
+  const kind = naaf.naaf_doc_kind;
+  const ref = sectionRef(kind, "kyc");
+  const title = `Section ${SECTIONS[kind].kyc} — KYC`;
+
   const missing: string[] = [];
   if (!naaf.naaf_income_band) missing.push("Approximate Income");
   if (isBlank(naaf.naaf_net_worth)) missing.push("Approximate Net Worth");
@@ -347,21 +456,24 @@ function ruleN2(naaf: NaafData): RuleResult {
   if (missing.length > 0) {
     return deficiency(
       "N2",
-      "Section C — KYC",
-      `Section C is incomplete: ${missing.join(" and ")} ${missing.length === 1 ? "is" : "are"} missing.`,
-      "Complete the missing Section C fields on the NAAF."
+      title,
+      `${ref} is incomplete: ${missing.join(" and ")} ${missing.length === 1 ? "is" : "are"} missing.`,
+      `Complete the missing Section ${SECTIONS[kind].kyc} fields on the ${DOC_KIND_LABEL[kind]}.`
     );
   }
-  return ok("N2", "Section C — KYC", "Section C has an income band and net worth figures.");
+  return ok("N2", title, `${ref} has an income band and net worth figures.`);
 }
 
 function ruleN3(naaf: NaafData, config: DetectorConfig): RuleResult {
+  const kind = naaf.naaf_doc_kind;
+  const ref = sectionRef(kind, "plans");
+
   if (completedPlans(naaf, config).length === 0) {
     return deficiency(
       "N3",
       "Investment plans",
-      "No investment plan on the NAAF has both a risk tolerance and a time horizon selected.",
-      "Complete the risk tolerance and time horizon for at least one investment plan."
+      `No investment plan in ${ref} of the ${DOC_KIND_LABEL[kind]} has both a risk tolerance allocation and a time horizon selected.`,
+      "Complete the risk tolerance percentages and the time horizon for at least one investment plan."
     );
   }
   const count = completedPlans(naaf, config).length;
@@ -373,6 +485,11 @@ function ruleN3(naaf: NaafData, config: DetectorConfig): RuleResult {
 }
 
 function ruleN4(naaf: NaafData): RuleResult {
+  const kind = naaf.naaf_doc_kind;
+  const ref = sectionRef(kind, "trustedContact");
+  const letter = SECTIONS[kind].trustedContact;
+  const title = `Section ${letter} — Trusted Contact`;
+
   const tcp = naaf.naaf_tcp;
   const missing: string[] = [];
   if (isBlank(tcp.surname)) missing.push("surname");
@@ -384,23 +501,32 @@ function ruleN4(naaf: NaafData): RuleResult {
   if (missing.length > 0) {
     return deficiency(
       "N4",
-      "Section M — Trusted Contact",
+      title,
       missing.length === 5
-        ? "Section M (Trusted Contact Person) has not been completed."
-        : `Section M (Trusted Contact Person) is missing: ${missing.join(", ")}.`,
-      "Complete every Trusted Contact Person field in Section M of the NAAF."
+        ? `${ref} has not been completed.`
+        : `${ref} is missing: ${missing.join(", ")}.`,
+      `Complete the missing fields in Section ${letter} of the ${DOC_KIND_LABEL[kind]}.`
     );
   }
-  return ok("N4", "Section M — Trusted Contact", "Section M is complete.");
+  return ok("N4", title, `${ref} is complete.`);
 }
 
-function ruleN5(naaf: NaafData): RuleResult {
+/**
+ * Returns null on a KYC Update: that form has no Outside Business Activities
+ * section at all, so there is nothing to complete and nothing to fail. Running
+ * it anyway would put a deficiency on every KYC review for a block the advisor
+ * was never given.
+ */
+function ruleN5(naaf: NaafData): RuleResult | null {
+  const kind = naaf.naaf_doc_kind;
+  if (SECTIONS[kind].oba === null) return null;
+
+  const ref = sectionRef(kind, "oba");
+  const letter = SECTIONS[kind].oba;
+  const title = `Section ${letter} — Outside Business Activity`;
+
   if (naaf.naaf_oba_not_applicable) {
-    return ok(
-      "N5",
-      "Section P — Outside Business Activity",
-      "Section P is marked Not Applicable."
-    );
+    return ok("N5", title, `${ref} is marked Not Applicable.`);
   }
 
   const missing: string[] = [];
@@ -413,19 +539,20 @@ function ruleN5(naaf: NaafData): RuleResult {
   if (missing.length > 0) {
     return deficiency(
       "N5",
-      "Section P — Outside Business Activity",
-      `Section P is not marked Not Applicable, so it must be completed. Missing: ${missing.join(", ")}.`,
-      "Complete Section P of the NAAF, or check Not Applicable if the advisor has no outside business activity."
+      title,
+      `${ref} is not marked Not Applicable, so it must be completed. Missing: ${missing.join(", ")}.`,
+      `Complete Section ${letter} of the ${DOC_KIND_LABEL[kind]}, or check Not Applicable if the advisor has no outside business activity.`
     );
   }
-  return ok(
-    "N5",
-    "Section P — Outside Business Activity",
-    "Section P has a description and the required initials."
-  );
+  return ok("N5", title, `${ref} has a description and the required initials.`);
 }
 
 function ruleN6(naaf: NaafData): RuleResult {
+  const kind = naaf.naaf_doc_kind;
+  const ref = sectionRef(kind, "clientSignatures");
+  const letter = SECTIONS[kind].clientSignatures;
+  const title = `Section ${letter} — Client signatures`;
+
   const required = naaf.naaf_is_joint ? 2 : 1;
   const signatures = naaf.naaf_client_signatures;
   const problems: string[] = [];
@@ -434,32 +561,37 @@ function ruleN6(naaf: NaafData): RuleResult {
     const holder = required === 1 ? "The account holder" : i === 0 ? "The primary account holder" : "The joint account holder";
     const sig = signatures[i];
     if (!sig || (!sig.signature_present && !sig.date_present)) {
-      problems.push(`${holder} has not signed or dated Section Q`);
+      problems.push(`${holder} has not signed or dated ${ref}`);
     } else if (!sig.signature_present) {
-      problems.push(`${holder}'s signature is missing from Section Q`);
+      problems.push(`${holder}'s signature is missing from ${ref}`);
     } else if (!sig.date_present) {
-      problems.push(`${holder}'s signature in Section Q is not dated`);
+      problems.push(`${holder}'s signature in ${ref} is not dated`);
     }
   }
 
   if (problems.length > 0) {
     return deficiency(
       "N6",
-      "Section Q — Client signatures",
+      title,
       `${problems.join("; ")}.`,
-      "Obtain the missing client signature(s) and date(s) in Section Q of the NAAF."
+      `Obtain the missing client signature(s) and date(s) in Section ${letter} of the ${DOC_KIND_LABEL[kind]}.`
     );
   }
   return ok(
     "N6",
-    "Section Q — Client signatures",
+    title,
     naaf.naaf_is_joint
-      ? "Both account holders have signed and dated Section Q."
-      : "The account holder has signed and dated Section Q."
+      ? `Both account holders have signed and dated ${ref}.`
+      : `The account holder has signed and dated ${ref}.`
   );
 }
 
 function ruleN7(naaf: NaafData): RuleResult {
+  const kind = naaf.naaf_doc_kind;
+  const ref = sectionRef(kind, "advisor");
+  const letter = SECTIONS[kind].advisor;
+  const title = `Section ${letter} — Advisor information`;
+
   const missing: string[] = [];
   if (isBlank(naaf.naaf_advisor_name)) missing.push("the advisor's name");
   if (!naaf.naaf_advisor_signature_present) missing.push("the advisor's signature");
@@ -468,16 +600,12 @@ function ruleN7(naaf: NaafData): RuleResult {
   if (missing.length > 0) {
     return deficiency(
       "N7",
-      "Section R — Advisor information",
-      `Section R is incomplete: ${missing.join(", ")} ${missing.length === 1 ? "is" : "are"} missing.`,
-      "Complete Section R of the NAAF with the advisor's name, signature, and date."
+      title,
+      `${ref} is incomplete: ${missing.join(", ")} ${missing.length === 1 ? "is" : "are"} missing.`,
+      `Complete Section ${letter} of the ${DOC_KIND_LABEL[kind]} with the advisor's name, signature, and date.`
     );
   }
-  return ok(
-    "N7",
-    "Section R — Advisor information",
-    "Section R has the advisor's name, signature, and date."
-  );
+  return ok("N7", title, `${ref} has the advisor's name, signature, and date.`);
 }
 
 // ---------------------------------------------------------------------------
@@ -567,7 +695,8 @@ export function runRules(
   results.push(ruleN2(data.naaf));
   results.push(ruleN3(data.naaf, config));
   results.push(ruleN4(data.naaf));
-  results.push(ruleN5(data.naaf));
+  const n5 = ruleN5(data.naaf);
+  if (n5) results.push(n5);
   results.push(ruleN6(data.naaf));
   results.push(ruleN7(data.naaf));
   results.push(...ruleN8(data.naaf, config));

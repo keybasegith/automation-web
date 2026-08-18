@@ -7,6 +7,7 @@ import {
   looksLikeCrq,
   looksLikeNaaf,
 } from "../validate";
+import { detectDocKind } from "../extract";
 
 /** A run of Unicode private-use characters - what a broken subset font decodes to. */
 const privateUse = (n: number): string =>
@@ -141,5 +142,49 @@ describe("assessTextLayer", () => {
 
   it("catches the two documents being uploaded the wrong way round", () => {
     expect(assessTextLayer(REAL_CRQ_TEXT, "naaf").usable).toBe(false);
+  });
+});
+
+describe("detectDocKind on a flattened submission", () => {
+  // A flattened export keeps the printed body text but loses the header, which
+  // is part of the page image. These strings are the section headings such a
+  // file still carries; no client data is reproduced.
+  const KYC_BODY = `
+    D. Know Your Client Information ( KYC)
+    Plan ID & Plan Type:
+    E. Trusted Contact Person
+    F. Authorization
+    G. Dealer/Financial Advisor Information Dealer Code: Rep Code:
+  `;
+  const NAAF_BODY = `
+    I. Trusted Contact Person
+    L. Financial Advisor Outside Business Activities Not Applicable
+    M. Account Agreement
+    N. Dealer/Financial Advisor Information Dealer Code: Rep Code:
+  `;
+
+  it("recognises a KYC from its section headings alone", () => {
+    expect(detectDocKind(KYC_BODY)).toBe("KYC");
+  });
+
+  it("recognises a NAAF from its section headings alone", () => {
+    expect(detectDocKind(NAAF_BODY)).toBe("NAAF");
+  });
+
+  it("still prefers the printed title when it survived", () => {
+    expect(detectDocKind("Know Your Client Update\n" + KYC_BODY)).toBe("KYC");
+    expect(detectDocKind("New Account Application Form\n" + NAAF_BODY)).toBe("NAAF");
+  });
+
+  it("does not read an ordinary mention of a trusted contact as a section heading", () => {
+    // "...allow us to contact the Trusted Contact Person" must not match the
+    // KYC's "E. Trusted Contact Person".
+    expect(
+      detectDocKind("your Advisor to contact the Trusted Contact Person\n" + NAAF_BODY)
+    ).toBe("NAAF");
+  });
+
+  it("falls back to NAAF, the stricter form, when nothing identifies it", () => {
+    expect(detectDocKind("some unrelated document")).toBe("NAAF");
   });
 });

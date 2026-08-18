@@ -44,6 +44,16 @@ export function FieldShell({
             Pre-filled
           </span>
         )}
+        {/*
+          Read off the page image rather than out of a form field, so it can be
+          wrong in a way a `parsed` value cannot. Marked, not hidden — the value
+          still saves the reviewer the typing.
+        */}
+        {source === "ocr" && !needsAttention && (
+          <span className="rounded bg-sky-100 px-1 text-[9px] font-medium uppercase tracking-wide text-sky-700">
+            Read from image
+          </span>
+        )}
       </span>
       {children}
       {hint && <span className="text-[10px] leading-tight text-slate-400">{hint}</span>}

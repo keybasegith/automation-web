@@ -3,6 +3,7 @@ import { blankCrq, blankNaaf } from "../blank";
 import { DEFAULT_CONFIG } from "../config";
 import { checkSameClient, maxPlanRisk, runRules } from "../rules";
 import type { CrqData, NaafData, ReviewData, RuleCode } from "../types";
+import { setPlanRisk } from "./helpers";
 
 /** A NAAF that passes every N-rule; each test breaks exactly one thing. */
 function cleanNaaf(): NaafData {
@@ -12,7 +13,7 @@ function cleanNaaf(): NaafData {
   naaf.naaf_client_name = "Tremblay, Marie";
   naaf.naaf_income_band = "$75,000 - $99,999";
   naaf.naaf_net_worth = "250000";
-  naaf.naaf_plans[0].risk_tolerance_new = "Medium";
+  setPlanRisk(naaf.naaf_plans[0], "new", "Medium");
   naaf.naaf_plans[0].time_horizon_new = "10 - 20 Years";
   naaf.naaf_tcp = {
     surname: "Tremblay",
@@ -34,6 +35,7 @@ function cleanNaaf(): NaafData {
 /** A CRQ consistent with cleanNaaf(): Medium ranking, matching income. */
 function cleanCrq(): CrqData {
   const crq = blankCrq();
+  crq.crq_form_version = "v2-crq25";
   crq.crq_version = "Individual";
   crq.crq_client_id = "C-10045";
   crq.crq_client_name = "Tremblay, Marie";
@@ -101,7 +103,7 @@ describe("X1 - same-client guard", () => {
 describe("X2 - risk profile ceiling", () => {
   it("flags a serious deficiency when the NAAF exceeds the CRQ ceiling", () => {
     const data = clean();
-    data.naaf.naaf_plans[0].risk_tolerance_new = "High"; // CRQ ranking is Medium
+    setPlanRisk(data.naaf.naaf_plans[0], "new", "High"); // CRQ ranking is Medium
     const x2 = runRules(data).results.find((r) => r.code === "X2");
     expect(x2?.status).toBe("deficiency");
     expect(x2?.serious).toBe(true);
@@ -110,7 +112,7 @@ describe("X2 - risk profile ceiling", () => {
 
   it("treats an under-risk NAAF as an informational note, not a deficiency", () => {
     const data = clean();
-    data.naaf.naaf_plans[0].risk_tolerance_new = "Low";
+    setPlanRisk(data.naaf.naaf_plans[0], "new", "Low");
     const report = runRules(data);
     const x2 = report.results.find((r) => r.code === "X2");
     expect(x2?.status).toBe("note");
@@ -123,9 +125,9 @@ describe("X2 - risk profile ceiling", () => {
 
   it("compares the CEILING against the highest plan, not the first plan", () => {
     const data = clean();
-    data.naaf.naaf_plans[0].risk_tolerance_new = "Low";
+    setPlanRisk(data.naaf.naaf_plans[0], "new", "Low");
     data.naaf.naaf_plans[0].time_horizon_new = "10 - 20 Years";
-    data.naaf.naaf_plans[1].risk_tolerance_new = "High"; // the breach
+    setPlanRisk(data.naaf.naaf_plans[1], "new", "High"); // the breach
     data.naaf.naaf_plans[1].time_horizon_new = "10 - 20 Years";
 
     const max = maxPlanRisk(data.naaf);
@@ -139,25 +141,25 @@ describe("X2 - risk profile ceiling", () => {
   it("ignores incomplete plans when computing the maximum", () => {
     const data = clean();
     // A risk tolerance with no time horizon is not a completed plan.
-    data.naaf.naaf_plans[1].risk_tolerance_new = "High";
+    setPlanRisk(data.naaf.naaf_plans[1], "new", "High");
     expect(maxPlanRisk(data.naaf)).toMatchObject({ value: "Medium", plan_index: 1 });
     expect(runRules(data).results.find((r) => r.code === "X2")?.status).toBe("ok");
   });
 
   it("[CONFIRM #2] reads the New column, falling back to Current when New is blank", () => {
     const data = clean();
-    data.naaf.naaf_plans[0].risk_tolerance_current = "Low";
-    data.naaf.naaf_plans[0].risk_tolerance_new = "High";
+    setPlanRisk(data.naaf.naaf_plans[0], "current", "Low");
+    setPlanRisk(data.naaf.naaf_plans[0], "new", "High");
     expect(maxPlanRisk(data.naaf)?.value).toBe("High");
 
-    data.naaf.naaf_plans[0].risk_tolerance_new = null;
+    setPlanRisk(data.naaf.naaf_plans[0], "new", null);
     expect(maxPlanRisk(data.naaf)?.value).toBe("Low");
   });
 
   it("[CONFIRM #2] honours a Current-column-first config", () => {
     const data = clean();
-    data.naaf.naaf_plans[0].risk_tolerance_current = "Low";
-    data.naaf.naaf_plans[0].risk_tolerance_new = "High";
+    setPlanRisk(data.naaf.naaf_plans[0], "current", "Low");
+    setPlanRisk(data.naaf.naaf_plans[0], "new", "High");
     const config = { ...DEFAULT_CONFIG, planRiskColumnPriority: "current" as const };
     expect(maxPlanRisk(data.naaf, config)?.value).toBe("Low");
   });
@@ -303,7 +305,7 @@ describe("N1-N7 - NAAF completeness", () => {
 describe("N8 - risk vs. time horizon red flag", () => {
   it("flags High risk against a short horizon", () => {
     const data = clean();
-    data.naaf.naaf_plans[0].risk_tolerance_new = "High";
+    setPlanRisk(data.naaf.naaf_plans[0], "new", "High");
     data.naaf.naaf_plans[0].time_horizon_new = "Less than 1 Year";
     data.crq.crq_checked_risk_ranking = "High"; // isolate N8 from X2
     data.crq.crq_risk_capacity_total = 50;
@@ -318,7 +320,7 @@ describe("N8 - risk vs. time horizon red flag", () => {
 
   it("flags Medium to High against 1 - 3 Years", () => {
     const data = clean();
-    data.naaf.naaf_plans[0].risk_tolerance_new = "Medium to High";
+    setPlanRisk(data.naaf.naaf_plans[0], "new", "Medium to High");
     data.naaf.naaf_plans[0].time_horizon_new = "1 - 3 Years";
     data.crq.crq_checked_risk_ranking = "Medium High";
     data.crq.crq_risk_capacity_total = 40;
@@ -328,7 +330,7 @@ describe("N8 - risk vs. time horizon red flag", () => {
 
   it("does not flag an elevated risk against a long horizon", () => {
     const data = clean();
-    data.naaf.naaf_plans[0].risk_tolerance_new = "High";
+    setPlanRisk(data.naaf.naaf_plans[0], "new", "High");
     data.naaf.naaf_plans[0].time_horizon_new = "Over 20 Years";
     data.crq.crq_checked_risk_ranking = "High";
     data.crq.crq_risk_capacity_total = 50;
@@ -344,9 +346,9 @@ describe("N8 - risk vs. time horizon red flag", () => {
 
   it("reports each offending plan separately, keyed by plan", () => {
     const data = clean();
-    data.naaf.naaf_plans[0].risk_tolerance_new = "High";
+    setPlanRisk(data.naaf.naaf_plans[0], "new", "High");
     data.naaf.naaf_plans[0].time_horizon_new = "Less than 1 Year";
-    data.naaf.naaf_plans[2].risk_tolerance_new = "Medium to High";
+    setPlanRisk(data.naaf.naaf_plans[2], "new", "Medium to High");
     data.naaf.naaf_plans[2].time_horizon_new = "1 - 3 Years";
     data.crq.crq_checked_risk_ranking = "High";
     data.crq.crq_risk_capacity_total = 50;
@@ -362,7 +364,7 @@ describe("report shape", () => {
   it("sorts serious findings to the top for the reviewer and the email", () => {
     const data = clean();
     data.naaf.naaf_tcp.phone = ""; // N4, ordinary
-    data.naaf.naaf_plans[0].risk_tolerance_new = "High"; // X2, serious
+    setPlanRisk(data.naaf.naaf_plans[0], "new", "High"); // X2, serious
     const report = runRules(data);
     expect(report.deficiencies[0].code).toBe("X2");
   });
@@ -375,5 +377,67 @@ describe("report shape", () => {
       expect(d.message.length).toBeGreaterThan(0);
       expect(d.remediation.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("X4 across the two CRQ revisions", () => {
+  it("scores crq24's capacity and tolerance on their own tables", () => {
+    const data = clean();
+    data.crq.crq_form_version = "crq24";
+    data.crq.crq_risk_capacity_total = 72; // > 70   -> High
+    data.crq.crq_risk_tolerance_total = 46; // 41-50 -> Medium High
+    data.crq.crq_checked_risk_ranking = "Medium High"; // the lower of the two
+    expect(runRules(data).results.find((r) => r.code === "X4")?.status).toBe("ok");
+  });
+
+  it("would have called the same crq24 totals wrong on the other revision", () => {
+    // The identical pair read as v2-crq25: 72 -> High, 46 -> Medium High. It
+    // agrees here by coincidence, so use a pair where the tables diverge.
+    const data = clean();
+    data.crq.crq_form_version = "crq24";
+    data.crq.crq_risk_capacity_total = 55; // crq24: 51-60 -> Medium
+    data.crq.crq_risk_tolerance_total = 25; // crq24: 20-30 -> Low Medium
+    data.crq.crq_checked_risk_ranking = "Low Medium";
+    expect(runRules(data).results.find((r) => r.code === "X4")?.status).toBe("ok");
+
+    data.crq.crq_form_version = "v2-crq25"; // 55 -> High, 25 -> Medium
+    const wrong = runRules(data).results.find((r) => r.code === "X4");
+    expect(wrong?.status).toBe("deficiency");
+    expect(wrong?.message).toContain("Medium");
+  });
+
+  it("holds the check back, visibly, when the revision is unknown", () => {
+    const data = clean();
+    data.crq.crq_form_version = null;
+    const x4 = runRules(data).results.find((r) => r.code === "X4");
+    expect(x4?.status).toBe("note");
+    expect(x4?.message).toContain("revision could not be determined");
+  });
+});
+
+describe("X3 across income scales that do not line up", () => {
+  it("accepts a NAAF band contained in a wider crq24 band", () => {
+    const data = clean();
+    data.crq.crq_form_version = "crq24";
+    data.naaf.naaf_income_band = "$75,000 - $99,999";
+    data.crq.crq_income_band = "$75,000 - $149,999";
+    expect(runRules(data).results.find((r) => r.code === "X3")?.status).toBe("ok");
+  });
+
+  it("flags a partial overlap the two answers cannot both explain", () => {
+    const data = clean();
+    data.crq.crq_form_version = "crq24";
+    data.naaf.naaf_income_band = "$125,000 - $199,999";
+    data.crq.crq_income_band = "$75,000 - $149,999";
+    const x3 = runRules(data).results.find((r) => r.code === "X3");
+    expect(x3?.status).toBe("deficiency");
+    expect(x3?.message).toContain("partly overlap");
+  });
+
+  it("still flags bands that share no income", () => {
+    const data = clean();
+    data.crq.crq_form_version = "crq24";
+    data.crq.crq_income_band = "$250,000 or more";
+    expect(runRules(data).results.find((r) => r.code === "X3")?.status).toBe("deficiency");
   });
 });

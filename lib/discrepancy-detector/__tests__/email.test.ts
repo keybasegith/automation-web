@@ -4,6 +4,7 @@ import { DEFAULT_CONFIG } from "../config";
 import { buildEmailDraft, mailtoHref } from "../email";
 import { runRules } from "../rules";
 import type { ReviewData } from "../types";
+import { setPlanRisk } from "./helpers";
 
 function reviewWith(mutate: (d: ReviewData) => void): ReviewData {
   const naaf = blankNaaf();
@@ -11,7 +12,7 @@ function reviewWith(mutate: (d: ReviewData) => void): ReviewData {
   naaf.naaf_client_name = "Tremblay, Marie";
   naaf.naaf_income_band = "$75,000 - $99,999";
   naaf.naaf_net_worth = "250000";
-  naaf.naaf_plans[0].risk_tolerance_new = "Medium";
+  setPlanRisk(naaf.naaf_plans[0], "new", "Medium");
   naaf.naaf_plans[0].time_horizon_new = "10 - 20 Years";
   naaf.naaf_tcp = {
     surname: "Tremblay",
@@ -31,6 +32,7 @@ function reviewWith(mutate: (d: ReviewData) => void): ReviewData {
   crq.crq_version = "Individual";
   crq.crq_client_id = "C-10045";
   crq.crq_client_name = "Tremblay, Marie";
+  crq.crq_form_version = "v2-crq25";
   crq.crq_income_band = "$75,000 - $99,999";
   crq.crq_risk_capacity_total = 30;
   crq.crq_risk_tolerance_total = 30;
@@ -44,6 +46,7 @@ function reviewWith(mutate: (d: ReviewData) => void): ReviewData {
 const draftFor = (data: ReviewData, config = DEFAULT_CONFIG) =>
   buildEmailDraft({
     report: runRules(data, config),
+    docKind: data.naaf.naaf_doc_kind,
     advisorName: "Jane Doe",
     advisorEmail: "jdoe@firm.example",
     clientName: data.naaf.naaf_client_name,
@@ -61,6 +64,7 @@ describe("buildEmailDraft", () => {
   it("handles a Surname, First Name advisor spelling", () => {
     const draft = buildEmailDraft({
       report: runRules(reviewWith((d) => (d.naaf.naaf_tcp.phone = ""))),
+      docKind: "NAAF",
       advisorName: "Doe, Jane",
       advisorEmail: "jdoe@firm.example",
       clientName: "Tremblay, Marie",
@@ -94,7 +98,7 @@ describe("buildEmailDraft", () => {
 
   it("states both the discrepancy and the required correction", () => {
     const data = reviewWith((d) => {
-      d.naaf.naaf_plans[0].risk_tolerance_new = "High"; // X2 over-risk
+      setPlanRisk(d.naaf.naaf_plans[0], "new", "High"); // X2 over-risk
     });
     const draft = draftFor(data);
     expect(draft.body).toContain("higher than the client's assessed risk ranking");
@@ -103,7 +107,7 @@ describe("buildEmailDraft", () => {
 
   it("uses the spec's wording for the N8 red flag", () => {
     const data = reviewWith((d) => {
-      d.naaf.naaf_plans[0].risk_tolerance_new = "High";
+      setPlanRisk(d.naaf.naaf_plans[0], "new", "High");
       d.naaf.naaf_plans[0].time_horizon_new = "Less than 1 Year";
       d.crq.crq_checked_risk_ranking = "High";
       d.crq.crq_risk_capacity_total = 50;
@@ -118,7 +122,7 @@ describe("buildEmailDraft", () => {
 
   it("omits informational notes by default", () => {
     const data = reviewWith((d) => {
-      d.naaf.naaf_plans[0].risk_tolerance_new = "Low"; // X2 under-risk note
+      setPlanRisk(d.naaf.naaf_plans[0], "new", "Low"); // X2 under-risk note
       d.naaf.naaf_tcp.phone = ""; // a real deficiency to carry the email
     });
     expect(draftFor(data).body).not.toContain("For your information");
@@ -126,7 +130,7 @@ describe("buildEmailDraft", () => {
 
   it("includes notes when compliance turns them on", () => {
     const data = reviewWith((d) => {
-      d.naaf.naaf_plans[0].risk_tolerance_new = "Low";
+      setPlanRisk(d.naaf.naaf_plans[0], "new", "Low");
       d.naaf.naaf_tcp.phone = "";
     });
     const config = { ...DEFAULT_CONFIG, includeNotesInEmail: true };
@@ -138,7 +142,7 @@ describe("buildEmailDraft", () => {
   it("leads the email with the serious finding", () => {
     const data = reviewWith((d) => {
       d.naaf.naaf_tcp.phone = ""; // N4
-      d.naaf.naaf_plans[0].risk_tolerance_new = "High"; // X2, serious
+      setPlanRisk(d.naaf.naaf_plans[0], "new", "High"); // X2, serious
     });
     const bullets = draftFor(data).body.split("\n").filter((l) => l.startsWith("- "));
     expect(bullets[0]).toContain("risk");
@@ -156,5 +160,33 @@ describe("mailtoHref", () => {
     expect(href.startsWith("mailto:")).toBe(true);
     expect(href).toContain("subject=");
     expect(href).toContain("body=");
+  });
+});
+
+describe("naming the form the advisor actually holds", () => {
+  it("calls a NAAF review a New Account Application Form", () => {
+    const draft = draftFor(reviewWith((d) => (d.naaf.naaf_tcp.phone = "")));
+    expect(draft.body).toContain("New Account Application Form (NAAF)");
+    expect(draft.subject.startsWith("New Account - Deficiency")).toBe(true);
+  });
+
+  it("calls a KYC review a Know Your Client Update", () => {
+    const draft = draftFor(
+      reviewWith((d) => {
+        d.naaf.naaf_doc_kind = "KYC";
+        d.naaf.naaf_tcp.phone = "";
+      })
+    );
+    expect(draft.body).toContain("Know Your Client Update (KYC)");
+    expect(draft.body).not.toContain("New Account Application Form");
+    expect(draft.subject.startsWith("KYC Update - Deficiency")).toBe(true);
+  });
+
+  it("names each section once, not twice", () => {
+    const draft = draftFor(reviewWith((d) => (d.naaf.naaf_tcp.phone = "")));
+    const tcpLine = draft.body
+      .split("\n")
+      .find((l) => l.includes("Trusted Contact Person"))!;
+    expect(tcpLine.match(/Trusted Contact Person/g)?.length).toBe(1);
   });
 });

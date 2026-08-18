@@ -11,11 +11,17 @@
  *
  * The three CRQ layouts (Individual / Joint / Corporate) all produce these same
  * outputs, so one set of fields serves all three.
+ *
+ * The two REVISIONS are a different matter. crq24 and v2-crq25 offer different
+ * income bands and score on different tables, so the revision selector below is
+ * not cosmetic: until it is set, the income band and rule X4 are held back.
  */
 
 import type { CrqData, SourceMap } from "@/lib/discrepancy-detector/types";
+import type { CrqIncomeBand } from "@/lib/discrepancy-detector/vocab";
 import {
-  CRQ_INCOME_BANDS,
+  CRQ_FORM_VERSIONS,
+  CRQ_INCOME_BANDS_BY_VERSION,
   CRQ_RISK_RANKINGS,
   CRQ_VERSIONS,
 } from "@/lib/discrepancy-detector/vocab";
@@ -33,15 +39,29 @@ export default function CrqFields({
   const set = <K extends keyof CrqData>(key: K, value: CrqData[K]) =>
     onChange({ ...data, [key]: value });
 
+  // Offering every band from both revisions would let a reviewer record an
+  // answer the form in front of them cannot express.
+  const incomeBands = (
+    data.crq_form_version ? CRQ_INCOME_BANDS_BY_VERSION[data.crq_form_version] : []
+  ) as readonly CrqIncomeBand[];
+
   return (
     <div className="flex flex-col gap-4">
       <FieldGroup title="Client">
         <SelectField
-          label="CRQ version"
+          label="CRQ revision"
+          value={data.crq_form_version}
+          options={CRQ_FORM_VERSIONS}
+          onChange={(v) => set("crq_form_version", v)}
+          hint="From the code printed in the page footer. The income bands and the scoring table follow it."
+          source={sources.crq_form_version}
+        />
+        <SelectField
+          label="Layout"
           value={data.crq_version}
           options={CRQ_VERSIONS}
           onChange={(v) => set("crq_version", v)}
-          hint="From the form header."
+          hint="Individual / Joint / Corporate, from the form header."
           source={sources.crq_version}
         />
         <TextField
@@ -59,13 +79,17 @@ export default function CrqFields({
       </FieldGroup>
 
       <FieldGroup
-        title="Question 3 — Annual income"
-        description="Record the band the advisor checked, not the point value."
+        title="Annual income"
+        description={
+          data.crq_form_version
+            ? `Record the band the advisor checked, not the point value. Bands shown are the ${data.crq_form_version} list.`
+            : "Set the CRQ revision above to load the right income bands — the two revisions offer different ones."
+        }
       >
         <SelectField
           label="Annual income (from all sources)"
           value={data.crq_income_band}
-          options={CRQ_INCOME_BANDS}
+          options={incomeBands}
           onChange={(v) => set("crq_income_band", v)}
           source={sources.crq_income_band}
         />

@@ -14,6 +14,7 @@ import {
   Users,
   FileSpreadsheet,
   FileCheck2,
+  FileSearch,
   PackageCheck,
   ClipboardList,
   RefreshCw,
@@ -117,6 +118,12 @@ export const DEPARTMENTS: readonly Department[] = [
     icon: ShieldCheck,
     accent: "from-amber-500/15 to-amber-500/5 text-amber-700",
     tools: [
+      {
+        label: "NAAF / CRQ Discrepancy Detector",
+        hint: "Check a new account's NAAF against its CRQ and draft the advisor email",
+        href: "/discrepancy-detector",
+        icon: FileSearch,
+      },
       {
         label: "Form Intelligence & Review",
         hint: "Inspect forms flagged for compliance",

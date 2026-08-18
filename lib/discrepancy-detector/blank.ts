@@ -6,18 +6,24 @@
  * is an optional convenience on the front, not a separate tool.
  */
 
-import type { CrqData, NaafData, NaafPlan, ReviewData } from "./types";
-import { MAX_PLANS } from "./vocab";
+import type { CrqData, NaafData, NaafPlan, RiskAllocation, ReviewData } from "./types";
+import { MAX_PLANS, NAAF_RISK_TOLERANCES, type DocKind } from "./vocab";
+
+/** Every band blank — distinct from every band explicitly 0%. */
+export const blankAllocation = (): RiskAllocation =>
+  Object.fromEntries(NAAF_RISK_TOLERANCES.map((b) => [b, null])) as RiskAllocation;
 
 export const blankPlan = (plan_index: number): NaafPlan => ({
   plan_index,
-  risk_tolerance_current: null,
-  risk_tolerance_new: null,
+  plan_id: "",
+  risk_allocation_current: blankAllocation(),
+  risk_allocation_new: blankAllocation(),
   time_horizon_current: null,
   time_horizon_new: null,
 });
 
-export const blankNaaf = (): NaafData => ({
+export const blankNaaf = (kind: DocKind = "NAAF"): NaafData => ({
+  naaf_doc_kind: kind,
   naaf_form_type: null,
   naaf_client_id: "",
   naaf_client_name: "",
@@ -40,6 +46,7 @@ export const blankNaaf = (): NaafData => ({
 });
 
 export const blankCrq = (): CrqData => ({
+  crq_form_version: null,
   crq_version: null,
   crq_client_id: "",
   crq_client_name: "",
