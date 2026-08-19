@@ -18,13 +18,13 @@ export const TRIP = {
   title: "Huatulco, Mexico",
   resort: "Secrets Huatulco Resort & Spa",
   region: "Bahías de Huatulco, Oaxaca",
-  dateLabel: "November 21–28, 2026",
+  dateLabel: "November 20–27, 2026",
   nights: "7 nights",
   /** Local calendar dates. DTEND in the .ics is the exclusive day after. */
-  startDate: "2026-11-21",
-  endDate: "2026-11-28",
-  /** Deadline shown beside the RSVP form. */
-  rsvpByLabel: "Please reply by September 30, 2026",
+  startDate: "2026-11-20",
+  endDate: "2026-11-27",
+  /** Deadline for final attendance confirmations. */
+  rsvpByLabel: "Final confirmations are due Friday, August 21, 2026",
   heroVideo: "/mexico-trip.mp4",
   /** Auto-sliding gallery under the invitation. Missing files are skipped. */
   photos: [
@@ -40,6 +40,11 @@ export const TRIP = {
   promise:
     "Get ready for an unforgettable week of relaxation, connection and celebration.",
   note: "More details are coming soon, and a formal invitation will follow.",
+  /** Social proof shown in the hero, under the headline. */
+  joining: {
+    value: "80%",
+    label: "of invited colleagues are already joining",
+  },
 } as const;
 
 /** The four-beat teaser from the save-the-date note. */
@@ -104,31 +109,53 @@ export const INCLUDED = [
   {
     icon: "plane",
     title: "Travel handled",
-    body: "Group flights, airport transfers, and on-site coordination arranged for you.",
+    body: "We're arranging group travel for everyone — flights, airport transfers, and on-site coordination. Details to follow.",
   },
 ] as const;
 
-/** A day-shape sketch — deliberately loose while details are still forming. */
-export const WEEK = [
+/**
+ * The five-session program that anchors the week.
+ *
+ * Each session is one question the practice has to answer, in the order a
+ * book of business actually grows: find it, hold it, run it, price it, keep it.
+ */
+export const PROGRAM = {
+  eyebrow: "Stronger Together",
+  title: "Growing People. Building Trust. Creating Possibility.",
+  sub: "Five sessions on building the advisory practice of the future.",
+  /** The rhythm line that closes the section. */
+  refrain: "Grow it. Deepen it. Scale it. Protect it. Enjoy it.",
+  closing: {
+    lead: "Collective strength",
+    tail: "creates lasting value.",
+  },
+} as const;
+
+export const SESSIONS = [
   {
-    day: "Sat 21",
-    title: "Arrival & welcome",
-    body: "Land in Huatulco, transfer to the resort, and meet everyone at the welcome reception on the beach.",
+    number: "01",
+    key: "Grow",
+    question: "Where will my next $25M come from?",
   },
   {
-    day: "Sun 22 – Wed 25",
-    title: "Days at leisure",
-    body: "Yours to spend. Bay tours, coffee plantations, waterfalls, dive sites, spa mornings — or absolutely nothing at all.",
+    number: "02",
+    key: "Deepen",
+    question: "How do I become indispensable to my best clients' families?",
   },
   {
-    day: "Thu 26",
-    title: "The celebration",
-    body: "The evening this whole trip is built around: dinner, recognition, and a toast to the year you delivered.",
+    number: "03",
+    key: "Scale",
+    question: "How do technology, AI and people give me back my time?",
   },
   {
-    day: "Fri 27 – Sat 28",
-    title: "Wind down & farewell",
-    body: "One more slow morning on the sand, a farewell brunch, and transfers home.",
+    number: "04",
+    key: "Build value",
+    question: "How do I turn my book into a valuable enterprise?",
+  },
+  {
+    number: "05",
+    key: "Future-proof",
+    question: "Why will clients choose me in 2030?",
   },
 ] as const;
 
@@ -144,11 +171,11 @@ export const FAQ = [
   },
   {
     q: "How much time off do I need?",
-    a: "The trip covers a US Thanksgiving week. Plan for the full November 21–28 window, plus travel on either end.",
+    a: "The trip covers a US Thanksgiving week, Friday to Friday. Plan for the full November 20–27 window, plus travel on either end.",
   },
   {
-    q: "What if my plans change?",
-    a: "Reply with your best answer today and tell us in the notes. You can update your response any time by submitting the form again with the same email.",
+    q: "How do I confirm my spot?",
+    a: "Let the trip planning team know by Friday, August 21, 2026 — that is the final attendance count. The formal invitation with travel details follows after that.",
   },
 ] as const;
 

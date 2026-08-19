@@ -10,14 +10,21 @@ import {
 import Reveal from "@/components/home/Reveal";
 import { Hero } from "@/components/mexico-trip/Hero";
 import { PhotoSlider } from "@/components/mexico-trip/PhotoSlider";
-import { RsvpForm } from "@/components/mexico-trip/RsvpForm";
 import {
   Eyebrow,
   Rule,
   SEA_GRADIENT,
   SectionHeading,
 } from "@/components/mexico-trip/ui";
-import { FAQ, INCLUDED, PILLARS, STATS, TRIP, WEEK } from "@/lib/mexico-trip/config";
+import {
+  FAQ,
+  INCLUDED,
+  PILLARS,
+  PROGRAM,
+  SESSIONS,
+  STATS,
+  TRIP,
+} from "@/lib/mexico-trip/config";
 
 const INCLUDED_ICONS: Record<string, ReactNode> = {
   hotel: <Hotel className="h-5 w-5" strokeWidth={1.75} />,
@@ -176,41 +183,69 @@ export default function MexicoTripPage() {
       </section>
 
       {/* ---------------------------------------------------------------
-          Shape of the week — a quiet timeline.
+          The program — five sessions, framed as five questions.
       --------------------------------------------------------------- */}
       <section className="bg-[#F3F7FB] px-5 py-24 sm:px-8 sm:py-32">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-5xl">
           <Reveal>
             <SectionHeading
               align="left"
-              eyebrow="The week"
-              title="How the seven days take shape"
-              sub="A sketch, not a schedule — most of the week is yours."
+              eyebrow={PROGRAM.eyebrow}
+              title={PROGRAM.title}
+              sub={PROGRAM.sub}
             />
           </Reveal>
 
-          <ol className="mt-12 divide-y divide-[#0B2237]/10 border-y border-[#0B2237]/10">
-            {WEEK.map((entry, i) => (
-              <Reveal key={entry.title} delay={i * 80}>
-                <li className="grid gap-2 py-7 sm:grid-cols-[11rem_1fr] sm:gap-8">
-                  <span className="text-sm font-semibold uppercase tracking-[0.16em] text-[#C93A24] sm:pt-0.5">
-                    {entry.day}
-                  </span>
-                  <div>
-                    <h3 className="font-franklin text-lg font-semibold text-[#0B2237]">
-                      {entry.title}
-                    </h3>
-                    <p className="mt-1.5 text-[15px] leading-relaxed text-[#0B2237]/60">
-                      {entry.body}
-                    </p>
-                  </div>
-                </li>
-              </Reveal>
-            ))}
-          </ol>
+          <Reveal delay={100}>
+            <div className="mt-12 overflow-hidden rounded-2xl bg-white shadow-[0_1px_3px_rgba(11,34,55,0.06),0_18px_50px_-30px_rgba(11,34,55,0.35)] ring-1 ring-[#0B2237]/10">
+              {/* Card header — the promise the five sessions add up to. */}
+              <div className="flex flex-col gap-3 border-b border-[#0B2237]/10 bg-[#0B2237] px-7 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-10">
+                <h3 className="font-franklin font-display text-xl font-semibold leading-tight tracking-tight text-white sm:text-2xl">
+                  Building the Advisory Practice of the Future
+                </h3>
+                <span className="shrink-0 self-start rounded-full border border-white/25 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7FD6DD] sm:self-auto">
+                  Five sessions
+                </span>
+              </div>
 
-          <Reveal delay={120}>
-            <p className="mt-8 text-sm text-[#0B2237]/50">{TRIP.note}</p>
+              <ol className="divide-y divide-[#0B2237]/10">
+                {SESSIONS.map((session, i) => (
+                  <Reveal key={session.key} delay={i * 70}>
+                    <li className="grid gap-x-6 gap-y-2 px-7 py-6 transition-colors hover:bg-[#F3F7FB]/70 sm:grid-cols-[3.25rem_10rem_1fr] sm:items-baseline sm:px-10 sm:py-7">
+                      <span className="font-franklin text-sm font-semibold tabular-nums tracking-[0.18em] text-[#C93A24]">
+                        {session.number}
+                      </span>
+                      <span className="font-franklin text-sm font-semibold uppercase tracking-[0.16em] text-[#0A7A8C]">
+                        {session.key}
+                      </span>
+                      <p className="font-display text-lg leading-snug text-[#0B2237] sm:text-xl">
+                        {session.question}
+                      </p>
+                    </li>
+                  </Reveal>
+                ))}
+              </ol>
+            </div>
+          </Reveal>
+
+          {/* The refrain, then the line the whole week rests on. */}
+          <Reveal delay={140}>
+            <div className="mt-14 text-center">
+              <p className="font-franklin text-sm font-semibold uppercase tracking-[0.24em] text-[#0B2237]/55 sm:text-[15px]">
+                {PROGRAM.refrain}
+              </p>
+              <Rule className="mx-auto mt-8 w-16" />
+              <p className="font-franklin font-display mx-auto mt-8 max-w-2xl text-[clamp(1.5rem,3.6vw,2.25rem)] font-semibold leading-[1.2] tracking-tight text-[#0B2237]">
+                <span className="text-[#0A7A8C]">{PROGRAM.closing.lead}</span>{" "}
+                {PROGRAM.closing.tail}
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={180}>
+            <p className="mt-10 text-center text-sm text-[#0B2237]/50">
+              {TRIP.note}
+            </p>
           </Reveal>
         </div>
       </section>
@@ -221,7 +256,7 @@ export default function MexicoTripPage() {
       <section className="px-5 py-24 sm:px-8 sm:py-32">
         <div className="mx-auto max-w-4xl">
           <Reveal>
-            <SectionHeading align="left" eyebrow="Before you reply" title="Good to know" />
+            <SectionHeading align="left" eyebrow="Ahead of the trip" title="Good to know" />
           </Reveal>
           <div className="mt-12 grid gap-x-14 gap-y-10 sm:grid-cols-2">
             {FAQ.map((item, i) => (
@@ -241,33 +276,39 @@ export default function MexicoTripPage() {
       </section>
 
       {/* ---------------------------------------------------------------
-          RSVP — the point of the page.
+          Sign-off — the dark closing band. No form yet; the formal
+          invitation carries the RSVP.
       --------------------------------------------------------------- */}
       <section
-        id="rsvp"
+        id="save-the-date"
         className="scroll-mt-8 px-5 py-24 sm:px-8 sm:py-32"
         style={{ background: SEA_GRADIENT }}
       >
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-3xl text-center">
           <Reveal>
-            <div className="text-center">
-              <Eyebrow tone="dark">You qualified — mark your calendar</Eyebrow>
-              <h2 className="font-franklin font-display mt-4 text-3xl font-semibold leading-tight tracking-tight text-white sm:text-[2.75rem]">
-                Will you be joining us?
-              </h2>
-              <p className="mx-auto mt-4 max-w-md text-base text-white/70">
-                {TRIP.dateLabel} · {TRIP.resort}
-              </p>
-            </div>
+            <Eyebrow tone="dark">You qualified — mark your calendar</Eyebrow>
+            <h2 className="font-franklin font-display mt-4 text-3xl font-semibold leading-tight tracking-tight text-white sm:text-[2.75rem]">
+              {TRIP.dateLabel}
+            </h2>
+            <p className="mx-auto mt-4 max-w-md text-base text-white/70">
+              Friday to Friday · {TRIP.resort} · {TRIP.region}
+            </p>
           </Reveal>
 
           <Reveal delay={140}>
-            <div className="mt-12">
-              <RsvpForm />
-            </div>
+            <div className="mx-auto mt-12 h-px w-16 bg-white/25" aria-hidden />
+            <p className="font-franklin mx-auto mt-12 text-sm font-semibold uppercase tracking-[0.22em] text-[#FFCB45]">
+              {TRIP.rsvpByLabel}
+            </p>
+            <p className="mx-auto mt-5 max-w-xl text-lg leading-[1.8] text-white/80">
+              Hold the week and let the trip planning team know you are in by
+              Friday. A formal invitation with travel details follows once the
+              final count is set.
+            </p>
           </Reveal>
         </div>
       </section>
+
     </main>
   );
 }
