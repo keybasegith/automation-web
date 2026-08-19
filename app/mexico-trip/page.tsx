@@ -277,7 +277,7 @@ export default function MexicoTripPage() {
 
       {/* ---------------------------------------------------------------
           Sign-off — the dark closing band. No form yet; the formal
-          invitation carries the RSVP.
+          confirmation carries the RSVP.
       --------------------------------------------------------------- */}
       <section
         id="save-the-date"
@@ -303,7 +303,7 @@ export default function MexicoTripPage() {
             <p className="mx-auto mt-5 max-w-xl text-lg leading-[1.8] text-white/80">
               Hold the week and let the trip planning team know you are in
               before the deadline — the list closes at 11:59 pm Friday. A
-              formal invitation with travel details follows once the final
+              formal confirmation with travel details follows once the final
               count is set.
             </p>
           </Reveal>

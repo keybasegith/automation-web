@@ -39,7 +39,7 @@ export const TRIP = {
     "I trust you are having an enjoyable summer of warm weather, great outdoors and lots of activities. For planning purposes and time availability, here are the dates and location we are considering.",
   promise:
     "Get ready for an unforgettable week of relaxation, connection and celebration.",
-  note: "More details are coming soon, and a formal invitation will follow.",
+  note: "More details are coming soon, and a formal confirmation will follow.",
   /** Social proof shown in the hero, under the headline. */
   joining: {
     value: "80%",
@@ -175,7 +175,7 @@ export const FAQ = [
   },
   {
     q: "How do I confirm my spot?",
-    a: "Let the trip planning team know by 11:59 pm on Friday, August 21, 2026. That is the final attendance count — the list closes at that point, and the formal invitation with travel details follows after.",
+    a: "Let the trip planning team know by 11:59 pm on Friday, August 21, 2026. That is the final attendance count — the list closes at that point, and the formal confirmation with travel details follows after.",
   },
 ] as const;
 
