@@ -23,8 +23,8 @@ export const TRIP = {
   /** Local calendar dates. DTEND in the .ics is the exclusive day after. */
   startDate: "2026-11-20",
   endDate: "2026-11-27",
-  /** Deadline for final attendance confirmations. */
-  rsvpByLabel: "Final confirmations are due Friday, August 21, 2026",
+  /** Hard deadline for final attendance confirmations. */
+  rsvpByLabel: "Final confirmations close Friday, August 21, 2026 at 11:59 pm",
   heroVideo: "/mexico-trip.mp4",
   /** Auto-sliding gallery under the invitation. Missing files are skipped. */
   photos: [
@@ -175,7 +175,7 @@ export const FAQ = [
   },
   {
     q: "How do I confirm my spot?",
-    a: "Let the trip planning team know by Friday, August 21, 2026 — that is the final attendance count. The formal invitation with travel details follows after that.",
+    a: "Let the trip planning team know by 11:59 pm on Friday, August 21, 2026. That is the final attendance count — the list closes at that point, and the formal invitation with travel details follows after.",
   },
 ] as const;
 

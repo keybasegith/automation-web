@@ -301,9 +301,10 @@ export default function MexicoTripPage() {
               {TRIP.rsvpByLabel}
             </p>
             <p className="mx-auto mt-5 max-w-xl text-lg leading-[1.8] text-white/80">
-              Hold the week and let the trip planning team know you are in by
-              Friday. A formal invitation with travel details follows once the
-              final count is set.
+              Hold the week and let the trip planning team know you are in
+              before the deadline — the list closes at 11:59 pm Friday. A
+              formal invitation with travel details follows once the final
+              count is set.
             </p>
           </Reveal>
         </div>
