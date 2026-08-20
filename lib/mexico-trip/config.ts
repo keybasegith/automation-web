@@ -63,21 +63,33 @@ export const TRIP = {
  * width for each frame at a fixed rail height; the mix of landscape and
  * portrait shots is deliberate and gives the reel its rhythm.
  *
- * Order is the reel's running order, not the filenames: it opens on
- * memories-5 and wraps back through 2-4 at the end. There is no memories-1 —
- * that shot rendered blank on the page and was dropped from the set.
+ * Order is the reel's running order, not the filenames. Two things shape it:
+ * the two batches of photos alternate strictly, so neither uploads-first nor
+ * uploads-later shows up as a block, and portraits land every third frame or
+ * so, which keeps the rail from running as a wall of landscapes. It opens on
+ * memories-5 and the wrap back to the top holds both patterns. There is no
+ * memories-1 — that shot rendered blank on the page and was dropped.
  */
 export const MEMORIES = [
   { src: "/memories-5.jpg", width: 4032, height: 3024 },
+  { src: "/memories-18.jpg", width: 1200, height: 1600 },
   { src: "/memories-6.jpg", width: 4032, height: 3024 },
-  { src: "/memories-7.jpg", width: 4032, height: 3024 },
-  { src: "/memories-8.jpg", width: 4032, height: 3024 },
+  { src: "/memories-12.jpg", width: 1599, height: 961 },
   { src: "/memories-9.jpg", width: 3072, height: 4080 },
-  { src: "/memories-10.jpg", width: 4032, height: 3024 },
+  { src: "/memories-13.jpg", width: 1600, height: 866 },
+  { src: "/memories-7.jpg", width: 4032, height: 3024 },
+  { src: "/memories-19.jpg", width: 1464, height: 1600 },
+  { src: "/memories-8.jpg", width: 4032, height: 3024 },
+  { src: "/memories-14.jpg", width: 1600, height: 1200 },
   { src: "/memories-11.jpg", width: 3024, height: 4032 },
-  { src: "/memories-2.jpg", width: 3024, height: 4032 },
-  { src: "/memories-3.jpg", width: 3024, height: 4032 },
+  { src: "/memories-15.jpg", width: 1600, height: 1062 },
+  { src: "/memories-10.jpg", width: 4032, height: 3024 },
+  { src: "/memories-20.jpg", width: 1372, height: 1600 },
   { src: "/memories-4.jpg", width: 4032, height: 3024 },
+  { src: "/memories-16.jpg", width: 1600, height: 870 },
+  { src: "/memories-2.jpg", width: 3024, height: 4032 },
+  { src: "/memories-17.jpg", width: 1600, height: 1219 },
+  { src: "/memories-3.jpg", width: 3024, height: 4032 },
 ] as const;
 
 /** The four-beat teaser from the save-the-date note. */
