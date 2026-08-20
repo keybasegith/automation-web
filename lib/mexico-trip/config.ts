@@ -25,7 +25,15 @@ export const TRIP = {
   endDate: "2026-11-27",
   /** Hard deadline for final attendance confirmations. */
   rsvpByLabel: "Final confirmations close Friday, August 21, 2026 at 11:59 pm",
-  heroVideo: "/mexico-trip.mp4",
+  /**
+   * Hero slideshow. Cross-fades through these in order; files that fail to
+   * load are dropped, and the sea gradient carries the hero if none survive.
+   */
+  heroPhotos: [
+    "/mexicotrip-2.jpg",
+    "/mexicotrip-1.jpg",
+    "/mexicotrip-3.jpg",
+  ],
   /** Auto-sliding gallery under the invitation. Missing files are skipped. */
   photos: [
     "/mexico-trip1.jpg",

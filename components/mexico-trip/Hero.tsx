@@ -1,78 +1,99 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { ChevronDown, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { ChevronDown } from "lucide-react";
 import { TRIP } from "@/lib/mexico-trip/config";
 import { Countdown } from "./Countdown";
 import { PrimaryButton, SEA_GRADIENT } from "./ui";
 
-/** Tail of the clip to skip — it loops back before these final seconds. */
-const TRIM_END_SECONDS = 3;
+/** How long each hero photo holds before the next one fades in. */
+const SLIDE_MS = 3000;
+
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+
+function subscribeToMotionPreference(onChange: () => void) {
+  const query = window.matchMedia(REDUCED_MOTION);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+/**
+ * Live `prefers-reduced-motion` reading. Server-rendered as `false` so the
+ * markup matches the animated default, then corrected on hydration.
+ */
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    subscribeToMotionPreference,
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => false,
+  );
+}
 
 export function Hero() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  // timeupdate fires several times a second, so guard against issuing the
-  // rewind repeatedly while the seek is still in flight.
-  const rewinding = useRef(false);
-  // The clip is optional scenery, not load-bearing: if public/mexico-trip.mp4
-  // is missing or the codec is unsupported, we drop it and the sea gradient
-  // underneath carries the hero on its own.
-  const [videoFailed, setVideoFailed] = useState(false);
-  // Browsers only allow autoplay while muted; sound starts on a user tap.
-  const [muted, setMuted] = useState(true);
+  const [index, setIndex] = useState(0);
+  // The photos are optional scenery, not load-bearing: any file that is
+  // missing or unreadable drops out of the rotation, and if none survive the
+  // sea gradient underneath carries the hero on its own.
+  const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
+  // Mirrors the gallery slider: readers who ask for reduced motion get the
+  // first photo, held still, instead of a rotation they didn't ask for.
+  const reducedMotion = usePrefersReducedMotion();
 
-  function restart(v: HTMLVideoElement) {
-    if (rewinding.current) return;
-    rewinding.current = true;
-    v.currentTime = 0;
-    const played = v.play();
-    if (played && typeof played.catch === "function") played.catch(() => {});
-  }
+  const photos = useMemo(
+    () => TRIP.heroPhotos.filter((src) => !failed.has(src)),
+    [failed],
+  );
 
-  function toggleSound() {
-    const v = videoRef.current;
-    if (!v) return;
-    const next = !muted;
-    v.muted = next;
-    setMuted(next);
-    if (!next) {
-      // The unmute gesture doubles as the play gesture where needed.
-      const played = v.play();
-      if (played && typeof played.catch === "function") played.catch(() => {});
-    }
-  }
+  // Derived rather than clamped in an effect: if failed photos shrink the
+  // list under the current position, we fall back to the first slide and the
+  // next tick's modulo keeps the rotation consistent from there.
+  const current = index < photos.length ? index : 0;
+
+  useEffect(() => {
+    if (reducedMotion || photos.length < 2) return;
+    const id = setInterval(() => {
+      if (document.hidden) return;
+      setIndex((i) => (i + 1) % photos.length);
+    }, SLIDE_MS);
+    return () => clearInterval(id);
+  }, [reducedMotion, photos.length]);
 
   return (
     <section
       className="relative flex min-h-[100svh] flex-col overflow-hidden"
       style={{ background: SEA_GRADIENT }}
     >
-      {!videoFailed && (
-        <video
-          ref={videoRef}
-          className="ken-burns pointer-events-none absolute inset-0 h-full w-full object-cover"
-          src={TRIP.heroVideo}
-          autoPlay
-          muted
-          playsInline
-          preload="auto"
-          aria-hidden
-          onError={() => setVideoFailed(true)}
-          onSeeked={() => {
-            rewinding.current = false;
-          }}
-          onTimeUpdate={(e) => {
-            // Manual loop instead of the `loop` attribute: cut back to the
-            // start before the final seconds ever play.
-            const v = e.currentTarget;
-            if (!Number.isFinite(v.duration)) return;
-            if (v.currentTime >= v.duration - TRIM_END_SECONDS) restart(v);
-          }}
-          // Fallback for the case where duration never resolves and the clip
-          // runs all the way out.
-          onEnded={(e) => restart(e.currentTarget)}
-        />
-      )}
+      {/* Cross-fading photo stack. Every slide stays mounted so the outgoing
+          frame can fade under the incoming one rather than blinking out. */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        {photos.map((src, i) => (
+          /* Plain <img>: next/image would 400 on a file that isn't uploaded
+             yet instead of firing onError with the raw path. */
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            key={src}
+            src={src}
+            alt=""
+            loading={i === 0 ? "eager" : "lazy"}
+            draggable={false}
+            onError={() => setFailed((prev) => new Set(prev).add(src))}
+            className="absolute inset-0 h-full w-full select-none object-cover transition-[opacity,transform] ease-out"
+            style={{
+              opacity: i === current ? 1 : 0,
+              // Slow push-in on the visible frame; the reset happens while
+              // the slide is invisible, so the drift never reads as a snap.
+              transform: reducedMotion
+                ? undefined
+                : `scale(${i === current ? 1.1 : 1.02})`,
+              transitionDuration: reducedMotion
+                ? "0s"
+                : i === current
+                  ? "1200ms, 7000ms"
+                  : "1200ms",
+            }}
+          />
+        ))}
+      </div>
 
       {/* One quiet scrim, heavier at the base where the text sits. */}
       <div
@@ -90,26 +111,9 @@ export function Hero() {
           <span className="font-franklin text-sm font-semibold tracking-[0.18em] text-white">
             KEYBASE FINANCIAL GROUP
           </span>
-          <div className="flex items-center gap-4">
-            <span className="hidden text-xs font-medium uppercase tracking-[0.22em] text-white/70 sm:block">
-              {TRIP.region} · Mexico
-            </span>
-            {!videoFailed && (
-              <button
-                type="button"
-                onClick={toggleSound}
-                aria-label={muted ? "Turn sound on" : "Turn sound off"}
-                title={muted ? "Turn sound on" : "Turn sound off"}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 text-white/85 backdrop-blur-sm transition hover:border-white/60 hover:bg-white/10 hover:text-white"
-              >
-                {muted ? (
-                  <VolumeX className="h-4 w-4" strokeWidth={1.75} />
-                ) : (
-                  <Volume2 className="h-4 w-4" strokeWidth={1.75} />
-                )}
-              </button>
-            )}
-          </div>
+          <span className="hidden text-xs font-medium uppercase tracking-[0.22em] text-white/70 sm:block">
+            {TRIP.region} · Mexico
+          </span>
         </div>
       </div>
 
@@ -126,7 +130,7 @@ export function Hero() {
             Mexico
           </h1>
 
-          {/* Social proof — solid navy chip so it stays legible over the video. */}
+          {/* Social proof — solid navy chip so it stays legible over the photo. */}
           <p className="mt-7 inline-flex items-center gap-3 rounded-full bg-[#0B2237] py-2.5 pl-4 pr-5 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.75)] ring-1 ring-white/15">
             <span className="font-franklin text-xl font-semibold tabular-nums tracking-tight text-[#FFCB45] sm:text-2xl">
               {TRIP.joining.value}
