@@ -161,6 +161,24 @@ body {
   animation: glowDrift 16s ease-in-out infinite;
 }
 
+/* Continuous film-reel scroll for the Memories Made strip. The track holds
+   two identical copies of the photo list, so travelling exactly -50% lands on
+   the copy's twin and the loop is seamless. */
+@keyframes reelScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.reel-scroll {
+  animation: reelScroll var(--reel-duration, 42s) linear infinite;
+}
+.reel:hover .reel-scroll {
+  animation-play-state: paused;
+}
+
 /* Gentle pulse for the scroll cue at the base of the hero. */
 @keyframes scrollCue {
   0%,
@@ -184,6 +202,7 @@ body {
   .ken-burns,
   .ken-burns-close,
   .glow-drift,
+  .reel-scroll,
   .scroll-cue {
     opacity: 1 !important;
     transform: none !important;
@@ -195,5 +214,11 @@ body {
      point here, not the animation. */
   .ken-burns-close {
     transform: scale(1.4) !important;
+  }
+
+  /* The reel stops scrolling itself, so hand the photos back to the reader
+     as a swipeable strip instead of stranding them at the first frame. */
+  .reel {
+    overflow-x: auto;
   }
 }

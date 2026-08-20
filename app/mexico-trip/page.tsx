@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
 import { Hero } from "@/components/mexico-trip/Hero";
+import { MemoriesReel } from "@/components/mexico-trip/MemoriesReel";
 import { PhotoSlider } from "@/components/mexico-trip/PhotoSlider";
 import {
   Eyebrow,
@@ -274,6 +275,13 @@ export default function MexicoTripPage() {
           </div>
         </div>
       </section>
+
+      {/* ---------------------------------------------------------------
+          Memories Made — a continuously scrolling reel of past trips.
+      --------------------------------------------------------------- */}
+      <Reveal>
+        <MemoriesReel />
+      </Reveal>
 
       {/* ---------------------------------------------------------------
           Sign-off — the dark closing band. No form yet; the formal

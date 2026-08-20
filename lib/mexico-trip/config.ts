@@ -55,6 +55,31 @@ export const TRIP = {
   },
 } as const;
 
+/**
+ * The "Memories Made" strip — photos from previous trips, scrolled as one
+ * continuous film reel rather than a slide-at-a-time carousel.
+ *
+ * Intrinsic pixel dimensions are recorded so next/image can reserve the right
+ * width for each frame at a fixed rail height; the mix of landscape and
+ * portrait shots is deliberate and gives the reel its rhythm.
+ *
+ * Order is the reel's running order, not the filenames: it opens on
+ * memories-5 and wraps back through 2-4 at the end. There is no memories-1 —
+ * that shot rendered blank on the page and was dropped from the set.
+ */
+export const MEMORIES = [
+  { src: "/memories-5.jpg", width: 4032, height: 3024 },
+  { src: "/memories-6.jpg", width: 4032, height: 3024 },
+  { src: "/memories-7.jpg", width: 4032, height: 3024 },
+  { src: "/memories-8.jpg", width: 4032, height: 3024 },
+  { src: "/memories-9.jpg", width: 3072, height: 4080 },
+  { src: "/memories-10.jpg", width: 4032, height: 3024 },
+  { src: "/memories-11.jpg", width: 3024, height: 4032 },
+  { src: "/memories-2.jpg", width: 3024, height: 4032 },
+  { src: "/memories-3.jpg", width: 3024, height: 4032 },
+  { src: "/memories-4.jpg", width: 4032, height: 3024 },
+] as const;
+
 /** The four-beat teaser from the save-the-date note. */
 export const PILLARS = [
   {
