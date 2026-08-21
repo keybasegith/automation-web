@@ -8,6 +8,7 @@ import { setPlanRisk } from "./helpers";
 
 function reviewWith(mutate: (d: ReviewData) => void): ReviewData {
   const naaf = blankNaaf();
+  naaf.naaf_doc_kind = "NAAF";
   naaf.naaf_client_id = "C-10045";
   naaf.naaf_client_name = "Tremblay, Marie";
   naaf.naaf_income_band = "$75,000 - $99,999";

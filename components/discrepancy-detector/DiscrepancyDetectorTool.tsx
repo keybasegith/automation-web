@@ -127,10 +127,13 @@ export default function DiscrepancyDetectorTool() {
       // Only the client-side form for now: the CRQ arrives fillable, and a
       // template needs a blank of the matching revision, which we hold for the
       // NAAF and the KYC but not for every CRQ revision in circulation.
-      if (kind === "naaf" && Object.keys(read.fields).length === 0) {
+      // Only when the revision is recognised: the template IS a blank of that
+      // exact revision, so running it against a different one crops the wrong
+      // places on the page and returns confident-looking nonsense.
+      const docKind = detectDocKind(read.text);
+      if (kind === "naaf" && docKind && Object.keys(read.fields).length === 0) {
         setOcrProgress({ kind, done: 0, total: 1 });
         try {
-          const docKind = detectDocKind(read.text);
           const boxes = await loadFieldBoxes(TEMPLATE_URL[docKind]);
           const fields = naafOcrFields();
           const values = await ocrFieldsFromTemplate({

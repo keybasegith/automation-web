@@ -145,7 +145,7 @@ describe("assessTextLayer", () => {
   });
 });
 
-describe("detectDocKind on a flattened submission", () => {
+describe("detectDocKind", () => {
   // A flattened export keeps the printed body text but loses the header, which
   // is part of the page image. These strings are the section headings such a
   // file still carries; no client data is reproduced.
@@ -162,6 +162,23 @@ describe("detectDocKind on a flattened submission", () => {
     M. Account Agreement
     N. Dealer/Financial Advisor Information Dealer Code: Rep Code:
   `;
+  /**
+   * A third revision that is in circulation and that this tool does not know:
+   * five pages, and its later sections lettered several places along from the
+   * NAAF's because it carries blocks the NAAF does not.
+   */
+  const OB_BODY = `
+    I. Investment Instructions
+    J. Nominee Account Fee Payments (if applicable)
+    K. Evidence of Trading Instructions / Special Instructions / Trade Notes
+    L. Trusted Contact Person
+    M. Canadian Antispam Legislation (CASL)
+    N. Electronic Delivery of Documents (EDD)
+    O. Financial Advisor Outside Business Activities Not Applicable
+    P. Account Agreement
+    Q. Dealer/Financial Advisor Information Dealer Code: Rep Code:
+    V3-OB-2022 2| Page
+  `;
 
   it("recognises a KYC from its section headings alone", () => {
     expect(detectDocKind(KYC_BODY)).toBe("KYC");
@@ -171,20 +188,36 @@ describe("detectDocKind on a flattened submission", () => {
     expect(detectDocKind(NAAF_BODY)).toBe("NAAF");
   });
 
+  it("reads the KYC title even though the text layer breaks the word", () => {
+    // The header comes out of the text layer as "Know Your Client U pdate".
+    expect(detectDocKind("Know Your Client U pdate  T: 905-709-7911")).toBe("KYC");
+  });
+
   it("still prefers the printed title when it survived", () => {
     expect(detectDocKind("Know Your Client Update\n" + KYC_BODY)).toBe("KYC");
-    expect(detectDocKind("New Account Application Form\n" + NAAF_BODY)).toBe("NAAF");
+    expect(detectDocKind("V 3 -NAAF-2022 COPY TO CLIENT\n" + NAAF_BODY)).toBe("NAAF");
   });
 
   it("does not read an ordinary mention of a trusted contact as a section heading", () => {
-    // "...allow us to contact the Trusted Contact Person" must not match the
-    // KYC's "E. Trusted Contact Person".
     expect(
       detectDocKind("your Advisor to contact the Trusted Contact Person\n" + NAAF_BODY)
     ).toBe("NAAF");
   });
 
-  it("falls back to NAAF, the stricter form, when nothing identifies it", () => {
-    expect(detectDocKind("some unrelated document")).toBe("NAAF");
+  it("returns null for a revision it has not been taught", () => {
+    expect(detectDocKind(OB_BODY)).toBeNull();
+  });
+
+  it("is not fooled by the phrase every account form carries", () => {
+    // "New Account Application Form" appears in the body of the V3-OB-2022 as
+    // well as on the NAAF, so it must not identify anything on its own. Keying
+    // off it read an unrelated revision as a NAAF and quoted section letters
+    // that are several places out on that form.
+    const ob = "I/we acknowledge that the information provided in this New Account Application Form/KYC Update accurately represents my/our personal financial situation." + OB_BODY;
+    expect(detectDocKind(ob)).toBeNull();
+  });
+
+  it("returns null rather than guessing at an unrelated document", () => {
+    expect(detectDocKind("some unrelated document")).toBeNull();
   });
 });

@@ -30,11 +30,13 @@ import type {
   RulesReport,
 } from "./types";
 import {
-  DOC_KIND_LABEL,
   NAAF_RISK_TOLERANCES,
+  OMITS_OBA,
   ORDINAL_TO_CRQ_RANKING,
-  SECTIONS,
+  docLabel,
   sectionRef,
+  sectionShort,
+  sectionTitle,
   RED_FLAG_RISK_TOLERANCES,
   RED_FLAG_TIME_HORIZONS,
   type NaafRiskTolerance,
@@ -318,7 +320,7 @@ function ruleX3(data: ReviewData): RuleResult | null {
     return ok(
       "X3",
       "Income band",
-      `The ${DOC_KIND_LABEL[kind]} records ${naafBand}, which falls inside the wider band selected on the CRQ (${crqBand}). The two documents agree.`
+      `The ${docLabel(kind)} records ${naafBand}, which falls inside the wider band selected on the CRQ (${crqBand}). The two documents agree.`
     );
   }
 
@@ -326,7 +328,7 @@ function ruleX3(data: ReviewData): RuleResult | null {
     return deficiency(
       "X3",
       "Income band",
-      `The income bands only partly overlap: the ${DOC_KIND_LABEL[kind]} records ${naafBand} and the CRQ records ${crqBand}. Neither band contains the other, so the two answers cannot both be right.`,
+      `The income bands only partly overlap: the ${docLabel(kind)} records ${naafBand} and the CRQ records ${crqBand}. Neither band contains the other, so the two answers cannot both be right.`,
       "Confirm the client's annual income and correct whichever document is wrong."
     );
   }
@@ -334,7 +336,7 @@ function ruleX3(data: ReviewData): RuleResult | null {
   return deficiency(
     "X3",
     "Income band",
-    `The income band on the ${DOC_KIND_LABEL[kind]} (${naafBand}) does not match the CRQ (${crqBand}).`,
+    `The income band on the ${docLabel(kind)} (${naafBand}) does not match the CRQ (${crqBand}).`,
     "Confirm the client's annual income and correct whichever document is wrong."
   );
 }
@@ -413,16 +415,17 @@ function isPlausibleClientId(value: string): boolean {
 
 function ruleN1(naaf: NaafData): RuleResult {
   const kind = naaf.naaf_doc_kind;
-  const form = DOC_KIND_LABEL[kind];
+  const form = docLabel(kind);
   const ref = sectionRef(kind, "clientId");
-  const title = `Section ${SECTIONS[kind].clientId} — Client ID`;
+  const short = sectionShort(kind, "clientId");
+  const title = sectionTitle(kind, "clientId", "Client ID");
 
   if (isBlank(naaf.naaf_client_id)) {
     return deficiency(
       "N1",
       title,
       `${ref} does not have a Client ID.`,
-      `Add the Client ID to Section ${SECTIONS[kind].clientId} of the ${form}.`
+      `Add the Client ID to ${short} of the ${form}.`
     );
   }
   if (!isPlausibleClientId(naaf.naaf_client_id)) {
@@ -430,7 +433,7 @@ function ruleN1(naaf: NaafData): RuleResult {
       "N1",
       title,
       `The Client ID in ${ref} ("${naaf.naaf_client_id.trim()}") does not look like a valid Client ID.`,
-      `Confirm and correct the Client ID in Section ${SECTIONS[kind].clientId} of the ${form}.`
+      `Confirm and correct the Client ID in ${short} of the ${form}.`
     );
   }
   if (isBlank(naaf.naaf_client_name)) {
@@ -438,7 +441,7 @@ function ruleN1(naaf: NaafData): RuleResult {
       "N1",
       title,
       `${ref} does not have a client name.`,
-      `Add the account holder's surname and first name to Section ${SECTIONS[kind].clientId} of the ${form}.`
+      `Add the account holder's surname and first name to ${short} of the ${form}.`
     );
   }
   return ok("N1", title, `${ref} has a Client ID and client name.`);
@@ -447,7 +450,8 @@ function ruleN1(naaf: NaafData): RuleResult {
 function ruleN2(naaf: NaafData): RuleResult {
   const kind = naaf.naaf_doc_kind;
   const ref = sectionRef(kind, "kyc");
-  const title = `Section ${SECTIONS[kind].kyc} — KYC`;
+  const short = sectionShort(kind, "kyc");
+  const title = sectionTitle(kind, "kyc", "KYC");
 
   const missing: string[] = [];
   if (!naaf.naaf_income_band) missing.push("Approximate Income");
@@ -458,7 +462,7 @@ function ruleN2(naaf: NaafData): RuleResult {
       "N2",
       title,
       `${ref} is incomplete: ${missing.join(" and ")} ${missing.length === 1 ? "is" : "are"} missing.`,
-      `Complete the missing Section ${SECTIONS[kind].kyc} fields on the ${DOC_KIND_LABEL[kind]}.`
+      `Complete the missing ${short} fields on the ${docLabel(kind)}.`
     );
   }
   return ok("N2", title, `${ref} has an income band and net worth figures.`);
@@ -467,12 +471,13 @@ function ruleN2(naaf: NaafData): RuleResult {
 function ruleN3(naaf: NaafData, config: DetectorConfig): RuleResult {
   const kind = naaf.naaf_doc_kind;
   const ref = sectionRef(kind, "plans");
+  const short = sectionShort(kind, "plans");
 
   if (completedPlans(naaf, config).length === 0) {
     return deficiency(
       "N3",
       "Investment plans",
-      `No investment plan in ${ref} of the ${DOC_KIND_LABEL[kind]} has both a risk tolerance allocation and a time horizon selected.`,
+      `No investment plan in ${ref} of the ${docLabel(kind)} has both a risk tolerance allocation and a time horizon selected.`,
       "Complete the risk tolerance percentages and the time horizon for at least one investment plan."
     );
   }
@@ -487,8 +492,8 @@ function ruleN3(naaf: NaafData, config: DetectorConfig): RuleResult {
 function ruleN4(naaf: NaafData): RuleResult {
   const kind = naaf.naaf_doc_kind;
   const ref = sectionRef(kind, "trustedContact");
-  const letter = SECTIONS[kind].trustedContact;
-  const title = `Section ${letter} — Trusted Contact`;
+  const short = sectionShort(kind, "trustedContact");
+  const title = sectionTitle(kind, "trustedContact", "Trusted Contact");
 
   const tcp = naaf.naaf_tcp;
   const missing: string[] = [];
@@ -505,7 +510,7 @@ function ruleN4(naaf: NaafData): RuleResult {
       missing.length === 5
         ? `${ref} has not been completed.`
         : `${ref} is missing: ${missing.join(", ")}.`,
-      `Complete the missing fields in Section ${letter} of the ${DOC_KIND_LABEL[kind]}.`
+      `Complete the missing fields in ${short} of the ${docLabel(kind)}.`
     );
   }
   return ok("N4", title, `${ref} is complete.`);
@@ -519,11 +524,15 @@ function ruleN4(naaf: NaafData): RuleResult {
  */
 function ruleN5(naaf: NaafData): RuleResult | null {
   const kind = naaf.naaf_doc_kind;
-  if (SECTIONS[kind].oba === null) return null;
+  // Skipped only when the form is KNOWN to have no such section. An
+  // unrecognised revision most likely does have one, and running the check
+  // surfaces something the reviewer can dismiss, where skipping it would hide a
+  // real deficiency behind a rule that never ran.
+  if (kind && OMITS_OBA[kind]) return null;
 
   const ref = sectionRef(kind, "oba");
-  const letter = SECTIONS[kind].oba;
-  const title = `Section ${letter} — Outside Business Activity`;
+  const short = sectionShort(kind, "oba");
+  const title = sectionTitle(kind, "oba", "Outside Business Activity");
 
   if (naaf.naaf_oba_not_applicable) {
     return ok("N5", title, `${ref} is marked Not Applicable.`);
@@ -541,7 +550,7 @@ function ruleN5(naaf: NaafData): RuleResult | null {
       "N5",
       title,
       `${ref} is not marked Not Applicable, so it must be completed. Missing: ${missing.join(", ")}.`,
-      `Complete Section ${letter} of the ${DOC_KIND_LABEL[kind]}, or check Not Applicable if the advisor has no outside business activity.`
+      `Complete ${short} of the ${docLabel(kind)}, or check Not Applicable if the advisor has no outside business activity.`
     );
   }
   return ok("N5", title, `${ref} has a description and the required initials.`);
@@ -550,8 +559,8 @@ function ruleN5(naaf: NaafData): RuleResult | null {
 function ruleN6(naaf: NaafData): RuleResult {
   const kind = naaf.naaf_doc_kind;
   const ref = sectionRef(kind, "clientSignatures");
-  const letter = SECTIONS[kind].clientSignatures;
-  const title = `Section ${letter} — Client signatures`;
+  const short = sectionShort(kind, "clientSignatures");
+  const title = sectionTitle(kind, "clientSignatures", "Client signatures");
 
   const required = naaf.naaf_is_joint ? 2 : 1;
   const signatures = naaf.naaf_client_signatures;
@@ -574,7 +583,7 @@ function ruleN6(naaf: NaafData): RuleResult {
       "N6",
       title,
       `${problems.join("; ")}.`,
-      `Obtain the missing client signature(s) and date(s) in Section ${letter} of the ${DOC_KIND_LABEL[kind]}.`
+      `Obtain the missing client signature(s) and date(s) in ${short} of the ${docLabel(kind)}.`
     );
   }
   return ok(
@@ -589,8 +598,8 @@ function ruleN6(naaf: NaafData): RuleResult {
 function ruleN7(naaf: NaafData): RuleResult {
   const kind = naaf.naaf_doc_kind;
   const ref = sectionRef(kind, "advisor");
-  const letter = SECTIONS[kind].advisor;
-  const title = `Section ${letter} — Advisor information`;
+  const short = sectionShort(kind, "advisor");
+  const title = sectionTitle(kind, "advisor", "Advisor information");
 
   const missing: string[] = [];
   if (isBlank(naaf.naaf_advisor_name)) missing.push("the advisor's name");
@@ -602,7 +611,7 @@ function ruleN7(naaf: NaafData): RuleResult {
       "N7",
       title,
       `${ref} is incomplete: ${missing.join(", ")} ${missing.length === 1 ? "is" : "are"} missing.`,
-      `Complete Section ${letter} of the ${DOC_KIND_LABEL[kind]} with the advisor's name, signature, and date.`
+      `Complete ${short} of the ${docLabel(kind)} with the advisor's name, signature, and date.`
     );
   }
   return ok("N7", title, `${ref} has the advisor's name, signature, and date.`);

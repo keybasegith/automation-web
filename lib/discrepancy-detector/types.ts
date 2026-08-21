@@ -66,11 +66,12 @@ export interface ClientSignature {
 
 export interface NaafData {
   /**
-   * Which of the two client-side forms this is. Drives the printed section
-   * letters in every rule message, and whether the Outside Business Activities
-   * rule applies at all.
+   * Which of the two client-side forms this is, or null when the revision was
+   * not recognised. Drives the printed section letters in every rule message,
+   * and whether the Outside Business Activities rule applies at all — a null
+   * kind quotes no letters rather than quoting a letter that may be wrong.
    */
-  naaf_doc_kind: DocKind;
+  naaf_doc_kind: DocKind | null;
   naaf_form_type: NaafFormType | null;
   naaf_client_id: string;
   naaf_client_name: string;

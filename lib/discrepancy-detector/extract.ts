@@ -50,7 +50,7 @@ import {
   NAAF_INCOME_BANDS,
   NAAF_RISK_TOLERANCES,
   NAAF_TIME_HORIZONS,
-  DOC_KIND_LABEL,
+  docLabel,
   type CrqFormVersion,
   type DocKind,
   type NaafRiskTolerance,
@@ -256,26 +256,56 @@ function readAllocation(
  * A KYC read as a NAAF at worst raises one finding the reviewer can dismiss —
  * and the reviewer can correct the document type on the verification screen.
  */
-const DOC_KIND_SIGNALS: Array<[RegExp, DocKind]> = [
-  // Printed titles — present whenever the header survives into the text layer.
-  [/Know Your Client Update/i, "KYC"],
-  [/New Account Application Form/i, "NAAF"],
-  // Section headings unique to one form.
+/**
+ * Signals that identify a revision, verified against every document we hold:
+ * the two blank fillable forms, a flattened KYC, and a flattened V3-OB-2022.
+ *
+ * "New Account Application Form" is NOT among them, and its absence is the
+ * point. That phrase appears in the body of the V3-OB-2022 onboarding form as
+ * well as on the NAAF, so keying off it identified an unrelated revision as a
+ * NAAF and quoted its section letters — which are shifted by several places on
+ * that form — into a deficiency email.
+ *
+ * Titles are matched against a whitespace-STRIPPED haystack because the KYC's
+ * header comes out of the text layer as "Know Your Client U pdate". Section
+ * headings are matched against a merely collapsed one, so the letter stays
+ * attached: strip the punctuation and the ordinary sentence "...the Trusted
+ * Contact Person" starts matching the KYC's "E. Trusted Contact Person".
+ */
+const STRIPPED_SIGNALS: Array<[string, DocKind]> = [
+  ["knowyourclientupdate", "KYC"],
+  ["v3naaf2022", "NAAF"],
+];
+
+const SPACED_SIGNALS: Array<[RegExp, DocKind]> = [
+  // Section headings unique to one revision.
   [/Know Your Client Information/i, "KYC"],
-  [/Financial Advisor Outside Business Activities/i, "NAAF"],
-  // Same heading, different letter on each form.
   [/\bE\.\s*Trusted Contact Person/i, "KYC"],
-  [/\bI\.\s*Trusted Contact Person/i, "NAAF"],
   [/\bF\.\s*Authorization/i, "KYC"],
+  [/\bI\.\s*Trusted Contact Person/i, "NAAF"],
+  [/\bL\.\s*Financial Advisor Outside Business Activities/i, "NAAF"],
   [/\bM\.\s*Account Agreement/i, "NAAF"],
 ];
 
-export function detectDocKind(text: string): DocKind {
-  const hay = text.replace(/\s+/g, " ");
-  for (const [pattern, kind] of DOC_KIND_SIGNALS) {
-    if (pattern.test(hay)) return kind;
+/**
+ * Which revision of the client-side form is this — or null when it is one this
+ * tool has not been taught.
+ *
+ * Null rather than a best guess. An unrecognised revision has different section
+ * lettering and a different page layout, so guessing costs the reviewer both a
+ * wrong section reference in the advisor's email and a pre-fill read from the
+ * wrong places on the page. Neither failure looks like a failure.
+ */
+export function detectDocKind(text: string): DocKind | null {
+  const stripped = norm(text);
+  for (const [needle, kind] of STRIPPED_SIGNALS) {
+    if (stripped.includes(needle)) return kind;
   }
-  return "NAAF";
+  const spaced = text.replace(/\s+/g, " ");
+  for (const [pattern, kind] of SPACED_SIGNALS) {
+    if (pattern.test(spaced)) return kind;
+  }
+  return null;
 }
 
 export function extractNaaf(
@@ -392,6 +422,7 @@ export function extractNaaf(
   // `zchkPage411` is the "Not Applicable" box on the Section L heading line —
   // established by geometry, not by its name: its widget sits at x=449/y=497 on
   // page 3, alongside the printed "Not Applicable" at x=459/y=497.
+  // Read only when we know the form has the section and where it is.
   if (kind === "NAAF") {
     const oba = field(fields, "oba");
     if (oba) {
@@ -463,7 +494,7 @@ export function extractNaaf(
 
   const parsedCount = Object.values(sources).filter((s) => s === "parsed").length;
   if (parsedCount === 0) {
-    warnings.push(flattenedOrUnmatched(read, DOC_KIND_LABEL[kind], origin));
+    warnings.push(flattenedOrUnmatched(read, docLabel(kind), origin));
     return { mode: "manual", data, sources, warnings, pageCount: read.pageCount };
   }
 

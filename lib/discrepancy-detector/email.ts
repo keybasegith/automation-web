@@ -28,6 +28,12 @@ const FORM_PHRASE: Record<DocKind, { long: string; subject: string }> = {
   },
 };
 
+/** Wording for a revision this tool does not know, which names no form. */
+const UNKNOWN_FORM_PHRASE = {
+  long: "account form",
+  subject: "Account Documentation",
+} as const;
+
 /** "Doe, Jane" and "Jane Doe" both greet as "Jane". */
 function greetingName(fullName: string): string {
   const name = fullName.trim();
@@ -55,10 +61,12 @@ const bullet = (item: RuleResult): string =>
 export interface EmailDraftInput {
   report: RulesReport;
   /**
-   * Which client-side form was reviewed. The advisor is being asked to correct
-   * a specific document, so naming the wrong one sends them to the wrong file.
+   * Which client-side form was reviewed, or null when the revision was not
+   * recognised. The advisor is being asked to correct a specific document, so
+   * naming the wrong one sends them to the wrong file — and naming none is
+   * better than naming the wrong one.
    */
-  docKind: DocKind;
+  docKind: DocKind | null;
   advisorName: string;
   advisorEmail: string;
   clientName: string;
@@ -79,7 +87,7 @@ export function buildEmailDraft(input: EmailDraftInput): EmailDraft {
   const lines: string[] = [];
   lines.push(`Hello ${greetingName(input.advisorName)},`);
   lines.push("");
-  const form = FORM_PHRASE[input.docKind];
+  const form = input.docKind ? FORM_PHRASE[input.docKind] : UNKNOWN_FORM_PHRASE;
   lines.push(
     `We have reviewed the ${form.long} and Client Risk Questionnaire (CRQ) submitted for ${client}. The following ${
       report.deficiencies.length === 1 ? "item needs" : "items need"

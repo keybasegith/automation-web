@@ -14,7 +14,7 @@ import type {
 } from "@/lib/discrepancy-detector/types";
 import {
   DOC_KINDS,
-  DOC_KIND_LABEL,
+  docLabel,
   MAX_PLANS,
   NAAF_FORM_TYPES,
   SECTIONS,
@@ -60,21 +60,31 @@ export default function NaafFields({
   };
 
   const kind = data.naaf_doc_kind;
-  const sections = SECTIONS[kind];
-  const formLabel = DOC_KIND_LABEL[kind];
+  const sections = kind ? SECTIONS[kind] : null;
+  const formLabel = docLabel(kind);
+  const letter = (key: keyof typeof SECTIONS.NAAF) => sections?.[key] ?? null;
+  const heading = (key: keyof typeof SECTIONS.NAAF, name: string) => {
+    const l = letter(key);
+    return l ? `Section ${l} — ${name}` : name;
+  };
 
   return (
     <div className="flex flex-col gap-4">
       <FieldGroup
-        title={`Section ${sections.clientId} — Account Holder Information`}
-        description={`Reading a ${formLabel}. Section letters and the applicable rules follow whichever form was uploaded.`}
+        title={heading("clientId", "Account Holder Information")}
+        description={
+          kind
+            ? `Reading a ${formLabel}. Section letters and the applicable rules follow whichever form was uploaded.`
+            : "This form revision was not recognised, so no section letters are quoted and nothing was pre-filled. Set the document below if you know which it is, or enter the fields by hand."
+        }
       >
         <SelectField
           label="Document"
           value={kind}
           options={DOC_KINDS}
-          onChange={(v) => set("naaf_doc_kind", v ?? "NAAF")}
-          hint="Detected from the form header. Change it if the detection is wrong."
+          onChange={(v) => set("naaf_doc_kind", v)}
+          placeholder="Not recognised"
+          hint="Detected from the form itself. Set it if the tool did not recognise the revision, or got it wrong."
         />
         <SelectField
           label="Form type"
@@ -207,7 +217,7 @@ export default function NaafFields({
       </FieldGroup>
 
       <FieldGroup
-        title={`Section ${sections.trustedContact} — Trusted Contact Person`}
+        title={heading("trustedContact", "Trusted Contact Person")}
         description="Firm policy treats any missing Trusted Contact field as a deficiency."
       >
         <TextField
@@ -241,8 +251,8 @@ export default function NaafFields({
         The KYC Update has no Outside Business Activities block, so there is
         nothing to show and nothing for the reviewer to answer.
       */}
-      {sections.oba !== null && (
-      <FieldGroup title={`Section ${sections.oba} — Financial Advisor Outside Business Activities`} columns={1}>
+      {(kind === null || sections?.oba !== null) && (
+      <FieldGroup title={heading("oba", "Financial Advisor Outside Business Activities")} columns={1}>
         <CheckField
           label="Not Applicable is checked"
           checked={data.naaf_oba_not_applicable}
@@ -274,7 +284,7 @@ export default function NaafFields({
       )}
 
       <FieldGroup
-        title={`Section ${sections.clientSignatures} — Client signatures`}
+        title={heading("clientSignatures", "Client signatures")}
         description="Pre-filled from the form's signature fields on a typed submission; blank on a scan. Confirm against the page image."
         columns={1}
       >
@@ -299,7 +309,7 @@ export default function NaafFields({
         </div>
       </FieldGroup>
 
-      <FieldGroup title={`Section ${sections.advisor} — Dealer / Financial Advisor Information`}>
+      <FieldGroup title={heading("advisor", "Dealer / Financial Advisor Information")}>
         <TextField
           label="Rep Code"
           value={data.naaf_rep_code}

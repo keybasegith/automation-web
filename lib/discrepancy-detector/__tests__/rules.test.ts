@@ -8,6 +8,7 @@ import { setPlanRisk } from "./helpers";
 /** A NAAF that passes every N-rule; each test breaks exactly one thing. */
 function cleanNaaf(): NaafData {
   const naaf = blankNaaf();
+  naaf.naaf_doc_kind = "NAAF";
   naaf.naaf_form_type = "New Client";
   naaf.naaf_client_id = "C-10045";
   naaf.naaf_client_name = "Tremblay, Marie";
@@ -439,5 +440,51 @@ describe("X3 across income scales that do not line up", () => {
     data.crq.crq_form_version = "crq24";
     data.crq.crq_income_band = "$250,000 or more";
     expect(runRules(data).results.find((r) => r.code === "X3")?.status).toBe("deficiency");
+  });
+});
+
+describe("a form revision the tool does not know", () => {
+  /** Same review, but nothing identified which form the advisor is holding. */
+  const unknownRevision = (): ReviewData => {
+    const data = clean();
+    data.naaf.naaf_doc_kind = null;
+    return data;
+  };
+
+  it("quotes no section letter anywhere", () => {
+    const report = runRules(unknownRevision());
+    for (const r of report.results) {
+      expect(r.message).not.toMatch(/\bSection [A-Z]\b/);
+      expect(r.remediation).not.toMatch(/\bSection [A-Z]\b/);
+    }
+  });
+
+  it("names the section instead, so the advisor still knows where to look", () => {
+    const data = unknownRevision();
+    data.naaf.naaf_tcp.phone = "";
+    const n4 = runRules(data).deficiencies.find((d) => d.code === "N4");
+    expect(n4?.message).toContain("Trusted Contact Person section");
+  });
+
+  it("still runs the outside business activities check", () => {
+    // Skipping it is only correct for a form KNOWN to omit the section. An
+    // unrecognised revision probably has one, and a check that never ran is
+    // indistinguishable from a check that passed.
+    const codes = runRules(unknownRevision()).results.map((r) => r.code);
+    expect(codes).toContain("N5");
+  });
+
+  it("keeps skipping it on a KYC, which genuinely has no such section", () => {
+    const data = clean();
+    data.naaf.naaf_doc_kind = "KYC";
+    expect(runRules(data).results.map((r) => r.code)).not.toContain("N5");
+  });
+
+  it("does not name a form it cannot identify", () => {
+    const data = unknownRevision();
+    data.naaf.naaf_tcp.phone = "";
+    const n4 = runRules(data).deficiencies.find((d) => d.code === "N4");
+    expect(n4?.remediation).not.toContain("NAAF");
+    expect(n4?.remediation).not.toContain("KYC Update");
   });
 });

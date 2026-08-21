@@ -263,6 +263,17 @@ export interface SectionLetters {
   advisor: string;
 }
 
+/**
+ * Whether a form omits the Outside Business Activities block entirely. Distinct
+ * from "we do not know this form's letters": the KYC Update genuinely has no
+ * such section, so rule N5 has nothing to check, whereas an unrecognised
+ * revision probably does have one and simply cannot be cited.
+ */
+export const OMITS_OBA: Record<DocKind, boolean> = {
+  NAAF: false,
+  KYC: true,
+};
+
 export const SECTIONS: Record<DocKind, SectionLetters> = {
   NAAF: {
     clientId: "A",
@@ -298,12 +309,50 @@ export const SECTION_NAMES = {
   advisor: "Dealer/Financial Advisor Information",
 } as const;
 
-/** "Section I (Trusted Contact Person)" for whichever form is in hand. */
+/**
+ * "Section I (Trusted Contact Person)" for whichever form is in hand, or just
+ * "the Trusted Contact Person section" when the revision was not recognised.
+ *
+ * Quoting a letter we are not sure of is worse than quoting none: it sends the
+ * advisor to the wrong page of the form they are actually holding, and the
+ * reference reads as authoritative either way.
+ */
 export const sectionRef = (
-  kind: DocKind,
+  kind: DocKind | null,
   key: keyof SectionLetters
 ): string => {
-  const letter = SECTIONS[kind][key];
   const name = SECTION_NAMES[key];
+  if (!kind) return `the ${name} section`;
+  const letter = SECTIONS[kind][key];
   return letter ? `Section ${letter} (${name})` : name;
 };
+
+/** Rule title for a section: lettered when we know it, named when we do not. */
+export const sectionTitle = (
+  kind: DocKind | null,
+  key: keyof SectionLetters,
+  short: string
+): string => {
+  const letter = kind ? SECTIONS[kind][key] : null;
+  return letter ? `Section ${letter} — ${short}` : short;
+};
+
+/**
+ * A SHORT reference for a remediation sentence that already names the section:
+ * "Section I" when we know the letter, the section's name when we do not.
+ *
+ * Keeps "Complete the missing fields in Section I of the NAAF." from becoming
+ * "...in Section I (Trusted Contact Person) of the NAAF" right after a message
+ * that already said Trusted Contact Person.
+ */
+export const sectionShort = (
+  kind: DocKind | null,
+  key: keyof SectionLetters
+): string => {
+  const letter = kind ? SECTIONS[kind][key] : null;
+  return letter ? `Section ${letter}` : `the ${SECTION_NAMES[key]} section`;
+};
+
+/** How to name the form in a sentence when the revision is unknown. */
+export const docLabel = (kind: DocKind | null): string =>
+  kind ? DOC_KIND_LABEL[kind] : "form";

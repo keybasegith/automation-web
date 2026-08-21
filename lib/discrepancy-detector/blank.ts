@@ -22,7 +22,7 @@ export const blankPlan = (plan_index: number): NaafPlan => ({
   time_horizon_new: null,
 });
 
-export const blankNaaf = (kind: DocKind = "NAAF"): NaafData => ({
+export const blankNaaf = (kind: DocKind | null = null): NaafData => ({
   naaf_doc_kind: kind,
   naaf_form_type: null,
   naaf_client_id: "",
