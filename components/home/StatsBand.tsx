@@ -13,7 +13,7 @@ const STATS = [
   },
   {
     prefix: "$",
-    value: 5,
+    value: 3,
     suffix: "B+",
     label: "Client assets under administration as of May 1, 2026",
     note: "Assets under administration reflect the total value of client accounts administered across Keybase advisors, including managed portfolios, registered plans, and insurance solutions held with the firm.",

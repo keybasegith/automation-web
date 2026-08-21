@@ -153,8 +153,8 @@ export const INCLUDED = [
   },
   {
     icon: "plane",
-    title: "Travel handled",
-    body: "We're arranging group travel for everyone — flights, airport transfers, and on-site coordination. Details to follow.",
+    title: "Group flight arranged",
+    body: "A group flight at a reduced fare, with transfers handled. Airfare isn't covered — everyone pays for their own seat.",
   },
 ] as const;
 
@@ -208,7 +208,7 @@ export const SESSIONS = [
 export const FAQ = [
   {
     q: "Who is covered?",
-    a: "You qualified — your trip is on us. The invitation is personal to qualifiers, so please don't forward this link.",
+    a: "You qualified — the week is on us. Airfare is the exception: we've secured a group flight at a reduced fare, but everyone pays for their own seat. The invitation is personal to qualifiers, so please don't forward this link.",
   },
   {
     q: "Do I need a passport?",

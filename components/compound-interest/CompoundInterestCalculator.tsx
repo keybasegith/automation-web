@@ -416,7 +416,7 @@ function MiniChart({ data, width, height, showInflation, showTax }: MiniChartPro
 
   const hd = hoverIndex !== null ? data[hoverIndex] : null;
   const tooltipX = hoverIndex !== null ? toX(hoverIndex) : 0;
-  const tooltipFlip = tooltipX > width - 180;
+  const tooltipFlip = tooltipX > width - 220;
   const tipFont = "var(--font-geist-sans), system-ui, sans-serif";
 
   return (
@@ -521,7 +521,7 @@ function MiniChart({ data, width, height, showInflation, showTax }: MiniChartPro
           {showTax && <circle cx={tooltipX} cy={toY(hd.afterTaxBalance)} r="5" fill={C.red} stroke={C.white} strokeWidth="2" />}
 
           <g
-            transform={`translate(${tooltipFlip ? tooltipX - 172 : tooltipX + 12}, ${Math.max(
+            transform={`translate(${tooltipFlip ? tooltipX - 212 : tooltipX + 12}, ${Math.max(
               padding.top,
               toY(hd.balance) - 40
             )})`}
@@ -530,7 +530,7 @@ function MiniChart({ data, width, height, showInflation, showTax }: MiniChartPro
             <rect
               x="0"
               y="0"
-              width="160"
+              width="200"
               height={showInflation || showTax ? (showInflation && showTax ? 120 : 102) : 84}
               rx="10"
               ry="10"
@@ -539,28 +539,31 @@ function MiniChart({ data, width, height, showInflation, showTax }: MiniChartPro
             <text x="12" y="20" fontSize="11" fontWeight="700" fill="#9db8d6" fontFamily={tipFont} letterSpacing="0.06em">
               YEAR {hd.year}
             </text>
-            <line x1="12" y1="27" x2="148" y2="27" stroke="rgba(255,255,255,0.14)" strokeWidth="1" />
+            <line x1="12" y1="27" x2="188" y2="27" stroke="rgba(255,255,255,0.14)" strokeWidth="1" />
             <circle cx="18" cy="41" r="4" fill={C.balance} />
             <text x="28" y="38" fontSize="9" fill="rgba(255,255,255,0.55)" fontFamily={tipFont} fontWeight="600">Balance</text>
-            <text x="148" y="44" textAnchor="end" fontSize="12" fontWeight="700" fill={C.white} fontFamily={tipFont}>{formatCurrency(hd.balance)}</text>
+            <text x="188" y="44" textAnchor="end" fontSize="12" fontWeight="700" fill={C.white} fontFamily={tipFont}>{formatCurrency(hd.balance)}</text>
             <circle cx="18" cy="59" r="4" fill={C.contrib} />
             <text x="28" y="56" fontSize="9" fill="rgba(255,255,255,0.55)" fontFamily={tipFont} fontWeight="600">Contributed</text>
-            <text x="148" y="62" textAnchor="end" fontSize="12" fontWeight="700" fill={C.white} fontFamily={tipFont}>{formatCurrency(hd.contributions)}</text>
+            <text x="188" y="62" textAnchor="end" fontSize="12" fontWeight="700" fill={C.white} fontFamily={tipFont}>{formatCurrency(hd.contributions)}</text>
             <circle cx="18" cy="77" r="4" fill={C.green} />
-            <text x="28" y="74" fontSize="9" fill="rgba(255,255,255,0.55)" fontFamily={tipFont} fontWeight="600">Interest Earned</text>
-            <text x="148" y="80" textAnchor="end" fontSize="12" fontWeight="700" fill={C.white} fontFamily={tipFont}>{formatCurrency(hd.interest)}</text>
+            <text x="28" fontSize="9" fill="rgba(255,255,255,0.55)" fontFamily={tipFont} fontWeight="600">
+              <tspan x="28" y="70">Capital Gains</tspan>
+              <tspan x="28" y="79">and Dividends</tspan>
+            </text>
+            <text x="188" y="80" textAnchor="end" fontSize="12" fontWeight="700" fill={C.white} fontFamily={tipFont}>{formatCurrency(hd.interest)}</text>
             {showInflation && (
               <>
                 <circle cx="18" cy="95" r="4" fill={C.green} />
                 <text x="28" y="92" fontSize="9" fill="rgba(255,255,255,0.55)" fontFamily={tipFont} fontWeight="600">Real Value</text>
-                <text x="148" y="98" textAnchor="end" fontSize="12" fontWeight="700" fill={C.white} fontFamily={tipFont}>{formatCurrency(hd.realBalance)}</text>
+                <text x="188" y="98" textAnchor="end" fontSize="12" fontWeight="700" fill={C.white} fontFamily={tipFont}>{formatCurrency(hd.realBalance)}</text>
               </>
             )}
             {showTax && (
               <>
                 <circle cx="18" cy={showInflation ? 113 : 95} r="4" fill={C.red} />
                 <text x="28" y={showInflation ? 110 : 92} fontSize="9" fill="rgba(255,255,255,0.55)" fontFamily={tipFont} fontWeight="600">After Tax</text>
-                <text x="148" y={showInflation ? 116 : 98} textAnchor="end" fontSize="12" fontWeight="700" fill={C.white} fontFamily={tipFont}>{formatCurrency(hd.afterTaxBalance)}</text>
+                <text x="188" y={showInflation ? 116 : 98} textAnchor="end" fontSize="12" fontWeight="700" fill={C.white} fontFamily={tipFont}>{formatCurrency(hd.afterTaxBalance)}</text>
               </>
             )}
           </g>
@@ -824,7 +827,7 @@ export default function CompoundInterestCalculator({
           compact={compact}
         />
         <StatCard
-          label="Interest Earned"
+          label="Capital Gains and Dividends"
           value={formatCurrency(finalData.interest)}
           subValue={`${interestPct}% of total`}
           accent={C.green}
