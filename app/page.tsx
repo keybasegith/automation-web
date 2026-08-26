@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   ChevronRight,
 } from "lucide-react";
+import { getPublishedArticles } from "@/lib/insights/articles";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import Hero from "@/components/home/Hero";
@@ -53,26 +54,12 @@ const SERVICES = [
   },
 ];
 
-const ARTICLES = [
-  {
-    category: "Wealth Planning",
-    title: "Five Estate Strategies High-Net-Worth Families Should Revisit This Year",
-  },
-  {
-    category: "Market Outlook",
-    title: "Positioning Portfolios for a Higher-for-Longer Rate Environment",
-  },
-  {
-    category: "Retirement",
-    title: "Building Durable Income That Outlasts a 30-Year Retirement",
-  },
-  {
-    category: "Insurance Solutions",
-    title: "How the Right Coverage Protects What You've Worked to Build",
-  },
-];
+/** The newest published pieces, billed the way each article asks to be. */
+const FEATURED_COUNT = 4;
 
 export default function Home() {
+  const featured = getPublishedArticles().slice(0, FEATURED_COUNT);
+
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
@@ -189,10 +176,10 @@ export default function Home() {
           </Reveal>
 
           <div>
-            {ARTICLES.map((post, i) => (
-              <Reveal key={post.title} delay={i * 90}>
+            {featured.map((post, i) => (
+              <Reveal key={post.slug} delay={i * 90}>
                 <Link
-                  href="#insights"
+                  href={`/newsroom/${post.slug}`}
                   className={`group flex items-center gap-6 py-8 ${
                     i > 0 ? "border-t border-black/10" : ""
                   }`}
@@ -200,8 +187,11 @@ export default function Home() {
                   <div className="flex-1">
                     <p className="text-[13px] text-[#5b6573]">{post.category}</p>
                     <h3 className="mt-3 font-serif text-2xl font-normal leading-snug text-[#0a1f33] transition-colors duration-300 group-hover:text-[#006d6e] sm:text-[28px]">
-                      {post.title}
+                      {post.card?.title ?? post.title}
                     </h3>
+                    <p className="mt-3 text-[16px] leading-relaxed text-[#5b6573]">
+                      {post.card?.description ?? post.excerpt}
+                    </p>
                   </div>
                   <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-[#0a1f33]/40 text-[#0a1f33] transition-all duration-300 group-hover:scale-105 group-hover:border-[#0a1f33] group-hover:bg-[#0a1f33] group-hover:text-white">
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
@@ -209,6 +199,16 @@ export default function Home() {
                 </Link>
               </Reveal>
             ))}
+
+            <Reveal delay={featured.length * 90}>
+              <Link
+                href="/newsroom"
+                className="group inline-flex items-center gap-2 border-t border-black/10 pt-8 text-[15px] font-semibold text-[#0a1f33] transition-colors hover:text-[#006d6e]"
+              >
+                Visit the Newsroom
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Reveal>
           </div>
         </div>
       </section>

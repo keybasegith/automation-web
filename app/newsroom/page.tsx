@@ -1,6 +1,7 @@
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import Newsroom from "@/components/newsroom/Newsroom";
+import { buildNewsroomCards } from "@/lib/insights/listing";
 import {
   getPublishedNewsroom,
   getVisiblePublishedArticles,
@@ -39,7 +40,7 @@ export default async function NewsroomPage() {
 
         {/* Interactive list */}
         <div className="mt-12">
-          <Newsroom articles={articles} />
+          <Newsroom articles={buildNewsroomCards(articles)} />
         </div>
       </main>
 

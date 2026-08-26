@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "node --env-file-if-exists=.env.local node_modules/vitest/vitest.mjs run",
     "cms:migrate": "node --env-file=.env.local scripts/migrate-cms-to-postgres.mjs",
+    "cms:clear-newsroom": "node --env-file=.env.local scripts/clear-seeded-newsroom.mjs",
     "copy-pdf-worker": "mkdir -p public/pdfjs && cp node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs public/pdfjs/pdf.worker.min.mjs",
     "postinstall": "npm run copy-pdf-worker"
   },

@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { readFileSync } from "fs";
 import path from "path";
+import { getPeopleByType } from "@/lib/people/people";
 import type {
   CareersContent,
   ContentPagesContent,
@@ -201,102 +202,22 @@ export function seedExecutives(): ExecutivesContent {
   const migrated = migrateLegacyExecutives();
   if (migrated) return { people: migrated };
 
-  const base = [
-    {
-      name: "Dax Sukhraj",
-      title: "President & CEO",
-      photoUrl: "/dax-profile-updated.jpg",
-      ceoMessage: true,
-      lead: "Dax Sukhraj is President & CEO at Keybase Financial Group.",
-      paragraphs: [
-        "As President & CEO, Mr. Sukhraj sets the strategic direction of the firm, championing an independent, client-first model built on transparency and disciplined advice.",
-        "Prior to leading Keybase, he held senior roles across wealth management and capital markets, advising individuals, families, and institutions through every stage of the market cycle.",
-        "Mr. Sukhraj has more than two decades of experience in the financial services industry and remains personally committed to building durable relationships that span generations.",
-      ],
-    },
-    {
-      name: "Linda Yang",
-      title: "Vice President, Chief Financial Officer",
-      comingSoon: true,
-      lead: "Linda Yang is Vice President and Chief Financial Officer at Keybase Financial Group.",
-      paragraphs: [
-        "Ms. Yang oversees the firm's financial management, reporting, and capital planning, ensuring a strong and disciplined financial foundation.",
-        "She brings extensive experience in finance and corporate strategy across the financial services industry, with a focus on stability, transparency, and responsible growth.",
-        "Ms. Yang is dedicated to maintaining the financial integrity that underpins the trust clients and advisors place in Keybase.",
-      ],
-    },
-    {
-      name: "Keith Sutherland",
-      title: "Vice President, System Development and Support",
-      photoUrl: "/keith-profile2.jpg",
-      lead: "Keith Sutherland is Vice President, System Development and Support at Keybase Financial Group.",
-      paragraphs: [
-        "Mr. Sutherland leads the firm's technology systems, development, and support, building the digital infrastructure that powers a modern advisory experience.",
-        "He brings extensive experience in systems development and technical operations across the financial services industry, with a focus on reliability, security, and innovation.",
-        "Mr. Sutherland is dedicated to delivering the tools and platforms that help advisors serve clients seamlessly and securely.",
-      ],
-    },
-    {
-      name: "Krissy Sukhraj",
-      title: "Director of Marketing & Corporate Strategy",
-      photoUrl: "/krissy-newprofile.jpg",
-      photoClass: "scale-110",
-      href: "/businesscard-krissy",
-      lead: "Krissy Sukhraj is Director of Marketing & Corporate Strategy at Keybase Financial Group.",
-      paragraphs: [
-        "Ms. Sukhraj shapes the firm's brand, client experience, and long-term strategic direction, connecting the Keybase story with the families and institutions it serves.",
-        "She brings extensive experience across marketing, communications, and corporate strategy, with a focus on building meaningful, lasting client relationships.",
-        "Ms. Sukhraj leads the firm's growth initiatives and is dedicated to ensuring the Keybase experience is clear, personal, and consistent at every touchpoint.",
-      ],
-    },
-    {
-      name: "Mark Garcia",
-      title: "Chief Compliance Officer",
-      photoUrl: "/mark-newprofilepic.jpg",
-      href: "/businesscard-mark",
-      lead: "Mark Garcia is Chief Compliance Officer at Keybase Financial Group.",
-      paragraphs: [
-        "Mr. Garcia oversees the firm's regulatory, risk, and governance framework, ensuring every client engagement meets the highest standards of integrity and fiduciary care.",
-        "He has held senior compliance and risk leadership roles across the financial services industry, building programs that protect clients while enabling responsible growth.",
-        "Mr. Garcia is recognized for embedding a culture of accountability and transparency throughout every level of the organization.",
-      ],
-    },
-    {
-      name: "Pushpa Shivanthan",
-      title: "Vice President, Back Office Administration",
-      photoUrl: "/pushpa-profile2.jpg",
-      lead: "Pushpa Shivanthan is Vice President, Back Office Administration at Keybase Financial Group.",
-      paragraphs: [
-        "Mr. Shivanthan leads the firm's back office and administrative operations, ensuring accurate, timely, and seamless support across every client and advisor interaction.",
-        "He brings extensive experience in operations and administration across the financial services industry, with a focus on accuracy, efficiency, and reliability.",
-        "Mr. Shivanthan is committed to building the disciplined processes and systems that keep the firm running smoothly behind the scenes.",
-      ],
-    },
-    {
-      name: "Jerome Pare",
-      title: "Senior I.T. Specialist",
-      photoUrl: "/jerome-profile.jpg",
-      lead: "Jerome Pare is Senior I.T. Specialist at Keybase Financial Group.",
-      paragraphs: [
-        "Mr. Pare supports the firm's information technology systems, ensuring secure, reliable, and responsive infrastructure across the organization.",
-        "He brings hands-on experience across IT operations, security, and support within the financial services industry.",
-        "Mr. Pare is dedicated to keeping the firm's technology running smoothly so advisors and staff can focus on serving clients.",
-      ],
-    },
-  ];
-
+  // Derived from the people registry rather than transcribed again here. The
+  // registry (lib/people/people.ts) is the single record of who these people
+  // are; this turns it into the CMS's editable shape on first read, after which
+  // the admin owns the content.
   return {
-    people: base.map((b) => ({
+    people: getPeopleByType("leadership").map((person) => ({
       id: randomUUID(),
-      name: b.name,
-      title: b.title,
-      lead: b.lead ?? "",
-      paragraphs: b.paragraphs ?? [],
-      photoUrl: b.photoUrl ?? null,
-      photoClass: b.photoClass ?? null,
-      comingSoon: b.comingSoon ?? false,
-      ceoMessage: b.ceoMessage ?? false,
-      href: b.href ?? null,
+      name: person.name,
+      title: person.role ?? "",
+      lead: person.shortBio ?? "",
+      paragraphs: person.bio ?? [],
+      photoUrl: person.image?.src ?? null,
+      photoClass: person.image?.className ?? null,
+      comingSoon: person.portraitPending ?? false,
+      ceoMessage: person.authoredPagePath === "/ceo-message",
+      href: person.otherPagePath ?? null,
       isVisible: true,
     })),
   };
@@ -629,68 +550,15 @@ export function seedCareers(): CareersContent {
 }
 
 // ---------------------------------------------------------------------------
-// Newsroom — articles (verbatim from components/newsroom/Newsroom.tsx).
+// Newsroom — hero copy. Articles come from the published article store.
 // ---------------------------------------------------------------------------
 export function seedNewsroom(): NewsroomContent {
-  const articles = [
-    {
-      category: "Markets",
-      title: "Positioning Portfolios for a Higher-for-Longer Rate Environment",
-      excerpt:
-        "What persistent rates mean for fixed income, equities, and the disciplined, goals-based portfolios we build for clients.",
-      date: "2026.06.22",
-      author: "Keybase Research",
-    },
-    {
-      category: "Retirement",
-      title: "Building Durable Income That Outlasts a 30-Year Retirement",
-      excerpt:
-        "A framework for turning a lifetime of savings into reliable, tax-efficient income that lasts through every market cycle.",
-      date: "2026.06.15",
-      author: "Keybase Planning Desk",
-    },
-    {
-      category: "Tax & Estate",
-      title: "Five Estate Strategies High-Net-Worth Families Should Revisit This Year",
-      excerpt:
-        "From intergenerational transfers to trust structures, the planning moves worth reviewing before year-end.",
-      date: "2026.06.08",
-      author: "Keybase Research",
-    },
-    {
-      category: "Insurance",
-      title: "How the Right Coverage Protects What You've Worked to Build",
-      excerpt:
-        "Why integrated protection — life, disability, and critical illness — belongs at the center of a complete financial plan.",
-      date: "2026.05.30",
-      author: "Keybase Planning Desk",
-    },
-    {
-      category: "Investing",
-      title: "The Case for Discipline When Markets Get Loud",
-      excerpt:
-        "Headlines move fast; sound plans don't. How an independent, research-driven process keeps clients on course.",
-      date: "2026.05.21",
-      author: "Keybase Research",
-    },
-    {
-      category: "Firm News",
-      title: "Keybase Expands Its Advisory Team Across Canada",
-      excerpt:
-        "New advisors and specialists join the firm as Keybase continues to grow its independent national platform.",
-      date: "2026.05.12",
-      author: "Keybase Financial Group",
-    },
-    {
-      category: "Markets",
-      title: "What Independent Advice Means in a Volatile Year",
-      excerpt:
-        "Free from product quotas and competing incentives, independence lets us focus on a single question: what is right for you.",
-      date: "2026.05.04",
-      author: "Keybase Research",
-    },
-  ];
-
+  /**
+   * No seeded articles. The newsroom listing is driven by the published article
+   * store in lib/insights/articles.ts, where every entry has a real body behind
+   * it. This collection stays empty until an admin adds a headline-only item
+   * through the CMS — it is not a place to keep placeholder copy.
+   */
   return {
     hero: {
       eyebrow: "Newsroom",
@@ -698,15 +566,7 @@ export function seedNewsroom(): NewsroomContent {
       intro:
         "Market intelligence, planning insights, and global financial trends — curated by the Keybase Financial Group team.",
     },
-    articles: articles.map((a, i) => ({
-      id: seedId("article", `${i}-${a.title}`),
-      category: a.category,
-      title: a.title,
-      excerpt: a.excerpt,
-      date: a.date,
-      author: a.author,
-      isVisible: true,
-    })),
+    articles: [],
   };
 }
 
