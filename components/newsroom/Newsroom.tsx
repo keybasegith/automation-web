@@ -11,11 +11,12 @@ import type { NewsroomCard } from "@/lib/insights/listing";
  * back to the lettered wordmark panel rather than a broken or borrowed photo.
  */
 function ArticleImage({ card }: { card: NewsroomCard }) {
-  // Its own aspect on mobile — a fixed pixel height would crop an illustration
-  // through the middle on a narrow screen. Beside the text on desktop, it
-  // stretches to whatever height the copy sets.
+  // One shape at every width: a thumbnail beside the copy, scaled down rather
+  // than restacked on a phone. Its aspect keeps the illustration from being
+  // cropped through the middle; on a wide screen it stretches to whatever
+  // height the copy sets.
   const frame =
-    "relative aspect-[16/10] w-full overflow-hidden lg:aspect-auto lg:h-full lg:min-h-[220px] lg:rounded-xl";
+    "relative aspect-[4/3] w-full overflow-hidden rounded-lg sm:aspect-[16/10] sm:rounded-xl lg:aspect-auto lg:h-full lg:min-h-[220px]";
 
   if (card.image) {
     return (
@@ -24,7 +25,7 @@ function ArticleImage({ card }: { card: NewsroomCard }) {
           src={card.image.src}
           alt={card.image.alt}
           fill
-          sizes="(min-width: 1024px) 320px, 100vw"
+          sizes="(min-width: 1024px) 320px, (min-width: 640px) 220px, (min-width: 380px) 132px, 104px"
           className="object-cover"
         />
       </div>
@@ -40,12 +41,12 @@ function ArticleImage({ card }: { card: NewsroomCard }) {
       }}
       aria-hidden
     >
-      <span className="select-none text-[140px] font-bold leading-none text-white/[0.06]">
+      <span className="select-none text-[56px] font-bold leading-none text-white/[0.08] sm:text-[100px] lg:text-[140px]">
         K
       </span>
-      {/* Only the placeholder names the category — over real artwork it would
-          just repeat the eyebrow sitting directly above it. */}
-      <span className="absolute bottom-4 left-5 text-[12px] font-semibold uppercase tracking-[0.18em] text-white/70">
+      {/* Only the placeholder names the category, and only where there is room
+          for it — over real artwork it would repeat the eyebrow just above. */}
+      <span className="absolute bottom-3 left-4 hidden text-[12px] font-semibold uppercase tracking-[0.18em] text-white/70 sm:block">
         {card.category}
       </span>
     </div>
@@ -120,16 +121,12 @@ export default function Newsroom({ articles }: { articles: NewsroomCard[] }) {
         {filtered.map((a) => (
           <article
             key={a.id}
-            className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 transition-shadow hover:shadow-[0_24px_60px_-32px_rgba(10,31,51,0.35)] lg:flex-row lg:items-stretch lg:gap-10 lg:p-8"
+            className="group flex items-start gap-4 rounded-2xl border border-black/10 p-4 transition-shadow hover:shadow-[0_24px_60px_-32px_rgba(10,31,51,0.35)] sm:gap-6 sm:p-6 lg:items-stretch lg:gap-10 lg:p-8"
           >
-            {/* Artwork first in the DOM so it leads on a phone; `lg:order-last`
-                puts it back on the right beside the copy on a wide screen. */}
-            <div className="w-full lg:order-last lg:w-[320px] lg:flex-shrink-0">
-              <ArticleImage card={a} />
-            </div>
-
-            <div className="flex flex-1 flex-col p-6 sm:p-8 lg:p-0">
-              <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[#006d6e]">
+            {/* `min-w-0` so a long unbroken headline shrinks the text column
+                instead of pushing the thumbnail off the card. */}
+            <div className="flex min-w-0 flex-1 flex-col">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#006d6e] sm:text-[13px] sm:tracking-[0.18em]">
                 {a.category}
                 {a.external && a.externalPublisher && (
                   <span className="ml-2 font-normal normal-case tracking-normal text-[#9aa3ad]">
@@ -137,7 +134,7 @@ export default function Newsroom({ articles }: { articles: NewsroomCard[] }) {
                   </span>
                 )}
               </p>
-              <h2 className="mt-3 font-serif text-[26px] font-normal leading-[1.12] tracking-tight text-[#0a1f33] sm:text-[30px]">
+              <h2 className="mt-1.5 font-serif text-[16px] font-normal leading-[1.18] tracking-tight text-[#0a1f33] sm:mt-3 sm:text-[24px] sm:leading-[1.12] lg:text-[30px]">
                 {/* A real anchor, not a click handler — an item with a page is
                     reachable and crawlable whether or not JavaScript runs. Items
                     with no article behind them stay plain text rather than
@@ -151,7 +148,10 @@ export default function Newsroom({ articles }: { articles: NewsroomCard[] }) {
                       className="inline-flex items-start gap-1.5 transition-colors hover:text-[#006d6e]"
                     >
                       {a.title}
-                      <ArrowUpRight className="mt-2 h-5 w-5 flex-shrink-0" aria-hidden />
+                      <ArrowUpRight
+                        className="mt-1 h-4 w-4 flex-shrink-0 sm:mt-2 sm:h-5 sm:w-5"
+                        aria-hidden
+                      />
                       <span className="sr-only">(opens in a new tab)</span>
                     </a>
                   ) : (
@@ -163,10 +163,10 @@ export default function Newsroom({ articles }: { articles: NewsroomCard[] }) {
                   a.title
                 )}
               </h2>
-              <p className="mt-4 flex-1 text-[16px] leading-relaxed text-[#5b6573]">
+              <p className="mt-2 line-clamp-2 flex-1 text-[13px] leading-relaxed text-[#5b6573] sm:mt-4 sm:line-clamp-none sm:text-[15px] lg:text-[16px]">
                 {a.excerpt}
               </p>
-              <p className="mt-6 text-[14px] text-[#9aa3ad]">
+              <p className="mt-3 text-[12px] text-[#9aa3ad] sm:mt-6 sm:text-[14px]">
                 {a.dateTime ? (
                   <time dateTime={a.dateTime}>{a.dateLabel}</time>
                 ) : (
@@ -174,6 +174,10 @@ export default function Newsroom({ articles }: { articles: NewsroomCard[] }) {
                 )}
                 {a.author && ` · ${a.author}`}
               </p>
+            </div>
+
+            <div className="w-[104px] flex-shrink-0 min-[380px]:w-[132px] sm:w-[220px] lg:w-[320px]">
+              <ArticleImage card={a} />
             </div>
           </article>
         ))}
