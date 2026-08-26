@@ -108,8 +108,9 @@ export function Hero() {
       {/* Top bar */}
       <div className="relative border-b border-white/15">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
-          <span className="font-franklin text-sm font-semibold tracking-[0.18em] text-white">
-            KEYBASE FINANCIAL GROUP
+          <span className="font-franklin flex flex-col text-sm font-semibold leading-[1.35] tracking-[0.18em] text-white">
+            <span>ARGOSY KEYBASE</span>
+            <span>WEALTH MANAGEMENT</span>
           </span>
           <span className="hidden text-xs font-medium uppercase tracking-[0.22em] text-white/70 sm:block">
             {TRIP.region} · Mexico
