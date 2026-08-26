@@ -203,7 +203,7 @@ export default function MexicoTripPage() {
               {/* Card header — the promise the five sessions add up to. */}
               <div className="flex flex-col gap-3 border-b border-[#0B2237]/10 bg-[#0B2237] px-7 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-10">
                 <h3 className="font-franklin font-display text-xl font-semibold leading-tight tracking-tight text-white sm:text-2xl">
-                  Building the Advisory Practice of the Future
+                  Building the Advisory Practice of the Future - AGENDA
                 </h3>
                 <span className="shrink-0 self-start rounded-full border border-white/25 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7FD6DD] sm:self-auto">
                   Five sessions
@@ -300,7 +300,7 @@ export default function MexicoTripPage() {
               {TRIP.dateLabel}
             </h2>
             <p className="mx-auto mt-4 max-w-md text-base text-white/70">
-              Friday to Friday · {TRIP.resort} · {TRIP.region}
+              Saturday to Saturday · {TRIP.resort} · {TRIP.region}
             </p>
           </Reveal>
         </div>

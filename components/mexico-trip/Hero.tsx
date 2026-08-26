@@ -160,7 +160,7 @@ export function Hero() {
               Departure
             </p>
             <p className="mt-1 font-franklin text-lg font-medium text-white">
-              Friday, November 20, 2026 · seven nights
+              Saturday, November 21, 2026 · seven nights
             </p>
           </div>
           <Countdown />

@@ -24,11 +24,11 @@ export const TRIP = {
   title: "Playa del Carmen, Mexico",
   resort: "Hyatt Vivid Playa del Carmen",
   region: "Riviera Maya, Quintana Roo",
-  dateLabel: "November 20–27, 2026",
+  dateLabel: "November 21–28, 2026",
   nights: "7 nights",
   /** Local calendar dates. DTEND in the .ics is the exclusive day after. */
-  startDate: "2026-11-20",
-  endDate: "2026-11-27",
+  startDate: "2026-11-21",
+  endDate: "2026-11-28",
   /** Hard deadline for final attendance confirmations. */
   rsvpByLabel: "Final confirmations close Friday, August 21, 2026 at 11:59 pm",
   /**
@@ -55,7 +55,7 @@ export const TRIP = {
     "I trust you are having an enjoyable summer of warm weather, great outdoors and lots of activities. For planning purposes and time availability, here are the dates and location we are considering.",
   promise:
     "Get ready for an unforgettable week of relaxation, connection and celebration.",
-  note: "More details are coming soon, and a formal confirmation will follow.",
+  note: "More details to the agenda are coming soon.",
   /** Social proof shown in the hero, under the headline. */
   joining: {
     value: "80%",
@@ -224,7 +224,7 @@ export const FAQ = [
   },
   {
     q: "How much time off do I need?",
-    a: "The trip covers a US Thanksgiving week, Friday to Friday. Plan for the full November 20–27 window, plus travel on either end.",
+    a: "The trip covers a US Thanksgiving week, Saturday to Saturday. Plan for the full November 21–28 window, plus travel on either end.",
   },
   {
     q: "How do I confirm my spot?",
