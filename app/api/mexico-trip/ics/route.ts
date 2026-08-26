@@ -45,7 +45,7 @@ export async function GET() {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Keybase Financial Group//Huatulco 2026//EN",
+    "PRODID:-//Keybase Financial Group//Playa del Carmen 2026//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
@@ -61,7 +61,7 @@ export async function GET() {
     "BEGIN:VALARM",
     "TRIGGER:-P30D",
     "ACTION:DISPLAY",
-    "DESCRIPTION:One month until Huatulco",
+    "DESCRIPTION:One month until Playa del Carmen",
     "END:VALARM",
     "END:VEVENT",
     "END:VCALENDAR",

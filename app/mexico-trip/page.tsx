@@ -87,7 +87,7 @@ export default function MexicoTripPage() {
             <SectionHeading
               align="left"
               eyebrow="What's waiting"
-              title="Seven nights on the Pacific coast of Oaxaca"
+              title="Seven nights on the Caribbean coast of Mexico"
             />
           </Reveal>
 
@@ -123,18 +123,19 @@ export default function MexicoTripPage() {
                 {TRIP.resort}
               </h2>
               <p className="mt-2 text-base font-medium text-[#0A7A8C]">
-                Conejos Bay · {TRIP.region}
+                Beachfront · {TRIP.region}
               </p>
               <p className="mt-7 text-base leading-[1.8] text-[#0B2237]/70 sm:text-lg">
-                Huatulco is the coast Mexico kept quiet about — nine bays and
-                thirty-six beaches wrapped in a national park, with the Sierra
-                Madre rising straight out of the water behind them. No high-rise
-                strip, no crowds. Clear water, coffee country in the hills, and
-                evenings that stay warm long after sunset.
+                Playa del Carmen sits at the middle of the Riviera Maya —
+                white sand and turquoise water on one side, Fifth Avenue and its
+                open-air cafés a block behind. The Mesoamerican reef lies just
+                offshore, cenotes and Mayan ruins an easy drive inland, and
+                Cozumel a short ferry across the channel.
               </p>
               <p className="mt-5 text-base leading-[1.8] text-[#0B2237]/70 sm:text-lg">
-                The resort is adults-only and all-inclusive, set directly on the
-                bay — everything is taken care of from the moment you land.
+                The resort is adults-only and all-inclusive, set directly on
+                the beach — everything is taken care of from the moment you
+                land.
               </p>
             </Reveal>
 
@@ -300,19 +301,6 @@ export default function MexicoTripPage() {
             </h2>
             <p className="mx-auto mt-4 max-w-md text-base text-white/70">
               Friday to Friday · {TRIP.resort} · {TRIP.region}
-            </p>
-          </Reveal>
-
-          <Reveal delay={140}>
-            <div className="mx-auto mt-12 h-px w-16 bg-white/25" aria-hidden />
-            <p className="font-franklin mx-auto mt-12 text-sm font-semibold uppercase tracking-[0.22em] text-[#FFCB45]">
-              {TRIP.rsvpByLabel}
-            </p>
-            <p className="mx-auto mt-5 max-w-xl text-lg leading-[1.8] text-white/80">
-              Hold the week and let the trip planning team know you are in
-              before the deadline — the list closes at 11:59 pm Friday. A
-              formal confirmation with travel details follows once the final
-              count is set.
             </p>
           </Reveal>
         </div>

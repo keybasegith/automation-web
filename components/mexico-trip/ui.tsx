@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 /**
- * Shared primitives for the Huatulco landing page.
+ * Shared primitives for the Playa del Carmen landing page.
  *
  * Design language: coastal editorial. Airy cool-white bands, dark-navy ink
  * type and bands, hairline rules, small-caps tracking labels, teal detail

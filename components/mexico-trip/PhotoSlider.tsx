@@ -45,7 +45,7 @@ export function PhotoSlider() {
   return (
     <section
       className="px-5 pb-24 sm:px-8 sm:pb-32"
-      aria-label="A look at Huatulco"
+      aria-label="A look at Playa del Carmen"
     >
       <div
         className="group relative mx-auto max-w-6xl overflow-hidden rounded-2xl bg-[#E8F0F8]"
@@ -63,7 +63,7 @@ export function PhotoSlider() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={src}
-                alt={`Huatulco preview ${i + 1} of ${photos.length}`}
+                alt={`Playa del Carmen preview ${i + 1} of ${photos.length}`}
                 loading={i === 0 ? "eager" : "lazy"}
                 draggable={false}
                 onError={() =>

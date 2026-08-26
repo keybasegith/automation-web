@@ -1,5 +1,5 @@
 /**
- * Single source of truth for the Huatulco 2026 qualifiers trip.
+ * Single source of truth for the Playa del Carmen 2026 qualifiers trip.
  *
  * Every string a colleague reads on /mexico-trip lives here so the copy can be
  * updated without touching layout, and so the landing page, the .ics download,
@@ -8,16 +8,22 @@
 
 export const BASE = "/mexico-trip";
 
-/** Identifies this trip's rows in `trip_rsvps`. Bump for a future year. */
+/**
+ * Identifies this trip's rows in `trip_rsvps`. Bump for a future year.
+ *
+ * Deliberately still "huatulco-2026": the destination moved to Playa del
+ * Carmen after RSVPs had started coming in, and renaming the slug would
+ * orphan every row already collected. It is a storage key, not copy.
+ */
 export const TRIP_SLUG = "huatulco-2026";
 
 export const TRIP = {
   slug: TRIP_SLUG,
   eyebrow: "Save the date",
   greeting: "Dear fellow colleagues — ¿Cómo está?",
-  title: "Huatulco, Mexico",
-  resort: "Secrets Huatulco Resort & Spa",
-  region: "Bahías de Huatulco, Oaxaca",
+  title: "Playa del Carmen, Mexico",
+  resort: "Hyatt Vivid Playa del Carmen",
+  region: "Riviera Maya, Quintana Roo",
   dateLabel: "November 20–27, 2026",
   nights: "7 nights",
   /** Local calendar dates. DTEND in the .ics is the exclusive day after. */
@@ -36,11 +42,13 @@ export const TRIP = {
   ],
   /** Auto-sliding gallery under the invitation. Missing files are skipped. */
   photos: [
-    "/mexico-trip1.jpg",
-    "/mexico-trip2.jpg",
-    "/mexico-trip3.jpg",
-    "/mexico-trip4.jpg",
-    "/mexico-trip5.jpg",
+    "/newhotel-1.jpg",
+    "/newhotel-2.jpg",
+    "/newhotel-3.jpg",
+    "/newhotel-4.jpg",
+    "/newhotel-5.jpg",
+    "/newhotel-6.jpg",
+    "/newhotel-7.jpg",
   ],
   tagline: "You worked for it. You earned it. Now it's time to celebrate it.",
   intro:
@@ -97,12 +105,12 @@ export const PILLARS = [
   {
     number: "01",
     title: "Sunshine",
-    body: "Roughly 330 days of sun a year on Oaxaca's Pacific coast. Late November is the sweet spot — dry, warm, and golden from morning to last light.",
+    body: "Roughly 300 days of sun a year on Mexico's Caribbean coast. Late November is the sweet spot — the rains have passed, the heat has eased, and the light runs gold from morning to last call.",
   },
   {
     number: "02",
     title: "Ocean",
-    body: "Nine bays and thirty-six beaches of protected coastline. Swim, snorkel, sail, or simply claim a lounger and let the week slow down.",
+    body: "Warm, impossibly clear Caribbean water, with the second-largest reef on earth lying just offshore. Swim, snorkel, sail across to Cozumel, or simply claim a lounger and let the week slow down.",
   },
   {
     number: "03",
@@ -112,16 +120,16 @@ export const PILLARS = [
   {
     number: "04",
     title: "A very special destination",
-    body: "Secrets Huatulco Resort & Spa — adults-only, beachfront, Unlimited-Luxury®. Everything handled, so nothing is left for you to manage.",
+    body: "Hyatt Vivid Playa del Carmen — adults-only, all-inclusive, on the sand and a short walk from Fifth Avenue. Everything handled, so nothing is left for you to manage.",
   },
 ] as const;
 
 /** Numbers that make the destination feel concrete rather than abstract. */
 export const STATS = [
   { value: "7", label: "nights" },
-  { value: "9", label: "bays" },
-  { value: "36", label: "beaches" },
-  { value: "28°C", label: "average November high" },
+  { value: "60 min", label: "from Cancún airport" },
+  { value: "2nd", label: "largest reef on earth" },
+  { value: "29°C", label: "average November high" },
 ] as const;
 
 /** What the resort covers — the "nothing left to manage" proof points. */
@@ -129,17 +137,17 @@ export const INCLUDED = [
   {
     icon: "hotel",
     title: "Beachfront suite",
-    body: "Adults-only, ocean-view accommodation with a private terrace or plunge pool.",
+    body: "Adults-only accommodation steps from the sand, with a private terrace or plunge pool.",
   },
   {
     icon: "utensils",
     title: "Dining & drinks included",
-    body: "Nine restaurants, no reservations required, no wristbands, no bill at the end.",
+    body: "Every restaurant and bar on the property, no reservations required, no wristbands, no bill at the end.",
   },
   {
     icon: "flower",
     title: "Spa & wellness",
-    body: "The Secrets Spa hydrotherapy circuit, fitness studio, and daily wellness sessions.",
+    body: "The spa's hydrotherapy circuit, fitness studio, and daily wellness sessions.",
   },
   {
     icon: "waves",
@@ -154,7 +162,7 @@ export const INCLUDED = [
   {
     icon: "plane",
     title: "Group flight arranged",
-    body: "A group flight at a reduced fare, with transfers handled. Airfare isn't covered — everyone pays for their own seat.",
+    body: "A group flight into Cancún at a reduced fare, with resort transfers handled. Airfare isn't covered — everyone pays for their own seat.",
   },
 ] as const;
 
@@ -228,7 +236,7 @@ export const ATTENDING_OPTIONS = [
   {
     value: "yes",
     label: "Yes — count me in",
-    hint: "Save my spot in Huatulco.",
+    hint: "Save my spot in Playa del Carmen.",
   },
   {
     value: "maybe",

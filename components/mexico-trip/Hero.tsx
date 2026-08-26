@@ -125,9 +125,9 @@ export function Hero() {
           </p>
 
           <h1 className="font-franklin font-display mt-5 text-[clamp(3rem,8.5vw,5.75rem)] font-semibold leading-[1.0] tracking-[-0.02em] text-white">
-            Huatulco,
+            Playa del
             <br />
-            Mexico
+            Carmen
           </h1>
 
           {/* Social proof — solid navy chip so it stays legible over the photo. */}
