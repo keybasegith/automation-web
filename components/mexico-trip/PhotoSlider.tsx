@@ -11,7 +11,8 @@ const SLIDE_MS = 2800;
  * Slides live on one horizontal track moved with translateX, so the advance
  * reads as a glide rather than a swap. Photos that fail to load (not uploaded
  * yet, bad name) are dropped from the rotation, and the whole component
- * renders nothing when no photo survives — the page never shows broken tiles.
+ * drops the frame entirely when no photo survives — the page never shows
+ * broken tiles, though the link to the resort's own page stays either way.
  * Rotation pauses while hovered or when the tab is hidden, and the dots allow
  * manual navigation.
  */
@@ -40,13 +41,8 @@ export function PhotoSlider() {
     return () => clearInterval(id);
   }, [paused, photos.length]);
 
-  if (photos.length === 0) return null;
-
-  return (
-    <section
-      className="px-5 pb-24 sm:px-8 sm:pb-32"
-      aria-label="A look at Playa del Carmen"
-    >
+  const gallery =
+    photos.length === 0 ? null : (
       <div
         className="group relative mx-auto max-w-6xl overflow-hidden rounded-2xl bg-[#E8F0F8]"
         onMouseEnter={() => setPaused(true)}
@@ -66,9 +62,7 @@ export function PhotoSlider() {
                 alt={`Playa del Carmen preview ${i + 1} of ${photos.length}`}
                 loading={i === 0 ? "eager" : "lazy"}
                 draggable={false}
-                onError={() =>
-                  setFailed((prev) => new Set(prev).add(src))
-                }
+                onError={() => setFailed((prev) => new Set(prev).add(src))}
                 className="aspect-[4/3] w-full select-none object-cover sm:aspect-[16/8]"
               />
             </div>
@@ -102,6 +96,33 @@ export function PhotoSlider() {
           </>
         )}
       </div>
+    );
+
+  return (
+    <section
+      className="px-5 pb-24 sm:px-8 sm:pb-32"
+      aria-label="A look at Playa del Carmen"
+    >
+      {gallery}
+
+      {/* Hyatt's own page carries the room types, dining and floor plans we
+          have no room for here. */}
+      <p
+        className={`mx-auto max-w-6xl text-sm leading-relaxed text-[#0B2237]/60 ${
+          gallery ? "mt-5" : ""
+        }`}
+      >
+        Want a closer look? Explore the rooms, restaurants and grounds at{" "}
+        <a
+          href={TRIP.resortUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-[#0A7A8C] underline decoration-[#0A7A8C]/35 underline-offset-4 transition hover:decoration-[#0A7A8C]"
+        >
+          {TRIP.resort}
+        </a>
+        .
+      </p>
     </section>
   );
 }

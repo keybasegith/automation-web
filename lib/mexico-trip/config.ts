@@ -35,20 +35,32 @@ export const TRIP = {
    * Hero slideshow. Cross-fades through these in order; files that fail to
    * load are dropped, and the sea gradient carries the hero if none survive.
    */
-  heroPhotos: [
-    "/mexicotrip-2.jpg",
-    "/mexicotrip-1.jpg",
-    "/mexicotrip-3.jpg",
-  ],
-  /** Auto-sliding gallery under the invitation. Missing files are skipped. */
+  heroPhotos: ["/mexicotrip-2.jpg", "/mexicotrip-1.jpg", "/mexicotrip-3.jpg"],
+  /** Hyatt's own page for the resort, for anyone who wants the full details. */
+  resortUrl:
+    "https://www.hyatt.com/hyatt-vivid/en-US/hvpdc-hyatt-vivid-playa-del-carmen",
+  /**
+   * Auto-sliding gallery under the invitation. Missing files are skipped.
+   *
+   * Ordered by subject rather than by filename so the run never clumps: the
+   * pools, the rooms, and the restaurant/bar shots alternate, and the sunset
+   * frame is held back to close on. Opens on the wide pool as an establishing
+   * shot.
+   */
   photos: [
     "/newhotel-1.jpg",
+    "/mexico-tripresortpic1.jpg",
+    "/newhotel-7.jpg",
+    "/mexico-tripresortpic4.jpg",
+    "/newhotel-4.jpg",
+    "/mexico-tripresortpic3.jpg",
+    "/newhotel-6.jpg",
+    "/mexico-tripresortpic5.jpg",
+    "/newhotel-5.jpg",
+    "/mexico-tripresortpic2.jpg",
+    "/mexico-tripresortpic6.jpg",
     "/newhotel-2.jpg",
     "/newhotel-3.jpg",
-    "/newhotel-4.jpg",
-    "/newhotel-5.jpg",
-    "/newhotel-6.jpg",
-    "/newhotel-7.jpg",
   ],
   tagline: "You worked for it. You earned it. Now it's time to celebrate it.",
   intro:
