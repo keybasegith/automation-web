@@ -56,11 +56,6 @@ export const TRIP = {
   promise:
     "Get ready for an unforgettable week of relaxation, connection and celebration.",
   note: "More details to the agenda are coming soon.",
-  /** Social proof shown in the hero, under the headline. */
-  joining: {
-    value: "80%",
-    label: "of invited colleagues are already joining",
-  },
 } as const;
 
 /**

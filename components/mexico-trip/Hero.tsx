@@ -183,17 +183,7 @@ export function Hero() {
             Carmen
           </h1>
 
-          {/* Social proof — solid navy chip so it stays legible over the photo. */}
-          <p className="mt-7 inline-flex items-center gap-3 rounded-full bg-[#0B2237] py-2.5 pl-4 pr-5 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.75)] ring-1 ring-white/15">
-            <span className="font-franklin text-xl font-semibold tabular-nums tracking-tight text-[#FFCB45] sm:text-2xl">
-              {TRIP.joining.value}
-            </span>
-            <span className="text-[13px] font-medium leading-tight text-white sm:text-sm">
-              {TRIP.joining.label}
-            </span>
-          </p>
-
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">
+          <p className="mt-7 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">
             You worked for it. You earned it. Now it&rsquo;s time to celebrate
             it — a week at {TRIP.resort}.
           </p>
