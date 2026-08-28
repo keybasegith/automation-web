@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import {
+  Fragment,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { ChevronDown } from "lucide-react";
 import { TRIP } from "@/lib/mexico-trip/config";
 import { Countdown } from "./Countdown";
@@ -26,6 +32,55 @@ function usePrefersReducedMotion() {
     subscribeToMotionPreference,
     () => window.matchMedia(REDUCED_MOTION).matches,
     () => false,
+  );
+}
+
+/** The two marks that sit side by side in the hero's top bar. */
+const HEADER_LOGOS = [
+  { src: "/mexico-trip-logo1.jpg", alt: "Keybase Financial Group" },
+  { src: "/mexico-trip-logo2.jpg", alt: "Argosy Securities" },
+];
+
+/**
+ * Top-bar lockup. The marks carry their own transparency, so they sit straight
+ * on the photo; a soft shadow is all they need to hold up over a bright frame.
+ * Same rule as the hero photos: a file that isn't uploaded yet drops out on
+ * error instead of leaving a broken box, and if neither survives the stacked
+ * wordmark carries the bar on its own.
+ */
+function HeaderLogos() {
+  const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
+  const logos = HEADER_LOGOS.filter(({ src }) => !failed.has(src));
+
+  if (logos.length === 0) {
+    return (
+      <span className="font-franklin flex flex-col text-sm font-semibold leading-[1.35] tracking-[0.18em] text-white">
+        <span>ARGOSY KEYBASE</span>
+        <span>WEALTH MANAGEMENT</span>
+      </span>
+    );
+  }
+
+  return (
+    <span className="flex items-center gap-3 sm:gap-4">
+      {logos.map(({ src, alt }, i) => (
+        <Fragment key={src}>
+          {i > 0 && (
+            <span className="h-6 w-px bg-white/25 sm:h-8" aria-hidden />
+          )}
+          {/* Plain <img>: next/image would 400 on a mark that isn't uploaded
+              yet instead of firing onError with the raw path. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt={alt}
+            draggable={false}
+            onError={() => setFailed((prev) => new Set(prev).add(src))}
+            className="h-9 w-auto select-none object-contain drop-shadow-[0_2px_8px_rgba(6,20,36,0.55)] sm:h-11"
+          />
+        </Fragment>
+      ))}
+    </span>
   );
 }
 
@@ -108,10 +163,7 @@ export function Hero() {
       {/* Top bar */}
       <div className="relative border-b border-white/15">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
-          <span className="font-franklin flex flex-col text-sm font-semibold leading-[1.35] tracking-[0.18em] text-white">
-            <span>ARGOSY KEYBASE</span>
-            <span>WEALTH MANAGEMENT</span>
-          </span>
+          <HeaderLogos />
           <span className="hidden text-xs font-medium uppercase tracking-[0.22em] text-white/70 sm:block">
             {TRIP.region} · Mexico
           </span>
