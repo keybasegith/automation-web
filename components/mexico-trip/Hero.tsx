@@ -35,15 +35,18 @@ function usePrefersReducedMotion() {
   );
 }
 
-/** The two marks that sit side by side in the hero's top bar. */
+/**
+ * The two marks that sit side by side in the hero's top bar — the house logos,
+ * white knockout lockups. Both share a 3:1 frame, so one height carries them.
+ */
 const HEADER_LOGOS = [
-  { src: "/mexico-trip-logo1.jpg", alt: "Keybase Financial Group" },
-  { src: "/mexico-trip-logo2.jpg", alt: "Argosy Securities" },
+  { src: "/keybase-logowhite.jpg", alt: "Keybase Financial Group" },
+  { src: "/argosy-logowhite.jpg", alt: "Argosy Securities Inc." },
 ];
 
 /**
- * Top-bar lockup. The marks carry their own transparency, so they sit straight
- * on the photo; a soft shadow is all they need to hold up over a bright frame.
+ * Top-bar lockup. The marks are white on transparency, so they sit straight on
+ * the photo; a soft shadow is all they need to hold up over a bright frame.
  * Same rule as the hero photos: a file that isn't uploaded yet drops out on
  * error instead of leaving a broken box, and if neither survives the stacked
  * wordmark carries the bar on its own.
@@ -76,7 +79,7 @@ function HeaderLogos() {
             alt={alt}
             draggable={false}
             onError={() => setFailed((prev) => new Set(prev).add(src))}
-            className="h-9 w-auto select-none object-contain drop-shadow-[0_2px_8px_rgba(6,20,36,0.55)] sm:h-11"
+            className="h-8 w-auto select-none object-contain drop-shadow-[0_2px_8px_rgba(6,20,36,0.55)] sm:h-10"
           />
         </Fragment>
       ))}
