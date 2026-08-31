@@ -299,8 +299,12 @@ export default function MexicoTripPage() {
             <h2 className="font-franklin font-display mt-4 text-3xl font-semibold leading-tight tracking-tight text-white sm:text-[2.75rem]">
               {TRIP.dateLabel}
             </h2>
-            <p className="mx-auto mt-4 max-w-md text-base text-white/70">
-              Saturday to Saturday · {TRIP.resort} · {TRIP.region}
+            <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-white/70">
+              Saturday to Saturday
+              <br />
+              {TRIP.resort}
+              <br />
+              {TRIP.region}
             </p>
           </Reveal>
         </div>
