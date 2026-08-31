@@ -155,7 +155,7 @@ export function Hero() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(9,28,45,0.45) 0%, rgba(9,28,45,0.06) 38%, rgba(8,26,42,0.32) 68%, rgba(6,20,36,0.82) 100%)",
+            "linear-gradient(180deg, rgba(9,28,45,0.50) 0%, rgba(9,28,45,0.10) 30%, rgba(8,26,42,0.58) 62%, rgba(5,18,32,0.92) 100%)",
         }}
         aria-hidden
       />
@@ -183,9 +183,20 @@ export function Hero() {
             Carmen
           </h1>
 
-          <p className="mt-7 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">
+          <p
+            className="font-franklin font-display mt-7 text-[clamp(1.4rem,3.2vw,2rem)] font-semibold leading-tight tracking-tight text-[#FFCB45]"
+            style={{ textShadow: "0 2px 18px rgba(5,18,32,0.85)" }}
+          >
+            We can&rsquo;t wait to see you there!
+          </p>
+
+          <p
+            className="mt-4 max-w-xl text-lg leading-relaxed text-white sm:text-xl"
+            style={{ textShadow: "0 2px 16px rgba(5,18,32,0.8)" }}
+          >
             You worked for it. You earned it. Now it&rsquo;s time to celebrate
-            it — a week at {TRIP.resort}.
+            it.
+            <br />A week at {TRIP.resort}.
           </p>
 
           <div className="mt-9">
