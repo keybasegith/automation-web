@@ -15,6 +15,12 @@ import { PrimaryButton, SEA_GRADIENT } from "./ui";
 /** How long each hero photo holds before the next one fades in. */
 const SLIDE_MS = 3000;
 
+/**
+ * The CTA rides the photo rotation: the opening frame asks for the date, the
+ * next one counts toward it, and the pair alternates from there.
+ */
+const HERO_CTA_LABELS = ["Mark Your Calendar", "Count Down Begins"];
+
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
 function subscribeToMotionPreference(onChange: () => void) {
@@ -203,7 +209,9 @@ export function Hero() {
           </p>
 
           <div className="mt-9">
-            <PrimaryButton href="#save-the-date">Save the date</PrimaryButton>
+            <PrimaryButton href="#save-the-date">
+              {HERO_CTA_LABELS[current % HERO_CTA_LABELS.length]}
+            </PrimaryButton>
           </div>
         </div>
 

@@ -143,7 +143,7 @@ export const STATS = [
 export const INCLUDED = [
   {
     icon: "hotel",
-    title: "Beachfront suite",
+    title: "Ocean view room",
     body: "Adults-only accommodation steps from the sand, with a private terrace or plunge pool.",
   },
   {
@@ -219,8 +219,11 @@ export const SESSIONS = [
   },
 ] as const;
 
-/** Answers the questions people ask before they'll commit. */
-export const FAQ = [
+/**
+ * Answers the questions people ask before they'll commit. An entry may carry
+ * a heading alone — a standalone statement that needs no answer under it.
+ */
+export const FAQ: readonly { q: string; a?: string }[] = [
   {
     q: "Who is covered?",
     a: "You qualified — the week is on us. Airfare is the exception: we've secured a group flight at a reduced fare, but everyone pays for their own seat. The invitation is personal to qualifiers, so please don't forward this link.",
@@ -234,10 +237,9 @@ export const FAQ = [
     a: "The trip covers a US Thanksgiving week, Saturday to Saturday. Plan for the full November 21–28 window, plus travel on either end.",
   },
   {
-    q: "How do I confirm my spot?",
-    a: "Let the trip planning team know by 11:59 pm on Friday, August 21, 2026. That is the final attendance count — the list closes at that point, and the formal confirmation with travel details follows after.",
+    q: "Yes, I have confirmed my attendance",
   },
-] as const;
+];
 
 export const ATTENDING_OPTIONS = [
   {

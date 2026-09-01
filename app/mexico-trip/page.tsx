@@ -267,9 +267,11 @@ export default function MexicoTripPage() {
                   <h3 className="font-franklin text-base font-semibold text-[#0B2237]">
                     {item.q}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[#0B2237]/60">
-                    {item.a}
-                  </p>
+                  {item.a && (
+                    <p className="mt-2 text-sm leading-relaxed text-[#0B2237]/60">
+                      {item.a}
+                    </p>
+                  )}
                 </div>
               </Reveal>
             ))}
