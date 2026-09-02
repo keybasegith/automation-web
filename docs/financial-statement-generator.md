@@ -141,15 +141,32 @@ downwards — and the whole Balance Sheet — still agrees to the cent. The engi
 reports the mapping-derived split and the variance is left visible rather than
 plugged or hard-coded. The specifics are recorded in the local golden test.
 
-## Storage
+## Storage is optional
 
-A local JSON store under `.data/financial-statements` (gitignored). No database:
-the mapping table, statement versions, exception statuses and audit trail live as
-files, written to a temp file and renamed into place. Swapping in a database
-means satisfying `store/types.ts` and changing `repo.ts`, nothing else.
+Generating statements never depends on storage, because a serverless function
+root is read-only and this tool has to work there. The store resolves a writable
+location once — an explicit `FINANCIAL_STATEMENTS_DATA_DIR`, else
+`.data/financial-statements`, else the temp directory — and reports
+`isPersistenceAvailable()`. Where nothing is writable it runs stateless:
 
-The uploaded spreadsheet is never written to disk — only the normalized rows and
-the generated results are kept.
+| | Writable (local) | Read-only (serverless) |
+|---|---|---|
+| Upload → statements | ✓ | ✓ |
+| Excel and PDF downloads | ✓ | ✓ (Trial Balance posted back) |
+| Package history, finalize, audit trail | ✓ | not offered |
+
+The mapping table ships as checked-in configuration, so it is always available;
+storage only ever holds edits made through the GL Mapping screen.
+
+Downloads take two routes to the same result. Against a stored package,
+`GET /api/financial-statements/packages/[id]/export` renders the stored version.
+With no storage, the browser keeps the uploaded file and posts it to
+`POST /api/financial-statements/export`, which regenerates and renders. The
+engine is deterministic and the mapping table is fixed configuration, so both
+produce identical figures — verified by regenerating and comparing.
+
+The uploaded spreadsheet is never written to disk in either mode. Where a run is
+kept, only the normalized rows and generated results are stored.
 
 ## Finalization
 

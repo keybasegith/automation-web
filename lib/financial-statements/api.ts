@@ -224,13 +224,16 @@ export interface PackageDto {
   readiness: FinalizationReadiness;
   balanceSheetBalanced: boolean;
   netIncome: string;
+  /** False when the deployment kept no record of this run. */
+  persisted: boolean;
 }
 
 export function toPackageDto(
   statementPackage: StatementPackage,
   version: number,
   createdAt: string,
-  result: GenerateStatementsResult
+  result: GenerateStatementsResult,
+  persisted = true
 ): PackageDto {
   return {
     statementPackage,
@@ -245,6 +248,7 @@ export function toPackageDto(
     readiness: result.readiness,
     balanceSheetBalanced: result.balanceSheetValidation.isBalanced,
     netIncome: display(result.incomeStatement.totals.netIncomeCents),
+    persisted,
   };
 }
 

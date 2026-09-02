@@ -3,11 +3,15 @@ import Link from "next/link";
 import TrialBalanceUpload from "@/components/financial-statements/TrialBalanceUpload";
 import { StatusPill } from "@/components/financial-statements/ui";
 import { store } from "@/lib/financial-statements/repo";
+import { isPersistenceAvailable } from "@/lib/financial-statements/store/localStore";
 
 export const dynamic = "force-dynamic";
 
 export default async function FinancialStatementGeneratorPage() {
-  const packages = await store.listPackages();
+  // Where the deployment has no writable storage there is no history to show;
+  // a run lives in the browser tab that produced it.
+  const keepsHistory = isPersistenceAvailable();
+  const packages = keepsHistory ? await store.listPackages() : [];
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -27,6 +31,7 @@ export default async function FinancialStatementGeneratorPage() {
 
       <TrialBalanceUpload />
 
+      {keepsHistory ? (
       <section className="mt-8">
         <h3 className="mb-3 text-sm font-semibold text-slate-900">Statement packages</h3>
 
@@ -75,6 +80,7 @@ export default async function FinancialStatementGeneratorPage() {
           </div>
         )}
       </section>
+      ) : null}
 
       <p className="mt-6 text-xs text-slate-500">
         Need to change where an account lands?{" "}

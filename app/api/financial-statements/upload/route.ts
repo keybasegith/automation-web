@@ -36,10 +36,16 @@ export async function POST(request: Request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const { statementPackage, version } = await uploadTrialBalance(buffer, file.name, actor);
+    const upload = await uploadTrialBalance(buffer, file.name, actor);
 
     return Response.json({
-      package: toPackageDto(statementPackage, version.version, version.createdAt, version.result),
+      package: toPackageDto(
+        upload.statementPackage,
+        upload.version,
+        upload.createdAt,
+        upload.result,
+        upload.persisted
+      ),
     });
   } catch (error) {
     if (error instanceof TrialBalanceParseError) return errorResponse(error, 422);

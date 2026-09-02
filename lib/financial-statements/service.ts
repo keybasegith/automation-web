@@ -6,6 +6,8 @@
  * the engine — nothing here computes a statement figure.
  */
 
+import { randomUUID } from "node:crypto";
+
 import type {
   ExceptionStatus,
   MappingRule,
@@ -14,6 +16,7 @@ import type {
   TrialBalanceFileType,
 } from "./types";
 import { store } from "./repo";
+import { isPersistenceAvailable } from "./store/localStore";
 import type { StatementVersion } from "./store/types";
 import { parseTrialBalanceFile } from "./parsers/parseTrialBalance";
 import { deriveStatus, generateStatements, type GenerateStatementsResult } from "./engine/generateStatements";
@@ -47,12 +50,54 @@ function fiscalYearFrom(periodLabel: string, detected: string | null): number {
 export interface UploadResult {
   statementPackage: StatementPackage;
   parsed: ParsedTrialBalance;
-  version: StatementVersion;
+  result: GenerateStatementsResult;
+  version: number;
+  createdAt: string;
+  /** False where the deployment has no writable storage. */
+  persisted: boolean;
+}
+
+/** A package record for a run that was never written anywhere. */
+function ephemeralPackage(input: {
+  periodLabel: string;
+  fiscalYear: number;
+  fileName: string;
+  fileType: TrialBalanceFileType;
+  fileSizeBytes: number;
+  mappingVersion: string;
+  status: StatementPackage["status"];
+  createdAt: string;
+}): StatementPackage {
+  return {
+    id: `ephemeral-${randomUUID()}`,
+    entityName: ENTITY_NAME,
+    periodLabel: input.periodLabel,
+    fiscalYear: input.fiscalYear,
+    sourceFileName: input.fileName,
+    sourceFileType: input.fileType,
+    sourceFileSizeBytes: input.fileSizeBytes,
+    status: input.status,
+    currentVersion: 1,
+    mappingVersion: input.mappingVersion,
+    createdAt: input.createdAt,
+    updatedAt: input.createdAt,
+    finalizedAt: null,
+    finalizedBy: null,
+  };
 }
 
 /**
  * Parse an uploaded Trial Balance, create a package and generate version 1.
  * The uploaded bytes are not retained — only the normalized rows and result.
+ */
+/**
+ * Parse an uploaded Trial Balance and generate its statements.
+ *
+ * Generation never depends on storage. Where the deployment can write, the run
+ * is also kept as a versioned package with an audit trail; where it cannot — a
+ * serverless function root is read-only — the statements are still produced and
+ * returned, and the caller is told nothing was kept. The uploaded bytes are
+ * never written to disk either way.
  */
 export async function uploadTrialBalance(
   buffer: Buffer,
@@ -61,40 +106,95 @@ export async function uploadTrialBalance(
 ): Promise<UploadResult> {
   const parsed = parseTrialBalanceFile(buffer, fileName);
   const periodLabel = toPeriodLabel(parsed.detectedPeriodLabel, fileName);
+  const fiscalYear = fiscalYearFrom(periodLabel, parsed.detectedPeriodLabel);
+  const createdAt = new Date().toISOString();
+
   const rules = await store.listMappings();
-  const mappingVersion = await store.mappingVersion();
+  let mappingVersion = "shipped";
+  try {
+    mappingVersion = await store.mappingVersion();
+  } catch {
+    // No storage: the shipped table is what was used.
+  }
 
-  const statementPackage = await store.createPackage({
-    entityName: ENTITY_NAME,
+  const result = generateStatements({
+    parsed,
+    rules,
     periodLabel,
-    fiscalYear: fiscalYearFrom(periodLabel, parsed.detectedPeriodLabel),
-    sourceFileName: fileName,
-    sourceFileType: parsed.fileType as TrialBalanceFileType,
-    sourceFileSizeBytes: buffer.byteLength,
-    mappingVersion,
-    actor: actor.id,
+    entityName: ENTITY_NAME,
   });
 
-  await store.appendAudit({
-    packageId: statementPackage.id,
-    type: "trial_balance_uploaded",
-    actor: actor.name,
-    at: new Date().toISOString(),
-    summary: `Uploaded ${fileName} (${parsed.rows.length} rows).`,
-    detail: { fileType: parsed.fileType, rows: parsed.rows.length, malformed: parsed.malformedRows.length },
-  });
-  await store.appendAudit({
-    packageId: statementPackage.id,
-    type: "parsing_completed",
-    actor: actor.name,
-    at: new Date().toISOString(),
-    summary: `Read ${parsed.rows.length} rows from row ${parsed.headerRowNumber + 1} onwards.`,
-  });
+  if (!isPersistenceAvailable()) {
+    return {
+      statementPackage: ephemeralPackage({
+        periodLabel, fiscalYear, fileName,
+        fileType: parsed.fileType,
+        fileSizeBytes: buffer.byteLength,
+        mappingVersion, status: result.status, createdAt,
+      }),
+      parsed, result, version: 1, createdAt, persisted: false,
+    };
+  }
 
-  const version = await generateAndStore(statementPackage.id, parsed, rules, mappingVersion, actor, 1);
-  const refreshed = await store.getPackage(statementPackage.id);
+  try {
+    const statementPackage = await store.createPackage({
+      entityName: ENTITY_NAME,
+      periodLabel,
+      fiscalYear,
+      sourceFileName: fileName,
+      sourceFileType: parsed.fileType,
+      sourceFileSizeBytes: buffer.byteLength,
+      mappingVersion,
+      actor: actor.id,
+    });
 
-  return { statementPackage: refreshed ?? statementPackage, parsed, version };
+    await store.appendAudit({
+      packageId: statementPackage.id,
+      type: "trial_balance_uploaded",
+      actor: actor.name,
+      at: createdAt,
+      summary: `Uploaded ${fileName} (${parsed.rows.length} rows).`,
+      detail: { fileType: parsed.fileType, rows: parsed.rows.length, malformed: parsed.malformedRows.length },
+    });
+
+    const version = await store.saveVersion({
+      packageId: statementPackage.id,
+      version: 1,
+      createdAt,
+      createdBy: actor.name,
+      mappingVersion,
+      result,
+    });
+    await store.setPackageStatus(statementPackage.id, result.status, actor.id);
+    await store.appendAudit({
+      packageId: statementPackage.id,
+      type: "statements_generated",
+      actor: actor.name,
+      at: createdAt,
+      summary: `Generated version 1 using mapping ${mappingVersion}. Status: ${result.status}.`,
+    });
+
+    const refreshed = await store.getPackage(statementPackage.id);
+    return {
+      statementPackage: refreshed ?? statementPackage,
+      parsed, result,
+      version: version.version,
+      createdAt,
+      persisted: true,
+    };
+  } catch {
+    // Storage failed mid-run. The statements are still correct and complete,
+    // so return them rather than losing the work over a bookkeeping problem.
+    return {
+      statementPackage: ephemeralPackage({
+        periodLabel, fiscalYear, fileName,
+        fileType: parsed.fileType,
+        fileSizeBytes: buffer.byteLength,
+        mappingVersion, status: result.status, createdAt,
+      }),
+      parsed, result, version: 1, createdAt, persisted: false,
+    };
+  }
 }
 
 async function generateAndStore(

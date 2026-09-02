@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import type { PackageDto } from "@/lib/financial-statements/api";
+import PackageWorkspace from "./PackageWorkspace";
 
 /**
  * Upload and processing.
@@ -19,12 +20,16 @@ export default function TrialBalanceUpload() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PackageDto | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  // Held so the statements can be re-rendered for download where the
+  // deployment stores nothing. The bytes never leave this tab otherwise.
+  const [sourceFile, setSourceFile] = useState<File | null>(null);
 
   async function upload(file: File) {
     setState("working");
     setError(null);
     setResult(null);
     setFileName(file.name);
+    setSourceFile(file);
 
     const form = new FormData();
     form.append("file", file);
@@ -75,7 +80,7 @@ export default function TrialBalanceUpload() {
       ]
     : [];
 
-  return (
+  const panel = (
     <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
       <h3 className="text-base font-semibold text-slate-900">Upload a Trial Balance</h3>
       <p className="mt-1 text-sm text-slate-500">
@@ -135,13 +140,26 @@ export default function TrialBalanceUpload() {
               </li>
             ))}
           </ul>
-          <a
-            href={`/financial-statement-generator/${result.statementPackage.id}`}
-            className="mt-4 inline-block rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-white hover:opacity-90"
-          >
-            Open {result.statementPackage.periodLabel}
-          </a>
+          {result.persisted ? (
+            <a
+              href={`/financial-statement-generator/${result.statementPackage.id}`}
+              className="mt-4 inline-block rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-white hover:opacity-90"
+            >
+              Open {result.statementPackage.periodLabel}
+            </a>
+          ) : null}
         </div>
+      ) : null}
+    </div>
+  );
+
+  // The statements are shown on this page rather than behind a link, so a
+  // deployment that stores nothing still gets the full workspace.
+  return (
+    <div className="space-y-6">
+      {panel}
+      {result ? (
+        <PackageWorkspace key={result.statementPackage.id} initial={result} sourceFile={sourceFile} />
       ) : null}
     </div>
   );

@@ -13,7 +13,8 @@
 
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
 import type {
@@ -30,14 +31,68 @@ import { INCOME_STATEMENT_MAPPINGS } from "../config/incomeStatementMappings";
 import { parse, stringify } from "./serialise";
 import type { CreatePackageInput, FinancialStore, StatementVersion } from "./types";
 
-const ROOT = process.env.FINANCIAL_STATEMENTS_DATA_DIR ?? join(process.cwd(), ".data", "financial-statements");
+/**
+ * Where the store writes.
+ *
+ * A serverless function root (`/var/task`) is read-only, so the project-local
+ * `.data` directory cannot be created there. The temp directory is writable but
+ * per-instance and short-lived, which is fine for this tool: a run is
+ * self-contained, and callers treat persistence as best-effort rather than
+ * depending on it.
+ *
+ * Resolved once, lazily, so an unwritable location degrades instead of throwing
+ * at module load.
+ */
+let resolvedRoot: string | null | undefined;
+
+function root(): string | null {
+  if (resolvedRoot !== undefined) return resolvedRoot;
+
+  // An explicit setting is honoured exactly: if it cannot be created we run
+  // without storage rather than quietly writing somewhere the operator did not
+  // choose. Otherwise prefer the project directory, then the temp directory.
+  const configured = process.env.FINANCIAL_STATEMENTS_DATA_DIR;
+  const candidates = configured
+    ? [configured]
+    : [join(process.cwd(), ".data", "financial-statements"), join(tmpdir(), "keybase-financial-statements")];
+
+  for (const candidate of candidates) {
+    try {
+      mkdirSync(candidate, { recursive: true });
+      resolvedRoot = candidate;
+      return resolvedRoot;
+    } catch {
+      // Try the next location.
+    }
+  }
+
+  // Nothing is writable. The feature still works; it just keeps no history.
+  resolvedRoot = null;
+  return resolvedRoot;
+}
+
+/** True when this deployment can keep a package between requests. */
+export const isPersistenceAvailable = (): boolean => root() !== null;
+
+class NoStorageError extends Error {
+  constructor() {
+    super("This deployment has no writable storage, so nothing was kept.");
+    this.name = "NoStorageError";
+  }
+}
+
+const ROOT_OR_THROW = (): string => {
+  const dir = root();
+  if (dir === null) throw new NoStorageError();
+  return dir;
+};
 
 const paths = {
-  mappings: () => join(ROOT, "mappings.json"),
-  packages: () => join(ROOT, "packages.json"),
-  audit: () => join(ROOT, "audit.json"),
-  versions: (packageId: string) => join(ROOT, "versions", `${packageId}.json`),
-  exceptions: (packageId: string) => join(ROOT, "exceptions", `${packageId}.json`),
+  mappings: () => join(ROOT_OR_THROW(), "mappings.json"),
+  packages: () => join(ROOT_OR_THROW(), "packages.json"),
+  audit: () => join(ROOT_OR_THROW(), "audit.json"),
+  versions: (packageId: string) => join(ROOT_OR_THROW(), "versions", `${packageId}.json`),
+  exceptions: (packageId: string) => join(ROOT_OR_THROW(), "exceptions", `${packageId}.json`),
 };
 
 async function readJson<T>(path: string, fallback: T): Promise<T> {
@@ -69,11 +124,21 @@ function fingerprint(rules: readonly MappingRule[]): string {
 
 const SEED: MappingRule[] = [...BALANCE_SHEET_MAPPINGS, ...INCOME_STATEMENT_MAPPINGS];
 
+/**
+ * The mapping table ships as checked-in configuration, so it is always
+ * available even where nothing can be written. Storage only ever holds edits
+ * made through the GL Mapping screen.
+ */
 async function loadMappings(): Promise<MappingRule[]> {
-  const stored = await readJson<MappingRule[] | null>(paths.mappings(), null);
-  if (stored) return stored;
-  // First run: seed from the migrated legacy table.
-  await writeJson(paths.mappings(), SEED);
+  if (!isPersistenceAvailable()) return [...SEED];
+
+  try {
+    const stored = await readJson<MappingRule[] | null>(paths.mappings(), null);
+    if (stored) return stored;
+    await writeJson(paths.mappings(), SEED);
+  } catch {
+    // Unwritable or unreadable: fall back to the shipped table.
+  }
   return [...SEED];
 }
 
@@ -139,11 +204,13 @@ export const localStore: FinancialStore = {
   },
 
   async listPackages() {
+    if (!isPersistenceAvailable()) return [];
     const packages = await readJson<StatementPackage[]>(paths.packages(), []);
     return packages.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   },
 
   async getPackage(id) {
+    if (!isPersistenceAvailable()) return null;
     return (await readJson<StatementPackage[]>(paths.packages(), [])).find((p) => p.id === id) ?? null;
   },
 
@@ -191,6 +258,7 @@ export const localStore: FinancialStore = {
   },
 
   async getLatestVersion(packageId) {
+    if (!isPersistenceAvailable()) return null;
     const versions = await readJson<StatementVersion[]>(paths.versions(packageId), []);
     if (versions.length === 0) return null;
     const latest = versions.reduce((a, b) => (b.version > a.version ? b : a));
@@ -203,6 +271,7 @@ export const localStore: FinancialStore = {
   },
 
   async listVersions(packageId) {
+    if (!isPersistenceAvailable()) return [];
     const versions = await readJson<StatementVersion[]>(paths.versions(packageId), []);
     return versions.sort((a, b) => b.version - a.version);
   },
@@ -228,6 +297,7 @@ export const localStore: FinancialStore = {
   },
 
   async listAudit(packageId) {
+    if (!isPersistenceAvailable()) return [];
     const events = await readJson<AuditEvent[]>(paths.audit(), []);
     const filtered = packageId ? events.filter((e) => e.packageId === packageId) : events;
     return filtered.sort((a, b) => b.at.localeCompare(a.at));

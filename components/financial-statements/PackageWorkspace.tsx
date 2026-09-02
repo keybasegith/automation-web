@@ -35,36 +35,107 @@ const FORMATS = [
   { format: "pdf", label: "PDF" },
 ] as const;
 
+/** Save a fetched blob under the filename the server asked for. */
+async function saveResponse(response: Response, fallbackName: string) {
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const name = /filename="([^"]+)"/.exec(disposition)?.[1] ?? fallbackName;
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = name;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Excel and PDF for one scope.
+ *
+ * Where the run was stored, these are plain links to the stored version. Where
+ * it was not — a deployment with no writable storage — the Trial Balance is
+ * posted back and the statements are regenerated to render. The engine is
+ * deterministic, so both routes produce the same figures.
+ */
 export function DownloadButtons({
-  packageId, scope, size = "sm",
+  packageId, scope, size = "sm", sourceFile,
 }: {
   packageId: string;
   scope: (typeof EXPORTS)[number]["scope"];
   size?: "sm" | "md";
+  sourceFile?: File | null;
 }) {
+  const [busy, setBusy] = useState<string | null>(null);
+  const [failed, setFailed] = useState<string | null>(null);
   const padding = size === "md" ? "px-3 py-1.5 text-sm" : "px-2.5 py-1 text-xs";
+  const className = `rounded-md border border-slate-300 font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 ${padding}`;
+
+  async function download(format: string) {
+    if (!sourceFile) return;
+    setBusy(format);
+    setFailed(null);
+    try {
+      const form = new FormData();
+      form.append("file", sourceFile);
+      form.append("scope", scope);
+      form.append("format", format);
+      const response = await fetch("/api/financial-statements/export", { method: "POST", body: form });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error ?? "The download could not be produced.");
+      }
+      await saveResponse(response, `statements.${format}`);
+    } catch (cause) {
+      setFailed(cause instanceof Error ? cause.message : "The download could not be produced.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
-    <span className="inline-flex gap-2">
-      {FORMATS.map((entry) => (
-        <a
-          key={entry.format}
-          href={`/api/financial-statements/packages/${packageId}/export?scope=${scope}&format=${entry.format}`}
-          className={`rounded-md border border-slate-300 font-medium text-slate-700 hover:bg-slate-50 ${padding}`}
-        >
-          {entry.label}
-        </a>
-      ))}
+    <span className="inline-flex flex-wrap items-center gap-2">
+      {FORMATS.map((entry) =>
+        sourceFile ? (
+          <button
+            key={entry.format}
+            type="button"
+            disabled={busy !== null}
+            onClick={() => download(entry.format)}
+            className={className}
+          >
+            {busy === entry.format ? "Preparing…" : entry.label}
+          </button>
+        ) : (
+          <a
+            key={entry.format}
+            href={`/api/financial-statements/packages/${packageId}/export?scope=${scope}&format=${entry.format}`}
+            className={className}
+          >
+            {entry.label}
+          </a>
+        )
+      )}
+      {failed ? <span className="text-xs text-rose-700">{failed}</span> : null}
     </span>
   );
 }
 
-export default function PackageWorkspace({ initial }: { initial: PackageDto }) {
+export default function PackageWorkspace({
+  initial,
+  sourceFile = null,
+}: {
+  initial: PackageDto;
+  /** Present for a run held only in this browser session. */
+  sourceFile?: File | null;
+}) {
   const router = useRouter();
   const [pkg, setPkg] = useState(initial);
   const [tab, setTab] = useState<TabKey>("overview");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const persisted = pkg.persisted;
   const blocking = pkg.exceptions.filter((e) => e.severity === "blocking" && e.status === "open");
   const warnings = pkg.exceptions.filter((e) => e.severity === "warning" && e.status === "open");
 
@@ -150,8 +221,16 @@ export default function PackageWorkspace({ initial }: { initial: PackageDto }) {
         </p>
       ) : null}
 
+      {!persisted ? (
+        <p className="mb-4 rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+          This run is held in your browser only — this deployment keeps no record of it. The statements
+          and downloads below are complete; reload the page and you would upload again. Nothing was
+          stored anywhere.
+        </p>
+      ) : null}
+
       <nav className="mb-5 flex flex-wrap gap-1 border-b border-slate-200">
-        {TABS.map((entry) => {
+        {TABS.filter((entry) => persisted || entry.key !== "audit").map((entry) => {
           const active = tab === entry.key;
           const count =
             entry.key === "exceptions" && blocking.length > 0 ? ` (${blocking.length})` : "";
@@ -174,14 +253,14 @@ export default function PackageWorkspace({ initial }: { initial: PackageDto }) {
       </nav>
 
       {tab === "overview" ? (
-        <OverviewTab pkg={pkg} blocking={blocking.length} warnings={warnings.length} busy={busy} act={act} />
+        <OverviewTab pkg={pkg} blocking={blocking.length} warnings={warnings.length} busy={busy} act={act} sourceFile={sourceFile} />
       ) : null}
       {tab === "trial-balance" ? <TrialBalanceTab pkg={pkg} /> : null}
       {tab === "balance-sheet" ? (
         <Card>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
             <p className="text-sm text-slate-500">Download this statement</p>
-            <DownloadButtons packageId={pkg.statementPackage.id} scope="balance_sheet" size="md" />
+            <DownloadButtons packageId={pkg.statementPackage.id} scope="balance_sheet" size="md" sourceFile={sourceFile} />
           </div>
           <StatementTable statement={pkg.balanceSheet} />
         </Card>
@@ -190,7 +269,7 @@ export default function PackageWorkspace({ initial }: { initial: PackageDto }) {
         <Card>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
             <p className="text-sm text-slate-500">Download this statement</p>
-            <DownloadButtons packageId={pkg.statementPackage.id} scope="income_statement" size="md" />
+            <DownloadButtons packageId={pkg.statementPackage.id} scope="income_statement" size="md" sourceFile={sourceFile} />
           </div>
           <StatementTable statement={pkg.incomeStatement} />
         </Card>
@@ -205,13 +284,14 @@ export default function PackageWorkspace({ initial }: { initial: PackageDto }) {
 }
 
 function OverviewTab({
-  pkg, blocking, warnings, busy, act,
+  pkg, blocking, warnings, busy, act, sourceFile,
 }: {
   pkg: PackageDto;
   blocking: number;
   warnings: number;
   busy: string | null;
   act: (path: string, label: string) => Promise<void>;
+  sourceFile?: File | null;
 }) {
   const readiness = pkg.readiness;
   const finalized = pkg.statementPackage.status === "finalized";
@@ -261,7 +341,12 @@ function OverviewTab({
           </ul>
 
           <div className="mt-4 flex flex-wrap gap-2">
-            {finalized ? (
+            {!pkg.persisted ? (
+              <p className="text-xs text-slate-500">
+                Finalizing and regenerating record a decision against a stored package. This deployment
+                keeps no record, so the checks above are shown for review only.
+              </p>
+            ) : finalized ? (
               <button
                 type="button"
                 disabled={busy !== null}
@@ -334,7 +419,7 @@ function OverviewTab({
             {EXPORTS.map((entry) => (
               <li key={entry.scope} className="flex items-center justify-between gap-3 py-1.5">
                 <span className="text-sm text-slate-700">{entry.label}</span>
-                <DownloadButtons packageId={pkg.statementPackage.id} scope={entry.scope} />
+                <DownloadButtons packageId={pkg.statementPackage.id} scope={entry.scope} sourceFile={sourceFile} />
               </li>
             ))}
           </ul>
@@ -444,7 +529,7 @@ function ExceptionsTab({
               ) : null}
             </div>
             <div className="flex shrink-0 gap-2">
-              {exception.status === "open" ? (
+              {!pkg.persisted ? null : exception.status === "open" ? (
                 <>
                   <button
                     type="button"
