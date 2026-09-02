@@ -26,3 +26,13 @@ test-data
 /data/cms-audit.json
 /public/executives
 /public/media
+
+# Financial Statement Generator local store (contains financial figures)
+.data/
+
+# Financial Statement Generator: real client data stays out of this public repo.
+# The Trial Balance fixture and the tests that assert its figures are kept
+# locally only; the engine is deterministic, so the golden regression runs on a
+# machine that has the file and is simply absent everywhere else.
+lib/financial-statements/__fixtures__/
+lib/financial-statements/__tests__/local/

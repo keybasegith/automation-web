@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   ScanLine,
   FileSpreadsheet,
+  FileText,
   Calculator,
   Scale,
   type LucideIcon,
@@ -87,6 +88,12 @@ const SETTLEMENT_MENU: readonly MenuItem[] = [
 ];
 
 const FINANCE_MENU: readonly MenuItem[] = [
+  {
+    label: "Financial Statement Generator",
+    href: "/financial-statement-generator",
+    matchPaths: ["/financial-statement-generator"],
+    icon: FileText,
+  },
   {
     label: "Monthly Account Analysis",
     href: "/finance-intelligence",
