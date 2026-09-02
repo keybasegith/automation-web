@@ -50,6 +50,19 @@ describe("running without writable storage", () => {
     expect(localStore.isPersistenceAvailable()).toBe(false);
   });
 
+  /**
+   * The OS temp directory must never be used as a fallback. On serverless it is
+   * writable but private to one short-lived instance, so a package written
+   * during the upload request is often gone by the time the browser follows a
+   * link to it — handing out URLs that 404. Keeping no history is better.
+   */
+  it("does not fall back to the temp directory", async () => {
+    const { tmpdir } = await import("node:os");
+    const { existsSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    expect(existsSync(join(tmpdir(), "keybase-financial-statements"))).toBe(false);
+  });
+
   it("still serves the checked-in mapping table", async () => {
     const mappings = await store.listMappings();
     expect(mappings.length).toBeGreaterThan(100);

@@ -14,7 +14,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { existsSync, mkdirSync } from "node:fs";
-import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
 import type {
@@ -48,13 +47,13 @@ let resolvedRoot: string | null | undefined;
 function root(): string | null {
   if (resolvedRoot !== undefined) return resolvedRoot;
 
-  // An explicit setting is honoured exactly: if it cannot be created we run
-  // without storage rather than quietly writing somewhere the operator did not
-  // choose. Otherwise prefer the project directory, then the temp directory.
+  // Only a location the operator actually chose counts. The OS temp directory
+  // is deliberately NOT a fallback: on serverless it is writable but private to
+  // one short-lived instance, so a package written during the upload request is
+  // frequently gone by the time the browser asks for it. Storing into it would
+  // hand out links that 404 — worse than plainly keeping no history.
   const configured = process.env.FINANCIAL_STATEMENTS_DATA_DIR;
-  const candidates = configured
-    ? [configured]
-    : [join(process.cwd(), ".data", "financial-statements"), join(tmpdir(), "keybase-financial-statements")];
+  const candidates = configured ? [configured] : [join(process.cwd(), ".data", "financial-statements")];
 
   for (const candidate of candidates) {
     try {

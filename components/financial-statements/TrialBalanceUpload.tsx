@@ -140,14 +140,6 @@ export default function TrialBalanceUpload() {
               </li>
             ))}
           </ul>
-          {result.persisted ? (
-            <a
-              href={`/financial-statement-generator/${result.statementPackage.id}`}
-              className="mt-4 inline-block rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-white hover:opacity-90"
-            >
-              Open {result.statementPackage.periodLabel}
-            </a>
-          ) : null}
         </div>
       ) : null}
     </div>

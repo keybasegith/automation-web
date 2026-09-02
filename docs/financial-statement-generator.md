@@ -146,14 +146,19 @@ plugged or hard-coded. The specifics are recorded in the local golden test.
 Generating statements never depends on storage, because a serverless function
 root is read-only and this tool has to work there. The store resolves a writable
 location once — an explicit `FINANCIAL_STATEMENTS_DATA_DIR`, else
-`.data/financial-statements`, else the temp directory — and reports
-`isPersistenceAvailable()`. Where nothing is writable it runs stateless:
+`.data/financial-statements` — and reports `isPersistenceAvailable()`. Where
+neither can be created it runs stateless:
 
 | | Writable (local) | Read-only (serverless) |
 |---|---|---|
 | Upload → statements | ✓ | ✓ |
 | Excel and PDF downloads | ✓ | ✓ (Trial Balance posted back) |
 | Package history, finalize, audit trail | ✓ | not offered |
+
+The OS temp directory is deliberately not a fallback. On serverless it is
+writable but private to one short-lived instance, so a package written during
+the upload request is often gone by the time the browser follows a link to it.
+Storing there would hand out URLs that 404; keeping no history is better.
 
 The mapping table ships as checked-in configuration, so it is always available;
 storage only ever holds edits made through the GL Mapping screen.
