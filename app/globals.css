@@ -222,3 +222,203 @@ body {
     overflow-x: auto;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Keybase Answer
+ * An ambient composition rather than an effect: knowledge objects drift
+ * around a central node at speeds slow enough that the movement reads as
+ * depth rather than animation. Every keyframe below runs on transform or
+ * opacity only, so the whole thing stays on the compositor and never
+ * touches layout.
+ *
+ * Motion is pausable from the visual's own control (the container carries
+ * [data-motion="paused"]) and collapses to a still composition under
+ * prefers-reduced-motion, in the same block as the rest of the site's
+ * motion system.
+ * ------------------------------------------------------------------ */
+
+/* Orbits. Rotation is about the artwork's centre in the SVG's own
+   coordinate space, which is what `view-box` gives us. */
+@keyframes kaOrbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes kaOrbitReverse {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.ka-orbit,
+.ka-orbit-reverse {
+  transform-box: view-box;
+  transform-origin: 300px 300px;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.ka-orbit {
+  animation-name: kaOrbit;
+}
+.ka-orbit-reverse {
+  animation-name: kaOrbitReverse;
+}
+
+/* Each object counter-rotates about its own centre at its orbit's speed, so
+   it travels around the node without tumbling. */
+.ka-counter {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: kaOrbitReverse;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.ka-counter-reverse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: kaOrbit;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* The node at the centre: a slow, almost imperceptible swell. */
+@keyframes kaBreathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.045);
+    opacity: 1;
+  }
+}
+.ka-breathe {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kaBreathe 11s ease-in-out infinite;
+}
+
+/* Evidence travelling inward along the connecting lines. */
+@keyframes kaFlow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -60;
+  }
+}
+.ka-flow {
+  animation: kaFlow 9s linear infinite;
+}
+
+/* Ambient wash behind the composition and behind the answer page. */
+@keyframes kaDriftA {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, -3%, 0) scale(1.12);
+  }
+}
+@keyframes kaDriftB {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.08);
+  }
+  50% {
+    transform: translate3d(-5%, 4%, 0) scale(1);
+  }
+}
+.ka-drift-a {
+  animation: kaDriftA 34s ease-in-out infinite;
+}
+.ka-drift-b {
+  animation: kaDriftB 46s ease-in-out infinite;
+}
+
+/* The answer itself: one soft editorial reveal, never a typing effect. */
+@keyframes kaReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ka-reveal {
+  animation: kaReveal 0.7s var(--ease-premium) both;
+}
+
+/* The reader's own pause control. */
+[data-motion="paused"] .ka-orbit,
+[data-motion="paused"] .ka-orbit-reverse,
+[data-motion="paused"] .ka-counter,
+[data-motion="paused"] .ka-counter-reverse,
+[data-motion="paused"] .ka-breathe,
+[data-motion="paused"] .ka-flow,
+[data-motion="paused"] .ka-drift-a,
+[data-motion="paused"] .ka-drift-b {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ka-orbit,
+  .ka-orbit-reverse,
+  .ka-counter,
+  .ka-counter-reverse,
+  .ka-breathe,
+  .ka-flow,
+  .ka-drift-a,
+  .ka-drift-b,
+  .ka-reveal {
+    animation: none !important;
+  }
+  /* The composition is designed to hold as a still image: the objects sit
+     where the artwork places them, so removing the motion leaves a finished
+     picture rather than a frozen frame. */
+  .ka-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* The caret that trails the Keybase Answer typewriter. A thin rule rather than
+   a block cursor — it sits inside serif body copy, where a full block reads as
+   a terminal prompt. */
+@keyframes kaCaret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+.ka-caret {
+  display: inline-block;
+  width: 2px;
+  height: 0.95em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: #006d6e;
+  animation: kaCaret 1.05s steps(1, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The typewriter does not run under reduced motion, so no caret should be
+     left blinking at the end of a finished answer. */
+  .ka-caret {
+    display: none;
+  }
+}

@@ -1,3 +1,4 @@
+import KeybaseAnswerHomeSection from "@/components/keybase-answer/KeybaseAnswerHomeSection";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -69,6 +70,8 @@ export default function Home() {
 
       {/* ---------- Stats band ---------- */}
       <StatsBand />
+
+      <KeybaseAnswerHomeSection />
 
       {/* ---------- What We Do ---------- */}
       <section id="what-we-do" className="mx-auto max-w-[1280px] px-5 pb-24 pt-12 sm:px-8 sm:pb-28 sm:pt-14">
