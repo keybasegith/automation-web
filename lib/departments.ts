@@ -14,6 +14,7 @@ import {
   Inbox,
   Users,
   FileSpreadsheet,
+  FileText,
   FileCheck2,
   FileSearch,
   PackageCheck,
@@ -56,6 +57,12 @@ export const DEPARTMENTS: readonly Department[] = [
     icon: Banknote,
     accent: "from-emerald-500/15 to-emerald-500/5 text-emerald-700",
     tools: [
+      {
+        label: "Financial Statement Generator",
+        hint: "Upload a trial balance to generate a balance sheet and income statement",
+        href: "/financial-statement-generator",
+        icon: FileText,
+      },
       {
         label: "Monthly Account Analysis",
         hint: "Upload Sage exports & generate analysis",
