@@ -24,7 +24,7 @@ export default function DashboardHomePage() {
       <header className="mb-10">
         <p className="text-[13px] text-slate-500">{formatLongDate(new Date())}</p>
         <h2 className="font-display mt-1 text-[34px] font-semibold leading-tight tracking-tight text-slate-900">
-          {greeting()}, Admin
+          {greeting()}
         </h2>
         <p className="mt-1.5 text-[15px] text-slate-500">
           Choose a department to see the tools available to that team.

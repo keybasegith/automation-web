@@ -236,9 +236,9 @@ describe("route classification", () => {
     "/net-settlement",
     "/onboarding/new",
     "/secure-email-generator",
-  ])("protects the internal page %s", (path) => {
-    expect(isProtectedPage(path)).toBe(true);
-    expect(requiresSession(path)).toBe(true);
+  ])("opens the workspace page %s", (path) => {
+    expect(isProtectedPage(path)).toBe(false);
+    expect(requiresSession(path)).toBe(false);
   });
 
   it.each([
@@ -248,8 +248,8 @@ describe("route classification", () => {
     "/api/clients/123/context",
     "/api/onboarding",
     "/api/emails/1/send",
-  ])("protects the internal API %s", (path) => {
-    expect(isProtectedApi(path)).toBe(true);
+  ])("opens the workspace API %s", (path) => {
+    expect(isProtectedApi(path)).toBe(false);
   });
 
   it.each([
@@ -276,7 +276,7 @@ describe("route classification", () => {
   });
 
   it("does not confuse /compound-interest with the public /compound-calculator", () => {
-    expect(isProtectedPage("/compound-interest")).toBe(true);
+    expect(isProtectedPage("/compound-interest")).toBe(false);
     expect(isProtectedPage("/compound-calculator")).toBe(false);
   });
 
@@ -289,7 +289,7 @@ describe("route classification", () => {
   it("keeps external document signing open", () => {
     expect(isPublicException("/api/onboarding/sign/tok")).toBe(true);
     expect(isProtectedApi("/api/onboarding/sign/tok")).toBe(false);
-    // …while the rest of onboarding stays protected.
-    expect(isProtectedApi("/api/onboarding/123/send")).toBe(true);
+    // The rest of onboarding is also public.
+    expect(isProtectedApi("/api/onboarding/123/send")).toBe(false);
   });
 });

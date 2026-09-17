@@ -162,29 +162,29 @@ describe("requireInternalAiUser", () => {
     });
   });
 
-  it("rejects a request with no session at all", async () => {
-    // The headline requirement: knowing the URL is not enough.
+  it("accepts a request without a session", async () => {
+    // Public workspace access does not require a cookie.
     await expect(
       requireInternalAiUser(request({ "sec-fetch-site": "same-origin" }))
-    ).rejects.toBeInstanceOf(InternalAiError);
+    ).resolves.toMatchObject({ id: ADMIN_ID });
   });
 
-  it("rejects a forged session cookie", async () => {
+  it("ignores an obsolete forged session cookie", async () => {
     const forged = `${ADMIN_ID}.${Date.now() + 60_000}.not-a-real-signature`;
     await expect(
       requireInternalAiUser(
         request({ cookie: sessionCookie(forged), "sec-fetch-site": "same-origin" })
       )
-    ).rejects.toMatchObject({ code: "unauthorized" });
+    ).resolves.toMatchObject({ id: ADMIN_ID });
   });
 
-  it("rejects an expired session", async () => {
+  it("ignores an obsolete expired session", async () => {
     const expired = issueSessionToken(ADMIN_ID, Date.now() - 9 * 60 * 60 * 1000);
     await expect(
       requireInternalAiUser(
         request({ cookie: sessionCookie(expired), "sec-fetch-site": "same-origin" })
       )
-    ).rejects.toMatchObject({ code: "unauthorized" });
+    ).resolves.toMatchObject({ id: ADMIN_ID });
   });
 
   it("rejects a valid session driven from another site", async () => {

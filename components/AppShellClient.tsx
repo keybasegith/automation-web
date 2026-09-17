@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   ScanLine,
   FileSpreadsheet,
@@ -157,15 +156,7 @@ function activeLabelFor(pathname: string): string {
   return best?.label ?? MAIN_MENU[0].label;
 }
 
-/**
- * The dashboard chrome.
- *
- * Presentation only. Access is decided on the server — by proxy.ts before this
- * renders, and by the guards beside the data — so there is no client-side auth
- * check here and nothing is read from localStorage. The signed-in user arrives
- * as a prop from the server component in AppShell.tsx, which means the header
- * is correct on first paint with no signed-out flash.
- */
+/** Navigation and display for the public automation workspace. */
 export default function AppShellClient({
   children,
   user,
@@ -173,9 +164,7 @@ export default function AppShellClient({
   children: React.ReactNode;
   user: SessionDisplayUser;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
-  const [signingOut, setSigningOut] = useState(false);
 
   const activeLabel = activeLabelFor(pathname);
 
@@ -211,21 +200,6 @@ export default function AppShellClient({
         {inner}
       </button>
     );
-  };
-
-  // Sign-out is a server action: the httpOnly cookie is not reachable from
-  // here, so only the server can end the session.
-  const handleSignOut = async () => {
-    if (signingOut) return;
-    setSigningOut(true);
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } catch {
-      // Network failure: fall through to the redirect. The proxy will send an
-      // unauthenticated browser back to /login on the next protected request.
-    }
-    router.replace("/login");
-    router.refresh();
   };
 
   return (
@@ -264,16 +238,6 @@ export default function AppShellClient({
           ))}
         </nav>
 
-        <div className="border-t border-[var(--hairline)] px-3 py-3">
-          <button
-            type="button"
-            onClick={handleSignOut}
-            disabled={signingOut}
-            className="w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium text-slate-500 transition hover:bg-slate-900/[0.04] hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {signingOut ? "Signing out…" : "Sign out"}
-          </button>
-        </div>
       </aside>
 
       <div className="flex flex-1 flex-col pl-64">

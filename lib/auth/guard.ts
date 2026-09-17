@@ -1,18 +1,5 @@
-/**
- * The reusable authorization guard for internal API routes.
- *
- * One import, one call, one shape of refusal — so a route cannot be protected
- * slightly differently from its neighbour. The proxy already turns away
- * sessionless requests before they reach a handler; this is the second check
- * that does not depend on routing configuration being right, which is what
- * keeps a mistake in the matcher from becoming an open endpoint.
- */
-
-import {
-  sessionUserFromCookies,
-  sessionUserFromRequest,
-  type SessionUser,
-} from "@/lib/auth/session";
+import type { SessionUser } from "@/lib/auth/session";
+import { workspaceUser } from "@/lib/auth/workspace";
 
 export class UnauthorizedError extends Error {
   readonly status = 401;
@@ -22,27 +9,19 @@ export class UnauthorizedError extends Error {
   }
 }
 
-/** The signed-in user, or null. Never throws. */
-export async function getApiUser(request: Request): Promise<SessionUser | null> {
-  return sessionUserFromRequest(request);
+/** Shared workspace actor; dashboard access does not require a session. */
+export async function getApiUser(_request: Request): Promise<SessionUser> {
+  void _request; // Preserve the existing route-handler call signature.
+  return workspaceUser();
 }
 
-/** The signed-in user, or a thrown UnauthorizedError. */
-export async function requireApiUser(request: Request): Promise<SessionUser> {
-  const user = await sessionUserFromRequest(request);
-  if (!user) throw new UnauthorizedError();
-  return user;
+export async function requireApiUser(_request: Request): Promise<SessionUser> {
+  void _request; // Preserve the existing route-handler call signature.
+  return workspaceUser();
 }
 
-/**
- * The signed-in user, resolved from the request's cookies via next/headers.
- *
- * For route handlers that do not need the Request object; pairs with
- * `unauthorizedResponse()` so a handler refuses with a 401 rather than
- * throwing into a 500.
- */
-export async function getSessionUser(): Promise<SessionUser | null> {
-  return sessionUserFromCookies();
+export async function getSessionUser(): Promise<SessionUser> {
+  return workspaceUser();
 }
 
 /** The standard refusal. Deliberately says nothing about why. */
@@ -53,14 +32,7 @@ export function unauthorizedResponse(): Response {
   );
 }
 
-/**
- * Origin check for cookie-authenticated state-changing requests.
- *
- * SameSite=Lax already stops a cross-site POST from carrying the session
- * cookie; this is the second layer, and it is CSRF defence — never
- * authentication. A same-origin request from a signed-out browser is still
- * refused by the guard above.
- */
+/** Reject cross-site browser actions even though workspace access is public. */
 export function isSameOrigin(request: Request): boolean {
   const site = request.headers.get("sec-fetch-site");
   if (site) return site === "same-origin" || site === "none";
