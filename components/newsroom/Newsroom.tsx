@@ -54,15 +54,17 @@ function ArticleImage({ card }: { card: NewsroomCard }) {
 }
 
 export default function Newsroom({ articles }: { articles: NewsroomCard[] }) {
-  const [active, setActive] = useState("All");
-  const [query, setQuery] = useState("");
-
   // Categories are derived from the articles so new ones appear automatically.
-  const CATEGORIES = ["All", ...Array.from(new Set(articles.map((a) => a.category)))];
+  // There is no "All" tab: the newsroom is browsed one category at a time, and
+  // the first category is what opens.
+  const CATEGORIES = Array.from(new Set(articles.map((a) => a.category)));
+
+  const [active, setActive] = useState(CATEGORIES[0] ?? "");
+  const [query, setQuery] = useState("");
 
   const q = query.trim().toLowerCase();
   const filtered = articles.filter((a) => {
-    const matchCat = active === "All" || a.category === active;
+    const matchCat = a.category === active;
     const matchQ =
       !q ||
       a.title.toLowerCase().includes(q) ||

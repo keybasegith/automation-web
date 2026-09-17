@@ -1,25 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronDown } from "lucide-react";
 
 const NAVY = "#0a1f33";
 
-// Only the opening seconds of each clip are used before handing off to the next.
+// How long each headline holds before handing off to the next.
 const SEGMENT_SECONDS = 7;
 
-// Each slide pairs a background clip with its headline + subtext. The text
-// changes in sync with the clip currently playing.
+// Each segment carries its own background photo alongside its copy, so the
+// picture changes with the headline rather than sitting fixed behind both.
 const SLIDES = [
   {
-    src: "/mainhomepage-herovid1.mp4",
+    image: "/firstherosection1.jpg",
     title: "Building and preserving wealth for generations.",
     subtext:
       "Keybase Financial Group partners with individuals, families, and institutions to deliver disciplined, independent financial advice — grounded in trust and built for the long term.",
   },
   {
-    src: "/mainhomepage-herovid2.mp4",
+    image: "/firstherosection2.jpg",
     title: "Powered by AI, guided by people.",
     subtext:
       "As one of the first in our field to embrace artificial intelligence, Keybase pairs cutting-edge technology with seasoned judgment — sharpening every insight, decision, and recommendation we deliver.",
@@ -27,28 +27,17 @@ const SLIDES = [
 ];
 
 export default function Hero() {
-  const ref = useRef<HTMLVideoElement>(null);
-  const advanced = useRef(false);
   const [index, setIndex] = useState(0);
   const slide = SLIDES[index];
 
-  // The `key` remount gives a fresh element per clip; this is a safety net for
-  // browsers that need an explicit play() after the source swaps.
   useEffect(() => {
-    advanced.current = false;
-    const v = ref.current;
-    if (!v) return;
-    const played = v.play();
-    if (played && typeof played.catch === "function") played.catch(() => {});
-  }, [index]);
-
-  // timeupdate fires several times a second, so guard against advancing twice
-  // before the state change remounts the element.
-  const next = () => {
-    if (advanced.current) return;
-    advanced.current = true;
-    setIndex((i) => (i + 1) % SLIDES.length);
-  };
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = setInterval(
+      () => setIndex((i) => (i + 1) % SLIDES.length),
+      SEGMENT_SECONDS * 1000,
+    );
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <section
@@ -57,24 +46,16 @@ export default function Hero() {
         background: `linear-gradient(135deg, ${NAVY} 0%, #0e2a45 55%, #0a3d3e 130%)`,
       }}
     >
-      {/* background videos — public/mainhomepage-herovid1.mp4 and
-          public/mainhomepage-herovid2.mp4. Only the first SEGMENT_SECONDS of
-          each plays before alternating to the other, on a loop. */}
-      <video
-        key={index}
-        ref={ref}
+      {/* Raw <img> (not next/image): a full-bleed ken-burns background layer.
+          Keyed on the source so the slow zoom restarts with each segment
+          instead of continuing mid-motion under a new photograph. */}
+      <img
+        key={slide.image}
+        src={slide.image}
+        alt=""
         className="ken-burns pointer-events-none absolute inset-0 h-full w-full object-cover"
-        autoPlay
-        muted
-        playsInline
         aria-hidden
-        onTimeUpdate={(e) => {
-          if (e.currentTarget.currentTime >= SEGMENT_SECONDS) next();
-        }}
-        onEnded={next}
-      >
-        <source src={slide.src} type="video/mp4" />
-      </video>
+      />
 
       {/* teal glow */}
       <div
@@ -92,8 +73,9 @@ export default function Hero() {
 
       <div className="relative mx-auto flex min-h-[560px] max-w-[1280px] items-center px-5 py-24 sm:min-h-[640px] sm:px-8 sm:py-32 lg:min-h-[720px] lg:py-40">
         <div className="max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-widest text-white">Independent Wealth Management in Canada</p>
           {/* Keyed on the slide index so the headline + subtext softly
-              cross-fade each time the background clip changes. */}
+              cross-fade each time the copy changes. */}
           <div key={index}>
             <h1
               className="slide-fade mt-6 text-[44px] font-semibold leading-[1.06] tracking-tight text-white sm:text-[60px] lg:text-[72px]"
@@ -117,10 +99,10 @@ export default function Hero() {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              href="/contact"
+              href="/our-advisors"
               className="inline-flex items-center gap-2 border border-white/40 px-7 py-4 text-[15px] font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-white/70 hover:bg-white/10"
             >
-              Speak with an Advisor
+              Find an Advisor
             </Link>
           </div>
         </div>

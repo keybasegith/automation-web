@@ -1,14 +1,12 @@
+import BreadcrumbSchema from "@/components/seo/BreadcrumbSchema";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import AdvisorMap from "@/components/home/AdvisorMap";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata = {
-  title: "Our Advisors — Keybase Financial Group",
-  description:
-    "A national network of 200+ Keybase advisors serving clients from coast to coast — close to the communities they guide through every stage of their financial journey.",
-};
+export const metadata = pageMetadata("/our-advisors", "Our Advisors — Keybase Financial Group", "A national network of 200+ Keybase advisors serving clients from coast to coast — close to the communities they guide through every stage of their financial journey.");
 
 function Crumb({ label, href }: { label: string; href?: string }) {
   return href ? (
@@ -48,8 +46,9 @@ export default function OurAdvisorsPage() {
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
+      <BreadcrumbSchema items={[{ name: "Our Advisors", path: "/our-advisors" }]} />
 
-      <main className="mx-auto flex min-h-[calc(100vh-112px)] max-w-[1280px] flex-col px-5 py-6 sm:px-8 sm:py-8">
+      <main className="mx-auto max-w-[1280px] px-5 py-6 sm:px-8 sm:py-8">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-[14px]">
           <Crumb label="Home" href="/" />
@@ -60,7 +59,7 @@ export default function OurAdvisorsPage() {
         </nav>
 
         {/* Hero: merged copy + coast-to-coast map, sized to fit one screen */}
-        <div className="grid flex-1 items-center gap-8 py-4 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">
+        <div className="grid items-center gap-8 py-4 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">
           <div>
             <p className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.22em] text-[#006d6e]">
               <span className="h-px w-8 bg-[#006d6e]/50" />
@@ -100,6 +99,25 @@ export default function OurAdvisorsPage() {
             <AdvisorMap />
           </div>
         </div>
+
+        {/* The advisor directory that stood here has been removed: the page
+            describes the national network, and no individual profiles are
+            published from it. The closing prompt stays so the page still ends
+            somewhere — a visitor looking for an advisor is routed to Contact
+            rather than to a list that is no longer here. */}
+        <section className="border-t border-black/10 py-16 sm:py-20">
+          <p className="text-[15px] leading-relaxed text-[#5b6573]">
+            Not sure who to speak with?{" "}
+            <Link
+              href="/contact"
+              className="font-semibold text-[#006d6e] underline decoration-[#006d6e]/30 underline-offset-4 transition-colors hover:text-[#0a1f33]"
+            >
+              Contact Keybase
+            </Link>{" "}
+            and we will help you find the right advisor.
+          </p>
+        </section>
+
       </main>
 
       <SiteFooter />

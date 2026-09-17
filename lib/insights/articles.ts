@@ -1,4 +1,10 @@
+import { AI_DRIVEN_WORLD_HUMAN_ADVICE } from "./content/aiDrivenWorldHumanAdvice";
+import { BANK_OF_CANADA_SEPTEMBER_2026 } from "./content/bankOfCanadaSeptember2026";
+import { CANADA_JOBS_AUGUST_2026 } from "./content/canadaJobsAugust2026";
 import { CANADA_INFLATION_JULY_2026 } from "./content/canadaInflationJuly2026";
+import { FROM_PRODUCT_SELECTION_TO_LIFE_PLANNING } from "./content/fromProductSelectionToLifePlanning";
+import { PLAN_BIGGER_THAN_PORTFOLIO } from "./content/planBiggerThanPortfolio";
+import { WHY_INDEPENDENCE_MATTERS } from "./content/whyIndependenceMatters";
 import type { ArticleBlock, ArticleKind, InsightArticle } from "./types";
 
 /**
@@ -12,13 +18,21 @@ import type { ArticleBlock, ArticleKind, InsightArticle } from "./types";
  * Nothing is listed here without a real body behind it — the newsroom shows
  * articles, not headlines waiting for copy.
  */
-export const ARTICLES: InsightArticle[] = [CANADA_INFLATION_JULY_2026];
+export const ARTICLES: InsightArticle[] = [
+  BANK_OF_CANADA_SEPTEMBER_2026,
+  AI_DRIVEN_WORLD_HUMAN_ADVICE,
+  FROM_PRODUCT_SELECTION_TO_LIFE_PLANNING,
+  PLAN_BIGGER_THAN_PORTFOLIO,
+  WHY_INDEPENDENCE_MATTERS,
+  CANADA_JOBS_AUGUST_2026,
+  CANADA_INFLATION_JULY_2026,
+];
 
 /**
  * The categories the newsroom uses. No category exists here without a
  * published article behind it; add one as the article that needs it lands.
  */
-export const CATEGORIES = ["Market Perspectives"] as const;
+export const CATEGORIES = ["Market Perspectives", "Perspectives"] as const;
 
 /** Pieces that carry an educational disclaimer unless told otherwise. */
 const DISCLAIMER_BY_DEFAULT: ArticleKind[] = ["educational", "market"];

@@ -6,39 +6,38 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const NAVY = "#0a1f33";
 
-const SLIDES = [
-  {
-    category: "Whitepaper",
-    title: "Building durable retirement income in a higher-for-longer world",
-    image: "/consult-advisors.jpg",
-  },
-  {
-    category: "Family Wealth",
-    title: "A family's guide to tax-efficient wealth transfer across generations",
-    image: "/consult-advisors.jpg",
-  },
-  {
-    category: "Market Outlook",
-    title: "Positioning portfolios for the year ahead amid shifting rates",
-    image: "/profile-backgroundpic.jpg",
-  },
-];
+/**
+ * One slide. Every field comes from a published article, so a slide cannot
+ * advertise a headline that has no page behind it — the rule the newsroom
+ * listing already follows.
+ */
+export type CarouselSlide = {
+  category: string;
+  title: string;
+  image: string;
+  href: string;
+};
 
 const INTERVAL = 6000;
 
-export default function FeaturedCarousel() {
+export default function FeaturedCarousel({ slides }: { slides: CarouselSlide[] }) {
   const [index, setIndex] = useState(0);
-  const count = SLIDES.length;
+  const count = slides.length;
 
   const go = (next: number) => setIndex((next + count) % count);
 
   // Auto-advance; resets whenever the index changes (so manual nav restarts the timer).
   useEffect(() => {
+    if (count === 0) return;
     const id = setInterval(() => setIndex((i) => (i + 1) % count), INTERVAL);
     return () => clearInterval(id);
   }, [index, count]);
 
-  const slide = SLIDES[index];
+  // Nothing published to feature is not an error state — the section simply
+  // does not render, rather than framing an empty panel.
+  if (count === 0) return null;
+
+  const slide = slides[Math.min(index, count - 1)];
 
   return (
     <section className="bg-white">
@@ -67,7 +66,7 @@ export default function FeaturedCarousel() {
               {slide.title}
             </h3>
             <Link
-              href="#insights"
+              href={slide.href}
               className="mt-12 inline-flex w-fit items-center rounded-full border border-[#0a1f33] px-8 py-3 text-[15px] font-semibold text-[#0a1f33] transition-colors hover:bg-[#0a1f33] hover:text-white"
             >
               Learn More
