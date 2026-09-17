@@ -51,7 +51,7 @@ export async function POST(
   await upsertKycDraft({ submissionId, draft });
   await updateSubmissionStatus(submissionId, "kyc_draft_created");
 
-  const acting = getActingUser();
+  const acting = await getActingUser();
   const h = await headers();
   await createAuditLog({
     submissionId,
@@ -127,7 +127,7 @@ export async function PATCH(
   await upsertKycDraft({ submissionId, draft: next });
 
   if (Object.keys(edited).length > 0) {
-    const acting = getActingUser();
+    const acting = await getActingUser();
     const h = await headers();
     await createAuditLog({
       submissionId,

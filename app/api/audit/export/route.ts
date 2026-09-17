@@ -1,3 +1,4 @@
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth/guard";
 import {
   listRecentAuditLogs,
   type AuditLogFilters,
@@ -33,6 +34,8 @@ const escapeCsv = (value: unknown): string => {
 };
 
 export async function GET(request: Request) {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   if (!isServerSupabaseConfigured()) {
     return Response.json(
       { error: "Database is not configured." },

@@ -1,3 +1,4 @@
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth/guard";
 import {
   getOnboardingById,
   logOnboardingEvent,
@@ -15,6 +16,8 @@ export async function PATCH(
   request: Request,
   ctx: { params: Promise<{ id: string }> }
 ) {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   if (!isServerSupabaseConfigured()) {
     return Response.json(
       { error: "Database is not configured." },
@@ -80,6 +83,8 @@ export async function GET(
   _request: Request,
   ctx: { params: Promise<{ id: string }> }
 ) {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   if (!isServerSupabaseConfigured()) {
     return Response.json(
       { error: "Database is not configured." },

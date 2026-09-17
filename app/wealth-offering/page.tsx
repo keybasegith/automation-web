@@ -5,7 +5,7 @@ const PDF_URL =
 
 export default function WealthOffering() {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-white p-2 sm:p-4">
+    <main className="flex min-h-screen w-full items-center justify-center bg-white p-2 sm:p-4">
       <a
         href={PDF_URL}
         target="_blank"
@@ -22,6 +22,6 @@ export default function WealthOffering() {
           className="h-auto max-h-screen w-full object-contain"
         />
       </a>
-    </div>
+    </main>
   );
 }

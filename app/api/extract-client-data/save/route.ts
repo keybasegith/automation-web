@@ -3,7 +3,7 @@ import {
   isServerSupabaseConfigured,
   SupabaseConfigError,
 } from "@/lib/supabaseClient";
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 import {
   EXTRACTION_FIELDS,
   SOURCE_TYPES,
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
   ).length;
 
   try {
-    const user = getCurrentUser();
+    const user = await requireCurrentUser();
     await logAudit({
       userId: user.id,
       action: "EXTRACT_CLIENT_DATA",

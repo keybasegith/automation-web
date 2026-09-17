@@ -1,19 +1,27 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, ArrowRight } from "lucide-react";
 
+/**
+ * The card's view of a person. Built from a `PersonProfile` by the page above
+ * (see app/key-executives/page.tsx) — this component holds no biography of its
+ * own, so there is nothing here to drift out of step with the person record.
+ */
 export type Executive = {
   name: string;
   title: string;
   photo?: string;
+  photoAlt?: string;
   photoClassName?: string;
   comingSoon?: boolean;
   ceoMessage?: boolean;
   lead: string;
   paragraphs: string[];
-  href?: string;
+  /** Present only when this person has a published profile page. */
+  profilePath?: string;
 };
 
 const ROW_SIZE = 3;
@@ -49,6 +57,12 @@ export default function KeyExecutives({ people }: { people: Executive[] }) {
         const activeInRow =
           active !== null && active >= rowStart && active < rowStart + row.length;
 
+        // The CEO's row holds one centred card, so — unlike a grid column —
+        // nothing gives it a width. The portrait inside is an absolutely
+        // positioned fill image and contributes none either, so without this
+        // the card would shrink to the width of the name beneath it.
+        const cardWidth = row.length === 1 ? "w-[210px]" : "w-full";
+
         return (
           <div key={rowIndex}>
             {/* Portrait row */}
@@ -63,52 +77,79 @@ export default function KeyExecutives({ people }: { people: Executive[] }) {
                 const i = rowStart + j;
                 const open = active === i;
                 return (
-                  <button
+                  <div
                     key={exec.name}
-                    type="button"
-                    aria-expanded={open}
-                    onClick={() => setActive(open ? null : i)}
-                    className="group flex flex-col items-center text-center focus:outline-none"
+                    className={`flex flex-col items-center ${cardWidth}`}
                   >
-                    <span className="mx-auto block w-full max-w-[210px] overflow-hidden bg-[#f1f3f9] ring-1 ring-black/[0.04]">
-                      {exec.comingSoon ? (
-                        <span className="flex aspect-[6/7] w-full flex-col items-center justify-center bg-[#eef1f4] px-3 text-center">
-                          <span className="font-serif text-[15px] text-[#9aa3ad] sm:text-[17px]">
-                            Coming
-                          </span>
-                          <span className="font-serif text-[15px] text-[#9aa3ad] sm:text-[17px]">
-                            Soon
-                          </span>
-                        </span>
-                      ) : (
-                        <img
-                          src={exec.photo}
-                          alt={`${exec.name} portrait`}
-                          className={`aspect-[6/7] w-full object-cover object-top ${exec.photoClassName ?? ""}`}
-                        />
-                      )}
-                    </span>
-
-                    <span
-                      className={`mt-5 font-serif text-[18px] font-normal transition-colors sm:text-[22px] ${
-                        open
-                          ? "text-[#006d6e] underline decoration-1 underline-offset-[6px]"
-                          : "text-[#0a1f33] group-hover:text-[#006d6e]"
-                      }`}
+                    <button
+                      type="button"
+                      aria-expanded={open}
+                      onClick={() => setActive(open ? null : i)}
+                      className="group flex w-full flex-col items-center text-center focus:outline-none"
                     >
-                      {exec.name}
-                    </span>
-                    <span className="mt-1.5 text-[13px] text-[#5b6573] sm:text-[15px]">
-                      {exec.title}
-                    </span>
+                      {/* The frame reserves its own space, so the row does not
+                          shift as portraits load. */}
+                      <span className="relative mx-auto block aspect-[6/7] w-full max-w-[210px] overflow-hidden bg-[#f1f3f9] ring-1 ring-black/[0.04]">
+                        {exec.comingSoon || !exec.photo ? (
+                          <span className="flex h-full w-full flex-col items-center justify-center bg-[#eef1f4] px-3 text-center">
+                            <span className="font-serif text-[15px] text-[#9aa3ad] sm:text-[17px]">
+                              Coming
+                            </span>
+                            <span className="font-serif text-[15px] text-[#9aa3ad] sm:text-[17px]">
+                              Soon
+                            </span>
+                          </span>
+                        ) : (
+                          <Image
+                            src={exec.photo}
+                            alt={exec.photoAlt ?? `Portrait of ${exec.name}`}
+                            fill
+                            sizes="(min-width: 640px) 210px, 30vw"
+                            // A portrait replaced through the CMS is served from
+                            // an env-configured origin that cannot be listed in
+                            // images.remotePatterns; skip the optimizer for those
+                            // rather than throwing on an unconfigured host.
+                            unoptimized={/^https?:\/\//i.test(exec.photo)}
+                            className={`object-cover object-top ${exec.photoClassName ?? ""}`}
+                          />
+                        )}
+                      </span>
 
-                    <ChevronDown
-                      className={`mt-2.5 h-5 w-5 transition-all ${
-                        open ? "rotate-180 text-[#006d6e]" : "text-[#1a2433]"
-                      }`}
-                      strokeWidth={1.75}
-                    />
-                  </button>
+                      <span
+                        className={`mt-5 font-serif text-[18px] font-normal transition-colors sm:text-[22px] ${
+                          open
+                            ? "text-[#006d6e] underline decoration-1 underline-offset-[6px]"
+                            : "text-[#0a1f33] group-hover:text-[#006d6e]"
+                        }`}
+                      >
+                        {exec.name}
+                      </span>
+                      <span className="mt-1.5 text-[13px] text-[#5b6573] sm:text-[15px]">
+                        {exec.title}
+                      </span>
+
+                      <ChevronDown
+                        className={`mt-2.5 h-5 w-5 transition-all ${
+                          open ? "rotate-180 text-[#006d6e]" : "text-[#1a2433]"
+                        }`}
+                        strokeWidth={1.75}
+                      />
+                    </button>
+
+                    {/* Rendered in the initial HTML, not only once a card is
+                        expanded, so a profile page is reachable by a reader who
+                        never clicks and by a crawler that cannot. Present only
+                        for people who have a profile, so it never 404s. */}
+                    {exec.profilePath && (
+                      <Link
+                        href={exec.profilePath}
+                        className="mt-2 text-[13px] text-[#5b6573] underline decoration-[#5b6573]/30 underline-offset-4 transition-colors hover:text-[#006d6e] hover:decoration-[#006d6e]/50"
+                      >
+                        View profile
+                        <span className="sr-only"> of {exec.name}</span>
+                      </Link>
+                    )}
+                  </div>
                 );
               })}
             </div>
@@ -117,9 +158,9 @@ export default function KeyExecutives({ people }: { people: Executive[] }) {
             {activeInRow && active !== null && (
               <div className="mt-8 border-t-2 border-[#006d6e]">
                 <div className="bg-[#f5f6f8] px-6 py-8 sm:px-10 sm:py-9">
-                  <h3 className="font-serif text-[19px] font-normal text-[#0a1f33] sm:text-[22px]">
+                  <h2 className="font-serif text-[19px] font-normal text-[#0a1f33] sm:text-[22px]">
                     {people[active].lead}
-                  </h3>
+                  </h2>
 
                   <div className="mt-4 max-w-3xl space-y-3 text-[15px] leading-relaxed text-[#5b6573]">
                     {people[active].paragraphs.map((para, idx) => (

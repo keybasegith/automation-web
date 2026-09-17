@@ -1,6 +1,7 @@
 import {
   Banknote,
   Briefcase,
+  CalendarDays,
   ShieldCheck,
   TrendingUp,
   Server,
@@ -24,6 +25,7 @@ import {
   CheckCircle2,
   Scale,
   Landmark,
+  Captions,
   type LucideIcon,
 } from "lucide-react";
 
@@ -50,7 +52,7 @@ export const DEPARTMENTS: readonly Department[] = [
     name: "Finance",
     tagline: "Analysis & reporting",
     description:
-      "Sage exports, account analysis, and monthly reconciliation workflows.",
+      "Sage exports, account analysis, meeting transcripts, and monthly reconciliation workflows.",
     icon: Banknote,
     accent: "from-emerald-500/15 to-emerald-500/5 text-emerald-700",
     tools: [
@@ -59,6 +61,12 @@ export const DEPARTMENTS: readonly Department[] = [
         hint: "Upload Sage exports & generate analysis",
         href: "/finance-intelligence",
         icon: FileSpreadsheet,
+      },
+      {
+        label: "Transcript Formatter",
+        hint: "Clean raw meeting transcripts and export them as editable Word documents",
+        href: "/transcript-formatter",
+        icon: Captions,
       },
     ],
   },
@@ -118,6 +126,12 @@ export const DEPARTMENTS: readonly Department[] = [
     icon: ShieldCheck,
     accent: "from-amber-500/15 to-amber-500/5 text-amber-700",
     tools: [
+      {
+        label: "Client Risk Questionnaire",
+        hint: "Complete the individual account holder CRQ and score it automatically",
+        href: "/client-risk-questionnaire",
+        icon: ClipboardList,
+      },
       {
         label: "NAAF / CRQ Discrepancy Detector",
         hint: "Check a new account's NAAF against its CRQ and draft the advisor email",
@@ -248,10 +262,16 @@ export const DEPARTMENTS: readonly Department[] = [
     name: "Marketing",
     tagline: "Outreach & campaigns",
     description:
-      "Send secure emails, draft client communication, and trigger campaigns.",
+      "Plan the content calendar, send secure emails, and trigger campaigns.",
     icon: Megaphone,
     accent: "from-pink-500/15 to-pink-500/5 text-pink-700",
     tools: [
+      {
+        label: "Content Calendar",
+        hint: "Plan content, gather files and links, run approval & compliance review",
+        href: "/dashboard/departments/marketing/calendar",
+        icon: CalendarDays,
+      },
       {
         label: "Secure Email Generator",
         hint: "Compose encrypted outbound email",

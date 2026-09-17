@@ -10,6 +10,9 @@ import {
   Waves,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceSection from "@/components/services/ServiceSection";
+import ServiceFaq, { type FaqItem } from "@/components/services/ServiceFaq";
+import ServiceCta from "@/components/services/ServiceCta";
 
 /* The strategies that fall outside traditional asset classes. */
 const STRATEGIES = [
@@ -53,6 +56,44 @@ const RISK_FACTORS = [
   "Valuation complexity",
   "Higher risk",
   "Different regulatory considerations",
+];
+
+const FAQ: FaqItem[] = [
+  {
+    question: "What makes an investment \u201calternative\u201d?",
+    answer: [
+      "The label covers strategies and assets that sit outside the traditional public-market categories of equities, fixed income, and cash. Through Keybase that includes private real estate, private equity, private debt, hedge funds, precious metals, flow-through shares, liquid alternatives, and other exempt market products.",
+      "What they have in common is that their returns can behave differently from public markets — not that they behave like one another.",
+    ],
+  },
+  {
+    question: "What is the exempt market?",
+    answer: [
+      "The exempt market is the part of the securities market where certain investments may be offered without a prospectus, often involving private companies or opportunities that are not publicly traded.",
+      "Keybase Financial Group is registered as an Exempt Market Dealer, which is what allows us to provide access to those products. Because the disclosure available differs from public markets, these investments call for closer review.",
+    ],
+  },
+  {
+    question: "What risks do alternative investments carry?",
+    answer: [
+      "They differ by strategy, but the considerations that recur are liquidity restrictions — capital may be committed for a defined period — valuation complexity, higher risk, and different regulatory considerations from publicly traded investments.",
+      "These are the reasons alternatives warrant deeper due diligence and a formal suitability assessment rather than a straightforward comparison of expected returns.",
+    ],
+  },
+  {
+    question: "How much of a portfolio should be in alternatives?",
+    answer: [
+      "There is no standard proportion. An appropriate allocation depends on the rest of your portfolio, your time horizon, how much liquidity you need, and your capacity to absorb risk.",
+      "Alternatives are generally used as a diversifying component alongside a traditional core, rather than as a replacement for one.",
+    ],
+  },
+  {
+    question: "Can anyone invest in exempt market products?",
+    answer: [
+      "No. Eligibility is set out in securities regulation and depends on criteria relating to an investor\u2019s circumstances, and every recommendation is subject to a suitability assessment.",
+      "Part of an advisor\u2019s role is establishing whether a given opportunity is appropriate for you at all, before any discussion of whether it looks attractive.",
+    ],
+  },
 ];
 
 /**
@@ -288,6 +329,48 @@ export default function AlternativeInvestmentsBody() {
         </div>
       </section>
 
+      {/* ---------- Who it is for ---------- */}
+      <ServiceSection eyebrow="Who We Work With" heading="Who alternative investments may suit" tone="muted">
+        <p>
+          Alternatives are not a general-purpose holding. They are typically
+          considered by investors who already have a diversified base of
+          traditional investments in place, who have a long enough time horizon
+          to accept that capital may be committed for extended periods, and who
+          can absorb the possibility of loss on part of their portfolio.
+        </p>
+        <p>
+          Access is also a regulatory matter. Exempt market products are offered
+          under prospectus exemptions, and eligibility depends on criteria set
+          out in securities regulation as well as on a suitability assessment. A
+          Keybase advisor works through both before any alternative investment
+          is recommended.
+        </p>
+      </ServiceSection>
+
+      <ServiceFaq heading="Questions about alternatives." items={FAQ} tone="white" />
+
+      <ServiceCta
+        heading="Assess alternatives with the right scrutiny."
+        body="A Keybase advisor can help you understand how a given strategy actually works, assess suitability, and decide whether it belongs in your portfolio at all."
+        tone="muted"
+        related={[
+          {
+            href: "/traditional-investments",
+            label: "Traditional Investments",
+            note: "The public-market core alternatives are meant to complement.",
+          },
+          {
+            href: "/non-registered-investments",
+            label: "Non-Registered Investments",
+            note: "The account type many alternative holdings sit in.",
+          },
+          {
+            href: "/wealth-building",
+            label: "Wealth Planning",
+            note: "Setting the goals and risk tolerance behind the allocation.",
+          },
+        ]}
+      />
     </>
   );
 }

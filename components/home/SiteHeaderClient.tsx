@@ -61,7 +61,9 @@ export default function SiteHeaderClient({
   return (
     <>
       {/* ---------- Top utility bar ---------- */}
-      <div className="bg-[#0a1420] text-white">
+      {/* A <nav>, not a <div>: this bar sits above the sticky <header>, so without
+          a landmark of its own its links belong to no region at all. */}
+      <nav aria-label="Utility" className="bg-[#0a1420] text-white">
         <div className="mx-auto flex h-[44px] max-w-[1280px] items-center justify-between gap-4 px-5 sm:px-8">
           {/* Left: advisor recruitment promo */}
           <Link
@@ -96,7 +98,7 @@ export default function SiteHeaderClient({
             ))}
           </div>
         </div>
-      </div>
+      </nav>
 
       <header className="sticky top-0 z-50 border-b border-black/10 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <div className="mx-auto flex h-[68px] max-w-[1280px] items-center justify-between gap-6 px-5 sm:px-8">
@@ -112,7 +114,7 @@ export default function SiteHeaderClient({
         </Link>
 
         {/* Primary nav */}
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-8 lg:flex">
           {items.map((item) =>
             visibleChildren(item).length > 0 ? (
               <div
@@ -222,13 +224,13 @@ export default function SiteHeaderClient({
             )}
           </div>
 
-          <button
-            type="button"
+          <Link
+            href="/search"
             aria-label="Search"
             className="text-[#1a2433] transition-colors hover:text-[#006d6e]"
           >
             <Search className="h-[18px] w-[18px]" strokeWidth={2} />
-          </button>
+          </Link>
           <Link
             href={settings.ctaUrl || "#"}
             className="border border-[#1a2433] bg-[#1a2433] px-5 py-2.5 text-[14px] font-semibold tracking-wide text-white transition-colors hover:bg-white hover:text-[#1a2433]"
@@ -252,7 +254,7 @@ export default function SiteHeaderClient({
       {/* Mobile menu */}
       {open && (
         <div className="border-t border-black/10 bg-white lg:hidden">
-          <nav className="mx-auto flex max-w-[1280px] flex-col px-5 py-3 sm:px-8">
+          <nav aria-label="Mobile" className="mx-auto flex max-w-[1280px] flex-col px-5 py-3 sm:px-8">
             {items.map((item) =>
               visibleChildren(item).length > 0 ? (
                 <div key={item.label}>

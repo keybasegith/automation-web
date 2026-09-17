@@ -7,6 +7,9 @@ import {
   Compass,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceSection from "@/components/services/ServiceSection";
+import ServiceFaq, { type FaqItem } from "@/components/services/ServiceFaq";
+import ServiceCta from "@/components/services/ServiceCta";
 
 const PILLARS = [
   {
@@ -60,6 +63,51 @@ const STEPS = [
   },
 ];
 
+const FAQ: FaqItem[] = [
+  {
+    question: "When should I start retirement planning?",
+    answer: [
+      "Earlier gives a plan more room to work: contributions have longer to compound, and there is more time to change course. Planning becomes most concrete in the ten to fifteen years before retirement, when income needs, savings, and a target date can finally be tested against each other.",
+      "There is no point at which it is too late to build a plan — only a different set of options at each stage.",
+    ],
+  },
+  {
+    question: "How much money will I need for retirement?",
+    answer: [
+      "It depends on the retirement you are planning for rather than on any universal figure. The work starts from the lifestyle you want and what it is likely to cost, then works back through your savings, expected government benefits, and any workplace pension to identify the gap your own investments have to close.",
+      "Because the answer is specific to your circumstances, it is worth modelling properly rather than estimating with a rule of thumb.",
+    ],
+  },
+  {
+    question: "How do RRSPs and TFSAs fit into retirement planning?",
+    answer: [
+      "They behave differently at both ends. RRSP contributions are deductible and growth is tax-deferred, with withdrawals taxed as income. A TFSA is funded with after-tax money, and qualifying withdrawals are not taxed.",
+      "That difference is why the mix between them — and the order you eventually draw from them — affects your taxable income in retirement, and can affect income-tested benefits along the way.",
+    ],
+  },
+  {
+    question: "When should I start CPP or OAS?",
+    answer: [
+      "Benefit timing is a planning decision, not a default. Starting later generally increases the monthly amount, while starting earlier provides income sooner. The right choice depends on your other income sources, your tax position, your health and family longevity, and whether you are still working.",
+      "Because higher income can affect OAS, benefit timing is usually decided alongside your withdrawal strategy rather than in isolation.",
+    ],
+  },
+  {
+    question: "How do I create income in retirement?",
+    answer: [
+      "Retirement income is normally assembled from several sources rather than one: government benefits, any workplace pension, withdrawals from registered accounts, and non-registered investments.",
+      "The plan sets how much is drawn from each and in what order, so the total meets your spending needs at a reasonable tax cost while the portfolio stays positioned for a retirement that may run several decades.",
+    ],
+  },
+  {
+    question: "What risks should a retirement plan account for?",
+    answer: [
+      "Three come up in almost every plan: inflation eroding purchasing power across a long retirement, market downturns arriving early while withdrawals are already underway, and longevity — living well beyond the period your savings were built to cover.",
+      "A plan addresses these through the asset mix, the pace of withdrawals, and the balance between predictable income sources such as government benefits and market-based investments.",
+    ],
+  },
+];
+
 /**
  * The retirement-planning page body — every section below the hero.
  *
@@ -69,6 +117,27 @@ const STEPS = [
 export default function RetirementPlanningBody() {
   return (
     <>
+      {/* ---------- What it is (direct answer) ---------- */}
+      <ServiceSection
+        eyebrow="In Short"
+        heading="What is retirement planning?"
+        tone="muted"
+        divider={false}
+      >
+        <p>
+          Retirement planning is the work of turning savings into income that
+          lasts. It coordinates registered and non-registered savings, workplace
+          and personal investments, and Canadian government benefits such as CPP
+          and OAS into a schedule of withdrawals designed to fund the retirement
+          you actually want.
+        </p>
+        <p>
+          Because the order and timing of those withdrawals carry tax
+          consequences, a retirement plan covers not only how much you
+          accumulate but how and when you draw on it.
+        </p>
+      </ServiceSection>
+
       {/* ---------- Why it matters ---------- */}
       <section className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,360px)_1fr] lg:gap-20">
@@ -205,6 +274,46 @@ export default function RetirementPlanningBody() {
         </div>
       </section>
 
+      {/* ---------- Who it is for ---------- */}
+      <ServiceSection eyebrow="Who We Work With" heading="Who retirement planning is for" tone="white">
+        <p>
+          Retirement planning earns its keep in the years when the decisions
+          become concrete: mid-career savers deciding how much to set aside and
+          where, people within a decade of retiring who need to know whether
+          their target date is realistic, those weighing when to start CPP and
+          OAS, and retirees converting registered savings into income they can
+          rely on.
+        </p>
+        <p>
+          Business owners and professionals without a workplace pension often
+          have the most to coordinate, since their retirement income depends
+          entirely on what they build themselves.
+        </p>
+      </ServiceSection>
+
+      <ServiceFaq heading="Questions about retirement." items={FAQ} tone="muted" />
+
+      <ServiceCta
+        heading="Find out whether your retirement date works."
+        body="A Keybase advisor can model your savings, government benefits, and income needs together, then build a withdrawal strategy designed to last."
+        related={[
+          {
+            href: "/rrsp",
+            label: "RRSPs",
+            note: "How registered retirement savings work, and where they fit.",
+          },
+          {
+            href: "/tfsa",
+            label: "TFSAs",
+            note: "Tax-free growth and withdrawals alongside registered savings.",
+          },
+          {
+            href: "/wealth-building",
+            label: "Wealth Planning",
+            note: "Coordinating retirement with tax, investment, and estate decisions.",
+          },
+        ]}
+      />
     </>
   );
 }

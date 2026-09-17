@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 import { logAudit } from "@/lib/db/audit";
 import { getDepartment } from "@/lib/departments";
 import { getEmailProvider } from "@/lib/email/providers";
@@ -34,7 +34,7 @@ export async function GET(
     return Response.json({ error: "Message not found." }, { status: 404 });
   }
 
-  const user = getCurrentUser();
+  const user = await requireCurrentUser();
   await logAudit({
     userId: user.id,
     action: "DEPT_MAILBOX_VIEW",

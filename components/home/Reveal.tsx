@@ -30,10 +30,9 @@ export default function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (typeof IntersectionObserver === "undefined") {
-      setShown(true);
-      return;
-    }
+    if (typeof IntersectionObserver === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    el.dataset.animate = "true";
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -44,7 +43,7 @@ export default function Reveal({
       { threshold, rootMargin: "0px 0px -10% 0px" },
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); delete el.dataset.animate; };
   }, [threshold]);
 
   return (

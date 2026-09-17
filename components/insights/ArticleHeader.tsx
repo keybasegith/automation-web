@@ -10,6 +10,16 @@ import ArticleByline from "./ArticleByline";
  * author and no reviewer renders a date and nothing else, rather than a row of
  * empty labels or a fallback byline nobody wrote.
  */
+/**
+ * True for an image served from the CMS media origin. That origin comes from an
+ * environment variable, so it cannot be listed in next.config's
+ * `images.remotePatterns` — and an unlisted host makes next/image throw. The
+ * same treatment PersonPortrait already gives CMS-uploaded portraits.
+ */
+function isRemote(src: string): boolean {
+  return /^https?:\/\//i.test(src);
+}
+
 export default function ArticleHeader({ article }: { article: InsightArticle }) {
   const { heroImage } = article;
   // A series name above the headline where the piece has one; otherwise the
@@ -37,10 +47,15 @@ export default function ArticleHeader({ article }: { article: InsightArticle }) 
           <Image
             src={heroImage.src}
             alt={heroImage.alt}
-            width={heroImage.width}
-            height={heroImage.height}
+            // A hero uploaded through the CMS has no dimensions recorded for
+            // it. Falling back to the template's own reading width keeps the
+            // aspect ratio the article column already uses, so the layout does
+            // not shift while it loads.
+            width={heroImage.width || 1600}
+            height={heroImage.height || 900}
             // Above the fold on every article page, so never lazy loaded.
             priority
+            unoptimized={isRemote(heroImage.src)}
             sizes="(min-width: 1024px) 800px, 100vw"
             className="h-auto w-full rounded-sm object-cover"
           />

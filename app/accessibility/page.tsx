@@ -1,0 +1,5 @@
+import PublicPage from "@/components/seo/PublicPage";
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export const metadata = pageMetadata("/accessibility", "Accessibility assistance | Keybase Financial Group", "Contact Keybase Financial Group for help accessing website information or completing an inquiry.");
+export default function Page() { return <PublicPage title="Accessibility assistance" path="/accessibility"><p>If you have difficulty reading information, using a tool or submitting a form on this website, contact us for assistance.</p><h2 className="text-2xl">Request help</h2><p>Call <a className="underline" href="tel:+19057097911">905-709-7911</a> or email <a className="underline" href="mailto:info@keybase.com">info@keybase.com</a>. Tell us which page or feature you need help with and your preferred way to be contacted. Please do not include account numbers or sensitive financial information in an email.</p><p>You can use browser zoom and your device’s reduced-motion setting when viewing this website.</p></PublicPage>; }

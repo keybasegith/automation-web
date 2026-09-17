@@ -4,7 +4,7 @@ import {
   isServerSupabaseConfigured,
   SupabaseConfigError,
 } from "@/lib/supabaseClient";
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,7 +50,7 @@ export async function POST(
     }
 
     const updated = await updateEmailStatus(id, "sent");
-    const user = getCurrentUser();
+    const user = await requireCurrentUser();
 
     await logAudit({
       userId: user.id,

@@ -1,3 +1,4 @@
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth/guard";
 import {
   isServerSupabaseConfigured,
   SupabaseConfigError,
@@ -18,6 +19,8 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * the dropdown just needs a label and an id.
  */
 export async function GET() {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   if (!isServerSupabaseConfigured()) {
     return Response.json(
       { error: "Database is not configured." },
@@ -60,6 +63,8 @@ interface CreateClientBody {
  * onboarding contact. The advisor can edit them later from the clients page.
  */
 export async function POST(request: Request) {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   if (!isServerSupabaseConfigured()) {
     return Response.json(
       { error: "Database is not configured." },

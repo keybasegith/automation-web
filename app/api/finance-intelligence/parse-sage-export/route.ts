@@ -1,3 +1,4 @@
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth/guard";
 import { NextResponse } from "next/server";
 import { parseSageExport } from "@/lib/finance-intelligence/parseSageExport";
 import type { SageAccount } from "@/lib/finance-intelligence/types";
@@ -15,6 +16,8 @@ function hasAcceptedExtension(name: string): boolean {
 }
 
 export async function POST(request: Request) {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   let form: FormData;
   try {
     form = await request.formData();

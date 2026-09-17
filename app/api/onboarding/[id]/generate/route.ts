@@ -1,3 +1,4 @@
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth/guard";
 import {
   getOnboardingById,
   getSignatures,
@@ -19,6 +20,8 @@ export async function POST(
   _request: Request,
   ctx: { params: Promise<{ id: string }> }
 ) {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   if (!isServerSupabaseConfigured()) {
     return Response.json(
       { error: "Database is not configured." },

@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const advisor = getActingUser();
+  const advisor = await getActingUser();
   const sample = getSampleNaaf(sampleKey);
   const clientName =
     sample.fields.fullName ||

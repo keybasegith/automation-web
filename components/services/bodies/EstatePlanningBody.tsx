@@ -8,6 +8,9 @@ import {
   Scale,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceSection from "@/components/services/ServiceSection";
+import ServiceFaq, { type FaqItem } from "@/components/services/ServiceFaq";
+import ServiceCta from "@/components/services/ServiceCta";
 
 const PILLARS = [
   {
@@ -72,6 +75,44 @@ const STEPS = [
   {
     title: "Review & update",
     body: "We revisit the plan as life, family, and tax rules change, so it always reflects your current wishes.",
+  },
+];
+
+const FAQ: FaqItem[] = [
+  {
+    question: "What is the difference between a will and an estate plan?",
+    answer: [
+      "A will directs how the assets that pass through your estate are distributed, and names who administers it. An estate plan is broader: it also covers beneficiary designations on insurance and registered accounts, how assets are owned and titled, powers of attorney, planning for final expenses, and the tax and probate consequences of each.",
+      "Several of those pass outside a will altogether, which is why the pieces have to be looked at together rather than one document at a time.",
+    ],
+  },
+  {
+    question: "What costs can an estate face?",
+    answer: [
+      "Before an estate can be distributed, certain obligations may need to be settled — probate fees, capital gains taxes, taxes on registered savings plans, funeral expenses, legal fees, outstanding debts, and administrative costs.",
+      "Which of these apply depends on your assets, how they are held, and where you live. Understanding the likely obligations is what makes it possible to plan for them rather than leave them to be discovered.",
+    ],
+  },
+  {
+    question: "How do beneficiary designations affect an estate?",
+    answer: [
+      "Assets with a named beneficiary — insurance policies and many registered accounts among them — can generally pass directly to that person rather than through the estate, which may simplify and speed up the transfer.",
+      "It also means a designation overrides what a will says about the same asset. Designations set years ago and never revisited are one of the more common reasons an estate does not end up matching its owner's intentions.",
+    ],
+  },
+  {
+    question: "How often should an estate plan be reviewed?",
+    answer: [
+      "Whenever the facts behind it change: a marriage or separation, a birth or death in the family, a significant change in assets, the sale or purchase of a business, a move to another province or country, or a change in tax rules.",
+      "A plan that was accurate when it was written can quietly stop reflecting your wishes without anything obviously going wrong.",
+    ],
+  },
+  {
+    question: "Do I need a lawyer as well as an advisor?",
+    answer: [
+      "Usually, yes. Wills, powers of attorney, and trusts are legal documents, and drafting them is legal work.",
+      "A Keybase advisor works alongside your legal and tax advisors — coordinating beneficiary designations, ownership structures, and insurance so that the financial side of the plan supports those documents rather than working against them.",
+    ],
   },
 ];
 
@@ -295,6 +336,48 @@ export default function EstatePlanningBody() {
         </div>
       </section>
 
+      {/* ---------- Who it is for ---------- */}
+      <ServiceSection eyebrow="Who We Work With" heading="Who estate planning is for" tone="muted">
+        <p>
+          Estate planning becomes relevant well before it starts to feel urgent.
+          It matters for anyone with dependants, property, registered accounts,
+          or a business; for blended families, where the default rules rarely
+          match what people actually intend; for parents deciding who would care
+          for their children; for families supporting a relative with a
+          disability; and for anyone holding assets in more than one province or
+          country.
+        </p>
+        <p>
+          It matters most where the gap between what would happen by default and
+          what you actually want is widest — which is often precisely where
+          people assume a will on its own is enough.
+        </p>
+      </ServiceSection>
+
+      <ServiceFaq heading="Questions about estate planning." items={FAQ} tone="white" />
+
+      <ServiceCta
+        heading="Make sure the plan matches your intentions."
+        body="A Keybase advisor can review your beneficiaries, ownership structures, and insurance alongside your legal advisors, so that more of what you have built reaches the people you meant it for."
+        tone="muted"
+        related={[
+          {
+            href: "/insurance",
+            label: "Insurance",
+            note: "Funding estate obligations without selling assets.",
+          },
+          {
+            href: "/tax-planning",
+            label: "Tax Planning",
+            note: "Reducing the tax an estate triggers on transfer.",
+          },
+          {
+            href: "/wealth-building",
+            label: "Wealth Planning",
+            note: "Where an estate strategy fits the rest of the plan.",
+          },
+        ]}
+      />
     </>
   );
 }

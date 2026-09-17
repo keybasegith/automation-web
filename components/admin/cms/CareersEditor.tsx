@@ -139,6 +139,13 @@ function Editor() {
                           className={fieldInputClass}
                         />
                       </div>
+                      <div className="my-4 grid gap-3 sm:grid-cols-2">
+                        <TextField label="Posting date (YYYY-MM-DD)" value={role.datePosted || ""} onChange={v=>patchRole(i,{datePosted:v})} />
+                        <TextField label="Closing date (YYYY-MM-DD, UTC)" value={role.validThrough || ""} onChange={v=>patchRole(i,{validThrough:v})} />
+                        <TextField label="City" value={role.addressLocality || ""} onChange={v=>patchRole(i,{addressLocality:v})} />
+                        <TextField label="Province" value={role.addressRegion || ""} onChange={v=>patchRole(i,{addressRegion:v})} />
+                        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={Boolean(role.confirmedOpening)} onChange={e=>patchRole(i,{confirmedOpening:e.target.checked})} /> Confirm this is a genuine current vacancy</label>
+                      </div>
                       <textarea
                         value={role.description}
                         placeholder="Short description of the role"

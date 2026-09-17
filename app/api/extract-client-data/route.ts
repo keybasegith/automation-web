@@ -1,3 +1,4 @@
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth/guard";
 import {
   EMPTY_EXTRACTION,
   EXTRACTION_FIELDS,
@@ -113,6 +114,8 @@ interface ExtractRequestBody {
 }
 
 export async function POST(request: Request) {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   let body: ExtractRequestBody;
   try {
     body = (await request.json()) as ExtractRequestBody;

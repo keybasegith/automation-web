@@ -10,7 +10,7 @@ export const maxDuration = 60;
 
 export async function POST(_request: Request, ctx: { params: Promise<{ packageId: string }> }) {
   try {
-    const actor = authorize("reopen");
+    const actor = await authorize("reopen");
     const { packageId } = await ctx.params;
 
     const outcome = await reopenPackage(packageId, actor);

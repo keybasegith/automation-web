@@ -1,3 +1,4 @@
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth/guard";
 import { NextResponse } from "next/server";
 import { buildMonthlyAnalysis } from "@/lib/finance-intelligence/buildMonthlyAnalysis";
 import {
@@ -48,6 +49,8 @@ function validateAccount(value: unknown):
 }
 
 export async function POST(request: Request) {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   let body: RequestBody;
   try {
     body = (await request.json()) as RequestBody;

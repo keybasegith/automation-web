@@ -45,7 +45,7 @@ export async function POST(
 
   await updateSubmissionStatus(submissionId, "submitted_to_compliance");
 
-  const acting = getActingUser();
+  const acting = await getActingUser();
   const h = await headers();
   await createAuditLog({
     submissionId,

@@ -22,7 +22,7 @@ import {
   isServerSupabaseConfigured,
   SupabaseConfigError,
 } from "@/lib/supabaseClient";
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 import { assertSafeForOpenAI } from "@/lib/compliance/sanitizer";
 import {
   substitutePlaceholders,
@@ -388,7 +388,7 @@ export async function POST(request: Request) {
 
   // Persist + audit. Compliance requires this to succeed.
   try {
-    const user = getCurrentUser();
+    const user = await requireCurrentUser();
     const { client, event, marketContext, documentContext, clientId } =
       result.value;
 

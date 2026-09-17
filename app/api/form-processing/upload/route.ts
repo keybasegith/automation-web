@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const advisor = getActingUser();
+  const advisor = await getActingUser();
   const h = await headers();
   const ipAddress = h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
   const userAgent = h.get("user-agent") ?? null;

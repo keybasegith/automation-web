@@ -35,7 +35,7 @@ export default function CompoundCalculatorLandingPage() {
 
   return (
     <div className="min-h-screen w-full bg-white text-slate-900">
-      <div className="mx-auto w-full max-w-5xl px-6 py-10">
+      <main className="mx-auto w-full max-w-5xl px-6 py-10">
         {showHeader && (
           <>
             {/* QR code header */}
@@ -74,7 +74,7 @@ export default function CompoundCalculatorLandingPage() {
 
         {/* The calculator itself */}
         <CompoundInterestCalculator />
-      </div>
+      </main>
     </div>
   );
 }

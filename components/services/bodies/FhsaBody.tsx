@@ -7,6 +7,7 @@ import {
   ArrowRightLeft,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceCta from "@/components/services/ServiceCta";
 
 /* The "best of both" summary — combining RRSP and TFSA advantages. */
 const BEST_OF_BOTH = [
@@ -322,6 +323,28 @@ export default function FhsaBody() {
         </div>
       </section>
 
+      <ServiceCta
+        heading="Plan the purchase, not just the savings."
+        body="A Keybase advisor can help you decide how an FHSA fits with your other savings and how to invest it against the timeline you are actually working to."
+        tone="white"
+        related={[
+          {
+            href: "/rrsp",
+            label: "RRSPs",
+            note: "Including how the Home Buyers' Plan works alongside an FHSA.",
+          },
+          {
+            href: "/tfsa",
+            label: "TFSAs",
+            note: "Flexible savings for a purchase whose timing may move.",
+          },
+          {
+            href: "/wealth-building",
+            label: "Wealth Planning",
+            note: "Balancing a home purchase against your other goals.",
+          },
+        ]}
+      />
     </>
   );
 }

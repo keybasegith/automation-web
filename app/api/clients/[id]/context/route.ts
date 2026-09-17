@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 import { getClientById } from "@/lib/db/clientsRepo";
 import { buildClientContext } from "@/lib/secureEmail/clientContext";
 import {
@@ -36,7 +36,7 @@ export async function GET(
     if (!client) {
       return Response.json({ error: "Client not found." }, { status: 404 });
     }
-    const advisor = getCurrentUser();
+    const advisor = await requireCurrentUser();
     return Response.json(buildClientContext(client, advisor.id));
   } catch (err) {
     if (err instanceof SupabaseConfigError) {

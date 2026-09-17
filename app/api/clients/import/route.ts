@@ -1,6 +1,6 @@
 import { logAudit } from "@/lib/db/audit";
 import { getServerSupabase, isServerSupabaseConfigured } from "@/lib/supabaseClient";
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -132,7 +132,7 @@ export async function POST(request: Request) {
   }
 
   const inserted = (data ?? []) as { id: string; email: string }[];
-  const user = getCurrentUser();
+  const user = await requireCurrentUser();
 
   // One audit row for the bulk import (referencing the first inserted client).
   if (inserted.length > 0) {

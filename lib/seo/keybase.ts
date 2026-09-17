@@ -133,9 +133,11 @@ function personInput(person: PersonProfile): PersonInput {
     url: isProfileReady(person) ? absoluteUrl(profilePath(person.id)) : undefined,
     // Claimed only where the site states the person holds a role at Keybase —
     // never for a contributor the site describes no employment for.
-    worksFor: person.role && person.organization ? KEYBASE_ORGANIZATION_REF : undefined,
+    worksFor: person.role && [KEYBASE_NAME, KEYBASE_LEGAL_NAME].includes(person.organization || "") ? KEYBASE_ORGANIZATION_REF : undefined,
     sameAs: person.professionalProfiles?.map((profile) => profile.url),
     knowsAbout: person.areasOfExpertise,
+    knowsLanguage: person.languages,
+    credentials: person.credentials,
   };
 }
 

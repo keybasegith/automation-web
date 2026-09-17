@@ -1,38 +1,69 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-const VALID_EMAIL = "admin@keybase.com";
-const VALID_PASSWORD = "12345";
+/**
+ * Sign-in.
+ *
+ * The page holds no credential and makes no authorization decision: it posts
+ * to /api/auth/login, and the server sets an httpOnly session cookie the
+ * browser cannot read. Nothing is written to localStorage.
+ *
+ * The visual design is unchanged from the original screen.
+ */
 
-export default function LoginPage() {
+/** Shown for every failure. The server does not say which part was wrong. */
+const GENERIC_FAILURE = "Incorrect email or password.";
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (window.localStorage.getItem("isAuthenticated") === "true") {
-      router.replace("/dashboard");
+  /**
+   * Where to land after signing in. Only a path within this app is honoured —
+   * an absolute URL in `next` would make this an open redirect.
+   */
+  const destination = (): string => {
+    const requested = searchParams.get("next");
+    if (requested && requested.startsWith("/") && !requested.startsWith("//")) {
+      return requested;
     }
-  }, [router]);
+    return "/dashboard";
+  };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (submitting) return;
     setSubmitting(true);
     setError("");
 
-    if (email.trim() === VALID_EMAIL && password === VALID_PASSWORD) {
-      window.localStorage.setItem("isAuthenticated", "true");
-      router.push("/dashboard");
-      return;
-    }
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
 
-    setError("Invalid credentials");
-    setSubmitting(false);
+      if (!response.ok) {
+        setError(GENERIC_FAILURE);
+        setSubmitting(false);
+        return;
+      }
+
+      // The session cookie is set; refresh so server components re-resolve it.
+      router.replace(destination());
+      router.refresh();
+    } catch {
+      // Never surface the underlying network or parsing error.
+      setError("Could not sign in. Please try again.");
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -119,5 +150,14 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  // useSearchParams needs a Suspense boundary above it.
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

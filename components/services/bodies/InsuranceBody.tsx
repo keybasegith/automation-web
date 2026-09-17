@@ -8,6 +8,9 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceSection from "@/components/services/ServiceSection";
+import ServiceFaq, { type FaqItem } from "@/components/services/ServiceFaq";
+import ServiceCta from "@/components/services/ServiceCta";
 
 /* The full range of solutions, organized by what they protect. */
 const SOLUTION_GROUPS = [
@@ -65,6 +68,44 @@ const PILLARS = [
   },
 ];
 
+const FAQ: FaqItem[] = [
+  {
+    question: "How much life insurance might I need?",
+    answer: [
+      "There is no standard amount. The assessment usually starts from what would still have to be covered if your income stopped: outstanding debts including a mortgage, the income your household relies on and for how long, costs such as childcare or education, and any obligations tied to a business.",
+      "Existing coverage, savings, and group benefits are then set against that total to find the shortfall. Because every input is personal, the figure comes out of a review rather than a formula.",
+    ],
+  },
+  {
+    question: "What is the difference between term and permanent life insurance?",
+    answer: [
+      "Term life insurance covers a defined period, and the coverage ends when that term does. Permanent life insurance — including whole life and universal life — is designed to remain in force for life, and generally costs more for that reason.",
+      "Term is often used for an obligation with a foreseeable end, such as a mortgage or the years until children are independent. Permanent coverage is more often used for needs that do not expire, such as estate obligations. Terms, conditions, and exclusions vary by contract.",
+    ],
+  },
+  {
+    question: "What does disability insurance cover?",
+    answer: [
+      "Disability insurance is designed to replace part of your income if illness or injury prevents you from working.",
+      "What qualifies as a disability, how long benefits are payable, the waiting period before they begin, and how much income is replaced are all defined by the individual policy — and they differ considerably between contracts, which is why the wording deserves as much attention as the premium.",
+    ],
+  },
+  {
+    question: "How can insurance support estate planning?",
+    answer: [
+      "An estate may face obligations before it can be distributed — taxes triggered at death, probate fees, legal and administrative costs, and final expenses. Life insurance can provide funds to meet those costs so that assets do not have to be sold to cover them.",
+      "Because proceeds can be paid to a named beneficiary, insurance is also used to direct value to specific people alongside the rest of an estate plan.",
+    ],
+  },
+  {
+    question: "What insurance should business owners consider?",
+    answer: [
+      "The areas that come up most often are continuity planning, key person protection, funding for shareholder agreements, and succession planning — arrangements that keep a business running, or allow ownership to change hands in an orderly way, if an owner or a critical person is lost.",
+      "The right structure depends on how the business is owned, what obligations it carries, and what the owners have already agreed between them.",
+    ],
+  },
+];
+
 /**
  * The insurance page body — every section below the hero.
  *
@@ -74,6 +115,28 @@ const PILLARS = [
 export default function InsuranceBody() {
   return (
     <>
+      {/* ---------- What it is (direct answer) ---------- */}
+      <ServiceSection
+        eyebrow="In Short"
+        heading="What is insurance planning?"
+        tone="muted"
+        divider={false}
+      >
+        <p>
+          Insurance planning is the process of identifying the financial
+          responsibilities that would remain if your income stopped, your health
+          changed, or you died — and then deciding which of those risks are
+          worth transferring to an insurer and which can reasonably be carried
+          yourself.
+        </p>
+        <p>
+          It looks at what you owe, who depends on you, what a business would
+          need in order to continue, and what an estate would have to settle.
+          Coverage is one possible answer to that assessment, not the place it
+          starts.
+        </p>
+      </ServiceSection>
+
       {/* ---------- Keybase Insurance Agency Ltd. ---------- */}
       <section className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,360px)_1fr] lg:gap-20">
@@ -236,6 +299,47 @@ export default function InsuranceBody() {
         </div>
       </section>
 
+      {/* ---------- Who it is for ---------- */}
+      <ServiceSection eyebrow="Who We Work With" heading="Who protection planning is for">
+        <p>
+          Protection planning is most relevant where other people or obligations
+          depend on your income or your assets: families carrying a mortgage or
+          raising children, couples where one income covers a disproportionate
+          share of the commitments, business owners with partners, employees, or
+          debt tied to their involvement, and people whose estate would face
+          costs at death that they would rather were not met by selling assets.
+        </p>
+        <p>
+          It is not equally relevant to everyone. Someone with no dependants, no
+          debt, and enough assets to absorb a setback may need very little. The
+          point of the review is to establish which of those descriptions fits
+          your situation before any product is discussed.
+        </p>
+      </ServiceSection>
+
+      <ServiceFaq heading="Questions about coverage." items={FAQ} tone="muted" />
+
+      <ServiceCta
+        heading="Start with the review, not the product."
+        body="An advisor with Keybase Insurance Agency Ltd. can help you identify where your current protection leaves a gap, and which coverage options are worth considering against it."
+        related={[
+          {
+            href: "/estate-planning",
+            label: "Estate Planning",
+            note: "Where insurance meets estate obligations and wealth transfer.",
+          },
+          {
+            href: "/segregated-funds",
+            label: "Segregated Funds",
+            note: "Investment funds held within an insurance contract.",
+          },
+          {
+            href: "/travel-insurance",
+            label: "Travel Insurance",
+            note: "Coverage for medical costs and disruptions away from home.",
+          },
+        ]}
+      />
     </>
   );
 }

@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+import { rateLimited, validOrigin, readSmallJson, readSmallBody } from "@/lib/public-forms/request";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -29,13 +31,17 @@ const MAX_RESUME_BYTES = 5 * 1024 * 1024;
 const RESUME_EXT_RE = /\.(pdf|doc|docx)$/i;
 
 export async function POST(req: Request) {
+  if (!validOrigin(req)) return NextResponse.json({error:"Invalid origin."},{status:403});
+  if (rateLimited(req)) return NextResponse.json({error:"Please wait before trying again."},{status:429,headers:{"Retry-After":"600"}});
+
   const contentType = req.headers.get("content-type") || "";
   let data: ApplicationFields = {};
   let resume: ResumeFile | null = null;
 
   try {
     if (contentType.includes("multipart/form-data")) {
-      const fd = await req.formData();
+      const raw = await readSmallBody(req,6*1024*1024);
+      const fd = await new Response(new Uint8Array(raw),{headers:{"Content-Type":contentType}}).formData();
       const str = (key: string) => {
         const v = fd.get(key);
         return typeof v === "string" ? v : undefined;
@@ -77,7 +83,8 @@ export async function POST(req: Request) {
         }
       }
     } else {
-      const body = await req.json();
+      const body = await readSmallJson(req);
+      if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("Invalid request");
       const json = body as ApplicationFields;
       data = { ...json, consent: json.consent === true };
     }
@@ -85,6 +92,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
+  if (Object.entries(data).some(([key,value])=>key !== "consent" && value !== undefined && (typeof value !== "string" || value.length > (key === "message" ? 5000 : 500)))) return NextResponse.json({error:"Invalid field or field too long."},{status:400});
+  if (!resume && !data.message?.trim()) return NextResponse.json({error:"Please provide a resume or a short note."},{status:400});
   if (!isString(data.firstName)) {
     return NextResponse.json(
       { error: "First name is required." },
@@ -130,45 +139,21 @@ export async function POST(req: Request) {
     resume,
   };
 
-  // Always log the application server-side as a recovery backup, so submissions
-  // are never lost even if the webhook is unset or fails. The resume bytes are
-  // omitted here — only its metadata is logged — to keep logs readable.
-  console.log(
-    "[careers]",
-    JSON.stringify({
-      ...payload,
-      resume: resume
-        ? { filename: resume.filename, type: resume.type, size: resume.size }
-        : null,
-    }),
-  );
-
+  const submissionId = randomUUID();
   const webhookUrl = process.env.CAREERS_APPLICATION_WEBHOOK_URL;
-  if (!webhookUrl) {
-    console.warn(
-      "[careers] CAREERS_APPLICATION_WEBHOOK_URL is not set — application logged above but not forwarded.",
-    );
-    return NextResponse.json({ ok: true, forwarded: false });
-  }
+  if (!webhookUrl) return NextResponse.json({error:"Online applications are temporarily unavailable. Please contact Keybase directly."},{status:503});
 
   try {
     const response = await fetch(webhookUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Idempotency-Key": submissionId },
+      signal: AbortSignal.timeout(8000), redirect:"error",
       body: JSON.stringify(payload),
     });
-    if (!response.ok) {
-      const text = await response.text().catch(() => "");
-      console.error(
-        "[careers] Webhook returned non-2xx:",
-        response.status,
-        text,
-      );
-      return NextResponse.json({ ok: true, forwarded: false });
-    }
-  } catch (err) {
-    console.error("[careers] Failed to call webhook:", err);
-    return NextResponse.json({ ok: true, forwarded: false });
+    if (!response.ok) throw new Error("Delivery rejected");
+  } catch {
+    console.error("[application] Delivery failed", submissionId);
+    return NextResponse.json({error:"Your application could not be delivered. Please try again or contact Keybase directly."},{status:502});
   }
 
   return NextResponse.json({ ok: true, forwarded: true });

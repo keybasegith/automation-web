@@ -1,4 +1,5 @@
 "use client";
+import { hasJobPage, jobPath } from "@/lib/seo/jobs";
 
 import { useRef, useState } from "react";
 import { ArrowRight, Check, MapPin, Briefcase, Upload, FileText, X } from "lucide-react";
@@ -160,7 +161,7 @@ export default function Careers({ roles }: { roles: JobPosting[] }) {
               <div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                   <h3 className="font-serif text-[24px] font-normal text-[#0a1f33]">
-                    {role.title}
+                    {hasJobPage(role) ? <a className="underline" href={jobPath(role)}>{role.title}</a> : role.title}
                   </h3>
                   <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-[0.12em] text-[#006d6e]">
                     {role.department}

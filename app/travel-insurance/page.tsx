@@ -1,12 +1,15 @@
+import ServiceResources from "@/components/services/ServiceResources";
+import ServiceNavigation from "@/components/services/ServiceNavigation";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import ServiceHero from "@/components/home/ServiceHero";
 import TravelInsuranceBody from "@/components/services/bodies/TravelInsuranceBody";
 import { getPublishedServicePage } from "@/lib/cms/public";
+import { pageMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata() {
   const page = await getPublishedServicePage("travel-insurance");
-  return { title: page.seoTitle, description: page.seoDescription };
+  return pageMetadata("/travel-insurance", page.seoTitle, page.seoDescription);
 }
 
 export default async function TravelInsurancePage() {
@@ -14,10 +17,14 @@ export default async function TravelInsurancePage() {
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
+      <ServiceNavigation />
 
-      <ServiceHero content={page} scrimClassName="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0a1f33]/80 via-[#0a1f33]/40 to-transparent" />
+      <main>
+        <ServiceHero content={page} scrimClassName="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0a1f33]/80 via-[#0a1f33]/40 to-transparent" />
 
-      <TravelInsuranceBody />
+        <TravelInsuranceBody />
+        <ServiceResources slug="travel-insurance" />
+      </main>
 
       <SiteFooter />
     </div>

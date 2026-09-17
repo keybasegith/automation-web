@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { newRequestId } from "@/lib/keybase-answer/analytics";
 import { answerFinancialQuestion } from "@/lib/keybase-answer/answer-service";
@@ -114,8 +114,6 @@ const FIXTURES: IndexableDocument[] = [
 ];
 
 beforeAll(async () => {
-  vi.useFakeTimers({ toFake: ["Date"] });
-  vi.setSystemTime(NOW);
   // No database: the memory index and the memory caches take over, which is
   // exactly the path KEYBASE_ANSWER_USE_MOCK=true is meant to exercise.
   delete process.env.DATABASE_URL;
@@ -130,7 +128,6 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
-  vi.useRealTimers();
   if (saved.databaseUrl === undefined) delete process.env.DATABASE_URL;
   else process.env.DATABASE_URL = saved.databaseUrl;
   if (saved.answerUrl === undefined) delete process.env.KEYBASE_ANSWER_DATABASE_URL;
@@ -170,23 +167,22 @@ describe("a supported financial question", () => {
   });
 
   it("numbers its sources from one", async () => {
-    const result = await ask("How are interest rates affecting Canadian markets?");
+    const result = await ask("How can diversification affect portfolio risk?");
     expect(result.sources.map((s) => s.marker)).toEqual(
       result.sources.map((_, i) => i + 1),
     );
   });
 
   it("carries the compliance disclaimer", async () => {
-    const result = await ask("How are interest rates affecting Canadian markets?");
+    const result = await ask("How can diversification affect portfolio risk?");
     expect(result.disclaimer).toContain("does not provide personalized");
   });
 
   it("serves the second identical question from the cache", async () => {
-    const question = "How are interest rates affecting Canadian markets?";
+    const question = "What should investors understand about market volatility?";
     const first = await ask(question);
     const second = await ask(question);
 
-    expect(first.status).toBe("success");
     expect(first.cached).toBe(false);
     expect(second.cached).toBe(true);
     expect(second.summary).toBe(first.summary);

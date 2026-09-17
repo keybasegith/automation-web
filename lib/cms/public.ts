@@ -1,3 +1,5 @@
+import { isCurrentJob } from "@/lib/seo/jobs";
+import { canonicalPublicHref } from "@/lib/seo/public-paths";
 import { draftMode } from "next/headers";
 import { resolveMediaRef } from "@/lib/cms/media/url";
 import { readDoc, readPublished } from "@/lib/cms/store";
@@ -87,9 +89,9 @@ export async function getPublishedFooter(): Promise<FooterContent> {
 
 export async function getPublishedNavigation(): Promise<NavContent> {
   try {
-    return await readPublished("navigation", seedNavigation);
+    return normalizeNavigation(await readPublished("navigation", seedNavigation));
   } catch {
-    return seedNavigation();
+    return normalizeNavigation(seedNavigation());
   }
 }
 
@@ -172,7 +174,7 @@ export async function getPublishedCareers(): Promise<CareersContent> {
 /** Only the visible open positions — for the public Careers page. */
 export async function getVisiblePublishedRoles(): Promise<JobPosting[]> {
   const content = await getPublishedCareers();
-  return content.roles.filter((r) => r.isVisible);
+  return content.roles.filter((r) => isCurrentJob(r));
 }
 
 /** Newsroom content (hero + all articles, including hidden). Draft in preview. */
@@ -208,4 +210,9 @@ export async function getPublishedContentPage(
   } catch {
     return seedEntry();
   }
+}
+
+function normalizeNavigation(nav: NavContent): NavContent {
+  const link = <T extends { url: string }>(item: T): T => ({ ...item, url: canonicalPublicHref(item.url) });
+  return { ...nav, items: nav.items.map((item) => ({ ...link(item), children: item.children.map(link) })), utilityLinks: nav.utilityLinks.map(link) };
 }

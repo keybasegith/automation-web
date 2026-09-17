@@ -1,5 +1,6 @@
 import { Check, MapPin, Users, PlaneLanding, GraduationCap } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceCta from "@/components/services/ServiceCta";
 
 /* The situations travel insurance is built for. */
 const SCENARIOS = [
@@ -166,6 +167,23 @@ export default function TravelInsuranceBody() {
         </div>
       </section>
 
+      <ServiceCta
+        heading="Check the coverage before you go."
+        body="An advisor with Keybase Insurance Agency Ltd. can help you compare travel coverage options against the trip you are actually taking, and confirm what you are eligible for."
+        tone="muted"
+        related={[
+          {
+            href: "/insurance",
+            label: "Insurance",
+            note: "Where travel coverage sits among living benefits.",
+          },
+          {
+            href: "/wealth-building",
+            label: "Wealth Planning",
+            note: "Protecting a plan against unexpected costs.",
+          },
+        ]}
+      />
     </>
   );
 }

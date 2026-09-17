@@ -45,7 +45,7 @@ function clean(value: unknown): unknown {
 }
 
 /** Wraps one or more nodes into a single document with the schema.org context. */
-export function schemaDocument(nodes: SchemaNode[]): SchemaNode | null {
+export function schemaDocument(nodes: (SchemaNode | null)[]): SchemaNode | null {
   const present = nodes.filter(Boolean);
   if (present.length === 0) return null;
   if (present.length === 1) return { "@context": SCHEMA_CONTEXT, ...present[0] };

@@ -1,10 +1,16 @@
+import { requireCurrentUser } from "@/lib/currentUser";
+
 /**
  * Who is acting.
  *
- * This tool runs behind the internal app's existing perimeter and has no
- * sign-in of its own yet. `getActingFinanceUser` is the single seam to replace
- * when real authentication arrives — every route and audit entry goes through
- * it, so nothing else needs to change.
+ * `getActingFinanceUser` is the seam this file always described, now wired to
+ * the real dashboard session: every route and audit entry goes through
+ * `authorize`, so signing in is what grants finance access, and the actor
+ * recorded against a statement package is the person who signed in.
+ *
+ * Roles are not yet per-person — the single internal account acts as finance
+ * admin. When SSO brings real roles, `getActingFinanceUser` maps them onto
+ * FinanceRole and the permission table below starts doing real work.
  */
 
 export type FinanceRole = "finance_admin" | "finance_user" | "read_only";
@@ -19,14 +25,9 @@ export type FinanceAction =
   | "upload" | "generate" | "edit_mapping" | "resolve_exception"
   | "finalize" | "reopen" | "export" | "view";
 
-const DEFAULT_ACTOR: FinanceActor = {
-  id: "internal-finance",
-  name: "Finance (internal)",
-  role: "finance_admin",
-};
-
-export function getActingFinanceUser(): FinanceActor {
-  return DEFAULT_ACTOR;
+export async function getActingFinanceUser(): Promise<FinanceActor> {
+  const user = await requireCurrentUser();
+  return { id: user.id, name: user.name, role: "finance_admin" };
 }
 
 const PERMISSIONS: Record<FinanceRole, FinanceAction[]> = {
@@ -42,8 +43,8 @@ export class FinanceAuthorizationError extends Error {
   }
 }
 
-export function authorize(action: FinanceAction): FinanceActor {
-  const actor = getActingFinanceUser();
+export async function authorize(action: FinanceAction): Promise<FinanceActor> {
+  const actor = await getActingFinanceUser();
   if (!PERMISSIONS[actor.role].includes(action)) {
     throw new FinanceAuthorizationError(action, actor.role);
   }

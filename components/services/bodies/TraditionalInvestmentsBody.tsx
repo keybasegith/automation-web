@@ -13,6 +13,9 @@ import {
   LineChart,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceSection from "@/components/services/ServiceSection";
+import ServiceFaq, { type FaqItem } from "@/components/services/ServiceFaq";
+import ServiceCta from "@/components/services/ServiceCta";
 
 /* The building blocks of a traditional portfolio. */
 const ASSET_CLASSES = [
@@ -91,6 +94,44 @@ const GIC_FIT = [
   },
 ];
 
+const FAQ: FaqItem[] = [
+  {
+    question: "What is an investment strategy?",
+    answer: [
+      "An investment strategy is the set of decisions that connect a portfolio to a purpose: what the money is for, when it will be needed, how much fluctuation you can accept along the way, and therefore how it is divided among equities, fixed income, and cash equivalents.",
+      "It also sets the rules you intend to follow when markets move — how often to rebalance, and what would genuinely justify changing course.",
+    ],
+  },
+  {
+    question: "How is risk tolerance determined?",
+    answer: [
+      "Through a structured conversation rather than a single score. It weighs your financial capacity to absorb a loss — your time horizon, the stability of your income, and how much of your wealth is at stake — against your willingness to live through one.",
+      "The two do not always agree. Where they differ, a plan generally respects the more conservative of the pair, because a strategy abandoned partway through a downturn will not deliver what it was designed to.",
+    ],
+  },
+  {
+    question: "What is diversification?",
+    answer: [
+      "Spreading investments across different companies, sectors, asset classes, and regions so that no single holding or market determines the outcome.",
+      "It does not remove the risk of loss, and in a broad market decline most holdings can fall together. What it reduces is concentration — the damage that one disappointing company, industry, or country can do to a portfolio as a whole.",
+    ],
+  },
+  {
+    question: "What is the difference between mutual funds and ETFs?",
+    answer: [
+      "Both pool money from many investors into a diversified portfolio. The difference lies in how they are structured and traded: conventional exchange-traded funds trade on a stock exchange throughout the day, at prices that move with it.",
+      "The ETF solutions offered through Keybase are mutual fund ETFs — mutual funds that hold ETFs as their underlying investments — so they are typically priced once per day at net asset value rather than trading continuously.",
+    ],
+  },
+  {
+    question: "Where can GICs fit into a portfolio?",
+    answer: [
+      "A guaranteed investment certificate provides a set return over a fixed term, which suits the part of a portfolio that should not fluctuate — a near-term goal, or the conservative fixed-income component of a longer-term strategy. Staggering maturity dates can help manage access to cash across changing interest rate environments.",
+      "The trade-off is commitment: funds are generally tied up for the term, so a GIC is chosen for stability rather than flexibility.",
+    ],
+  },
+];
+
 /**
  * The traditional-investments page body — every section below the hero.
  *
@@ -100,6 +141,27 @@ const GIC_FIT = [
 export default function TraditionalInvestmentsBody() {
   return (
     <>
+      {/* ---------- What they are (direct answer) ---------- */}
+      <ServiceSection
+        eyebrow="In Short"
+        heading="What are traditional investments?"
+        tone="muted"
+        divider={false}
+      >
+        <p>
+          Traditional investments are the long-established asset classes most
+          portfolios are built from — equities, fixed income, and cash
+          equivalents — usually accessed through pooled solutions such as mutual
+          funds, mutual fund ETFs, and guaranteed investment certificates.
+        </p>
+        <p>
+          They trade in public markets or through regulated deposit products,
+          are generally straightforward to buy and sell, and are valued and
+          reported on a regular basis. How much of each belongs in a portfolio
+          depends on your goals, your time horizon, and your tolerance for risk.
+        </p>
+      </ServiceSection>
+
       {/* ---------- Overview ---------- */}
       <section className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,360px)_1fr] lg:gap-20">
@@ -325,6 +387,57 @@ export default function TraditionalInvestmentsBody() {
         </div>
       </section>
 
+      {/* ---------- Matching investments to goals ---------- */}
+      <ServiceSection eyebrow="Matching Investments to Goals" heading="How the right mix is chosen">
+        <p>
+          No asset class is right or wrong on its own — suitability depends on
+          what the money is for and when you will need it. A goal a decade or
+          more away can generally tolerate more short-term fluctuation in
+          exchange for growth potential, while money needed within a year or two
+          is usually held in something far less volatile.
+        </p>
+        <p>
+          From there, portfolio construction is a question of proportion: how
+          much in equity funds for growth, how much in fixed income for
+          stability and income, and how much in cash-equivalent or guaranteed
+          holdings for near-term needs. Diversifying across companies, sectors,
+          and regions limits how much any single holding can affect the result.
+        </p>
+        <p>
+          These solutions tend to suit investors building long-term wealth
+          through regular contributions, those consolidating scattered accounts
+          into one coherent strategy, investors seeking income from their
+          portfolio, and people who would rather have a professional manage the
+          day-to-day decisions. A Keybase Financial Group advisor works through
+          your goals, time horizon, and risk tolerance with you, then recommends
+          a mix suited to that assessment and revisits it as circumstances
+          change.
+        </p>
+      </ServiceSection>
+
+      <ServiceFaq heading="Questions about investing." items={FAQ} tone="muted" />
+
+      <ServiceCta
+        heading="Build a portfolio with a purpose behind it."
+        body="A Keybase advisor can review your goals, time horizon, and tolerance for risk, then recommend a mix of traditional investments suited to them."
+        related={[
+          {
+            href: "/alternative-investments",
+            label: "Alternative Investments",
+            note: "Private market strategies beyond public equities and bonds.",
+          },
+          {
+            href: "/non-registered-investments",
+            label: "Non-Registered Investments",
+            note: "Investing beyond the limits of registered plans.",
+          },
+          {
+            href: "/wealth-building",
+            label: "Wealth Planning",
+            note: "Setting the goals a portfolio is built to serve.",
+          },
+        ]}
+      />
     </>
   );
 }

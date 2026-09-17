@@ -1,5 +1,8 @@
 import { Check } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceSection from "@/components/services/ServiceSection";
+import ServiceFaq, { type FaqItem } from "@/components/services/ServiceFaq";
+import ServiceCta from "@/components/services/ServiceCta";
 
 const CONSIDERATIONS = [
   "Investment income allocation",
@@ -14,6 +17,44 @@ const CONSIDERATIONS = [
   "Tax shelter considerations",
 ];
 
+const FAQ: FaqItem[] = [
+  {
+    question: "When should tax planning happen?",
+    answer: [
+      "Throughout the year, rather than at year end. By the time a return is being prepared, most of the decisions that shape it — where an investment was held, when a gain was realised, which account income was drawn from — have already been made.",
+      "Building tax considerations into the plan from the start is what keeps those choices open.",
+    ],
+  },
+  {
+    question: "Why are different types of investment income taxed differently?",
+    answer: [
+      "Canadian tax rules treat interest, eligible dividends, and capital gains under different sets of rules, so two investments producing the same return can leave you with different amounts once tax is applied.",
+      "Registered accounts add a further layer: growth inside them is sheltered, and what happens on withdrawal depends on the type of account. Which kind of income a holding produces is therefore part of deciding where to hold it.",
+    ],
+  },
+  {
+    question: "What is asset location?",
+    answer: [
+      "Asset location is the decision about which account an investment sits in — as distinct from asset allocation, which is the decision about what to hold in the first place.",
+      "Because account types shelter and tax income differently, placing holdings thoughtfully across registered and non-registered accounts can improve after-tax returns without changing the overall investment mix at all.",
+    ],
+  },
+  {
+    question: "How does tax planning connect to retirement?",
+    answer: [
+      "Retirement is where years of accumulated decisions come due. The order in which registered, tax-free, and non-registered accounts are drawn affects your taxable income each year, which in turn can affect income-tested government benefits.",
+      "Planning that sequence in advance is generally more effective than reacting to it once withdrawals are already underway.",
+    ],
+  },
+  {
+    question: "Does tax-efficient investing mean paying no tax?",
+    answer: [
+      "No. The aim is coordination rather than avoidance — reducing unnecessary tax so that more of your return stays invested and working toward the plan.",
+      "Tax outcomes depend on your individual circumstances and on rules that change over time, which is why a strategy is reviewed periodically rather than set once and left alone.",
+    ],
+  },
+];
+
 /**
  * The tax-planning page body — every section below the hero.
  *
@@ -23,6 +64,27 @@ const CONSIDERATIONS = [
 export default function TaxPlanningBody() {
   return (
     <>
+      {/* ---------- What it is (direct answer) ---------- */}
+      <ServiceSection
+        eyebrow="In Short"
+        heading="What is tax-efficient investing?"
+        tone="muted"
+        divider={false}
+      >
+        <p>
+          Tax-efficient investing means structuring a portfolio around what you
+          keep after tax rather than what it earns before it. Different kinds of
+          investment income — interest, dividends, and capital gains — are taxed
+          under different rules, and registered accounts treat growth and
+          withdrawals differently again.
+        </p>
+        <p>
+          Coordinating which assets are held where, when gains are realised, and
+          in what order income is drawn is what turns a set of individual
+          investment decisions into a tax-aware strategy.
+        </p>
+      </ServiceSection>
+
       {/* ---------- Keep More of What You Earn ---------- */}
       <section className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,360px)_1fr] lg:gap-20">
@@ -178,6 +240,48 @@ export default function TaxPlanningBody() {
         </div>
       </section>
 
+      {/* ---------- Where it makes the most difference ---------- */}
+      <ServiceSection eyebrow="Who We Work With" heading="Where tax planning makes the most difference" tone="muted">
+        <p>
+          Tax planning has the largest effect where income is high, uneven, or
+          drawn from several sources at once. That includes investors holding
+          assets outside registered accounts, people whose registered
+          contribution room is already used, business owners and incorporated
+          professionals balancing salary against dividends, those close enough to
+          retirement that withdrawal order starts to matter, and anyone planning
+          the transfer of assets to the next generation.
+        </p>
+        <p>
+          It also matters earlier than most people expect. Decisions about where
+          an investment is held are easiest to make when an account is opened —
+          changing course years later can itself trigger tax.
+        </p>
+      </ServiceSection>
+
+      <ServiceFaq heading="Questions about tax planning." items={FAQ} tone="white" />
+
+      <ServiceCta
+        heading="Keep more of what your portfolio earns."
+        body="A Keybase advisor can review how your accounts, income, and investments are currently structured, and show you where a more tax-aware approach would make a difference."
+        tone="muted"
+        related={[
+          {
+            href: "/retirement-planning",
+            label: "Retirement Planning",
+            note: "Where withdrawal order and benefit timing meet tax.",
+          },
+          {
+            href: "/non-registered-investments",
+            label: "Non-Registered Investments",
+            note: "Investing outside registered plans, with tax in mind.",
+          },
+          {
+            href: "/estate-planning",
+            label: "Estate Planning",
+            note: "The tax an estate triggers, and how it is planned for.",
+          },
+        ]}
+      />
     </>
   );
 }

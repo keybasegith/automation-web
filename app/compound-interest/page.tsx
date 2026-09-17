@@ -18,7 +18,7 @@ export default function CompoundInterestPage() {
         </p>
       </header>
 
-      <CompoundInterestCalculator />
+      <CompoundInterestCalculator headingLevel="h3" />
     </div>
   );
 }

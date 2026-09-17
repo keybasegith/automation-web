@@ -1,124 +1,42 @@
+import BreadcrumbSchema from "@/components/seo/BreadcrumbSchema";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import KeyExecutives, { type Executive } from "@/components/home/KeyExecutives";
-import { getVisiblePublishedExecutives } from "@/lib/cms/public";
+import { getLeadershipProfiles, profilePathIfReady } from "@/lib/people/leadership";
+import type { PersonProfile } from "@/lib/people/types";
+import JsonLd from "@/lib/seo/jsonLd";
+import { keybasePeopleSchema } from "@/lib/seo/keybase";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata = {
-  title: "Key Executives — Keybase Financial Group",
-  description:
-    "Meet the leadership team of Keybase Financial Group — seasoned professionals across wealth management, compliance, and corporate strategy.",
-};
+export const metadata = pageMetadata("/key-executives", "Key Executives — Keybase Financial Group", "Meet the leadership team of Keybase Financial Group — seasoned professionals across wealth management, compliance, and corporate strategy.");
 
 // Always render fresh so edits made in the /website-admin-cms ERP appear immediately.
 export const dynamic = "force-dynamic";
 
-// Fallback list used only if the CMS store can't be read. The /website-admin-cms ERP is the
-// source of truth; its seed already contains this same content.
-const FALLBACK_LEADERSHIP: Executive[] = [
-  {
-    name: "Dax Sukhraj",
-    title: "President & CEO",
-    photo: "/dax-profile-updated.jpg",
-    ceoMessage: true,
-    lead: "Dax Sukhraj is President & CEO at Keybase Financial Group.",
-    paragraphs: [
-      "As President & CEO, Mr. Sukhraj sets the strategic direction of the firm, championing an independent, client-first model built on transparency and disciplined advice.",
-      "Prior to leading Keybase, he held senior roles across wealth management and capital markets, advising individuals, families, and institutions through every stage of the market cycle.",
-      "Mr. Sukhraj has more than two decades of experience in the financial services industry and remains personally committed to building durable relationships that span generations.",
-    ],
-  },
-  {
-    name: "Linda Yang",
-    title: "Vice President, Chief Financial Officer",
-    comingSoon: true,
-    lead: "Linda Yang is Vice President and Chief Financial Officer at Keybase Financial Group.",
-    paragraphs: [
-      "Ms. Yang oversees the firm's financial management, reporting, and capital planning, ensuring a strong and disciplined financial foundation.",
-      "She brings extensive experience in finance and corporate strategy across the financial services industry, with a focus on stability, transparency, and responsible growth.",
-      "Ms. Yang is dedicated to maintaining the financial integrity that underpins the trust clients and advisors place in Keybase.",
-    ],
-  },
-  {
-    name: "Keith Sutherland",
-    title: "Vice President, System Development and Support",
-    photo: "/keith-profile2.jpg",
-    lead: "Keith Sutherland is Vice President, System Development and Support at Keybase Financial Group.",
-    paragraphs: [
-      "Mr. Sutherland leads the firm's technology systems, development, and support, building the digital infrastructure that powers a modern advisory experience.",
-      "He brings extensive experience in systems development and technical operations across the financial services industry, with a focus on reliability, security, and innovation.",
-      "Mr. Sutherland is dedicated to delivering the tools and platforms that help advisors serve clients seamlessly and securely.",
-    ],
-  },
-  {
-    name: "Krissy Sukhraj",
-    title: "Director of Marketing & Corporate Strategy",
-    photo: "/krissy-newprofile.jpg",
-    photoClassName: "scale-110",
-    lead: "Krissy Sukhraj is Director of Marketing & Corporate Strategy at Keybase Financial Group.",
-    paragraphs: [
-      "Ms. Sukhraj shapes the firm's brand, client experience, and long-term strategic direction, connecting the Keybase story with the families and institutions it serves.",
-      "She brings extensive experience across marketing, communications, and corporate strategy, with a focus on building meaningful, lasting client relationships.",
-      "Ms. Sukhraj leads the firm's growth initiatives and is dedicated to ensuring the Keybase experience is clear, personal, and consistent at every touchpoint.",
-    ],
-    href: "/businesscard-krissy",
-  },
-  {
-    name: "Mark Garcia",
-    title: "Chief Compliance Officer",
-    photo: "/mark-newprofilepic.jpg",
-    lead: "Mark Garcia is Chief Compliance Officer at Keybase Financial Group.",
-    paragraphs: [
-      "Mr. Garcia oversees the firm's regulatory, risk, and governance framework, ensuring every client engagement meets the highest standards of integrity and fiduciary care.",
-      "He has held senior compliance and risk leadership roles across the financial services industry, building programs that protect clients while enabling responsible growth.",
-      "Mr. Garcia is recognized for embedding a culture of accountability and transparency throughout every level of the organization.",
-    ],
-    href: "/businesscard-mark",
-  },
-  {
-    name: "Pushpa Shivanthan",
-    title: "Vice President, Back Office Administration",
-    photo: "/pushpa-profile2.jpg",
-    lead: "Pushpa Shivanthan is Vice President, Back Office Administration at Keybase Financial Group.",
-    paragraphs: [
-      "Mr. Shivanthan leads the firm's back office and administrative operations, ensuring accurate, timely, and seamless support across every client and advisor interaction.",
-      "He brings extensive experience in operations and administration across the financial services industry, with a focus on accuracy, efficiency, and reliability.",
-      "Mr. Shivanthan is committed to building the disciplined processes and systems that keep the firm running smoothly behind the scenes.",
-    ],
-  },
-  {
-    name: "Jerome Pare",
-    title: "Senior I.T. Specialist",
-    photo: "/jerome-profile.jpg",
-    lead: "Jerome Pare is Senior I.T. Specialist at Keybase Financial Group.",
-    paragraphs: [
-      "Mr. Pare supports the firm's information technology systems, ensuring secure, reliable, and responsive infrastructure across the organization.",
-      "He brings hands-on experience across IT operations, security, and support within the financial services industry.",
-      "Mr. Pare is dedicated to keeping the firm's technology running smoothly so advisors and staff can focus on serving clients.",
-    ],
-  },
-];
-
-async function loadLeadership(): Promise<Executive[]> {
-  try {
-    const people = await getVisiblePublishedExecutives();
-    if (people.length === 0) return FALLBACK_LEADERSHIP;
-    return people.map((r) => ({
-      name: r.name,
-      title: r.title,
-      lead: r.lead,
-      paragraphs: r.paragraphs,
-      photo: r.photoUrl ?? undefined,
-      photoClassName: r.photoClass ?? undefined,
-      comingSoon: r.comingSoon,
-      ceoMessage: r.ceoMessage,
-      href: r.href ?? undefined,
-    }));
-  } catch {
-    // Never let a store hiccup take down a public marketing page.
-    return FALLBACK_LEADERSHIP;
-  }
+/**
+ * The team, as one list of people.
+ *
+ * The seven biographies that used to be transcribed into this file as a
+ * fallback now live in the people registry (lib/people/people.ts), which is
+ * also what seeds the CMS — so there is one copy of each person, not three.
+ * `getLeadershipProfiles` merges the CMS's published edits over the registry
+ * and falls back to it if the store cannot be read.
+ */
+function toCard(person: PersonProfile): Executive {
+  return {
+    name: person.name,
+    title: person.role ?? "",
+    lead: person.shortBio ?? "",
+    paragraphs: person.bio ?? [],
+    photo: person.image?.src,
+    photoAlt: person.image?.alt,
+    photoClassName: person.image?.className,
+    comingSoon: person.portraitPending,
+    ceoMessage: person.authoredPagePath === "/ceo-message",
+    profilePath: profilePathIfReady(person),
+  };
 }
 
 function Crumb({ label, href }: { label: string; href?: string }) {
@@ -132,11 +50,12 @@ function Crumb({ label, href }: { label: string; href?: string }) {
 }
 
 export default async function KeyExecutivesPage() {
-  const leadership = await loadLeadership();
+  const leadership = await getLeadershipProfiles();
 
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
+      <BreadcrumbSchema items={[{ name: "Key Executives", path: "/key-executives" }]} />
 
       <main className="mx-auto max-w-[1280px] px-5 pb-24 pt-10 sm:px-8 sm:pb-28 sm:pt-14">
         {/* Breadcrumb */}
@@ -157,8 +76,11 @@ export default async function KeyExecutivesPage() {
 
         {/* Interactive executives */}
         <div className="mt-10 sm:mt-12">
-          <KeyExecutives people={leadership} />
+          <KeyExecutives people={leadership.map(toCard)} />
         </div>
+
+        {/* Person entities for the published leadership team. */}
+        <JsonLd data={keybasePeopleSchema(leadership)} />
       </main>
 
       <SiteFooter />

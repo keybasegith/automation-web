@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(_request: Request, ctx: { params: Promise<{ packageId: string }> }) {
   try {
-    authorize("view");
+    await authorize("view");
     const { packageId } = await ctx.params;
     return Response.json({ events: await store.listAudit(packageId) });
   } catch (error) {

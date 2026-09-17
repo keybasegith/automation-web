@@ -28,7 +28,7 @@ export default function ServicesTabs({ items }: { items: TabItem[] }) {
   const [openedAt, setOpenedAt] = useState<string | null>(null);
   const open = openedAt === pathname;
 
-  const activeSlug = pathname.split("/")[2] ?? "";
+  const activeSlug = pathname.split("/").filter(Boolean).at(-1) ?? "";
   const active = items.find((i) => i.slug === activeSlug) ?? items[0];
   const category = active?.category ?? "";
 
@@ -37,7 +37,10 @@ export default function ServicesTabs({ items }: { items: TabItem[] }) {
 
   /* top-[69px] parks the bar directly under the sticky site header (h-68 + 1px border). */
   return (
-    <div className="sticky top-[69px] z-30 border-b border-black/10 bg-white/95 backdrop-blur">
+    <nav
+      aria-label="Services"
+      className="sticky top-[69px] z-30 border-b border-black/10 bg-white/95 backdrop-blur"
+    >
       <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
         {/* ---------- Desktop: two rows of underline tabs ---------- */}
         <div className="hidden lg:block">
@@ -50,7 +53,7 @@ export default function ServicesTabs({ items }: { items: TabItem[] }) {
               return (
                 <Link
                   key={c}
-                  href={`/services/${first.slug}`}
+                  href={`/${first.slug}`}
                   aria-current={isActive ? "true" : undefined}
                   className={`-mb-px border-b-2 py-4 text-[12px] font-semibold uppercase tracking-[0.08em] transition-colors ${
                     isActive
@@ -72,7 +75,7 @@ export default function ServicesTabs({ items }: { items: TabItem[] }) {
                 return (
                   <Link
                     key={i.slug}
-                    href={`/services/${i.slug}`}
+                    href={`/${i.slug}`}
                     aria-current={isActive ? "page" : undefined}
                     className={`text-[15px] transition-colors ${
                       isActive
@@ -126,7 +129,7 @@ export default function ServicesTabs({ items }: { items: TabItem[] }) {
                         return (
                           <Link
                             key={i.slug}
-                            href={`/services/${i.slug}`}
+                            href={`/${i.slug}`}
                             aria-current={isActive ? "page" : undefined}
                             className={`block py-2 text-[15px] ${
                               isActive
@@ -145,6 +148,6 @@ export default function ServicesTabs({ items }: { items: TabItem[] }) {
           )}
         </div>
       </div>
-    </div>
+    </nav>
   );
 }

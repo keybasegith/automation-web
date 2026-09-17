@@ -7,5 +7,5 @@ import { getServiceTabs } from "@/lib/services/tabs";
  */
 export default async function ServicesPage() {
   const items = await getServiceTabs();
-  redirect(`/services/${items[0]?.slug ?? "wealth-building"}`);
+  redirect(`/${items[0]?.slug ?? "wealth-building"}`);
 }

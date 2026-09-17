@@ -1,3 +1,6 @@
+import JsonLd from "@/lib/seo/jsonLd";
+import { buildBreadcrumbs } from "@/lib/seo/schema/breadcrumbs";
+import { schemaDocument } from "@/lib/seo/schema/types";
 import Link from "next/link";
 import { ChevronRight, ArrowRight } from "lucide-react";
 import type { ServicePageContent } from "@/lib/cms/types";
@@ -83,6 +86,11 @@ export default function ServiceHero({
 }) {
   return (
     <section className="relative overflow-hidden border-b border-black/10 bg-[#0a1f33] text-white">
+      <JsonLd data={schemaDocument([buildBreadcrumbs([
+        { name: "Home", path: "/" },
+        { name: content.eyebrow, path: "/#what-we-do" },
+        { name: content.breadcrumbLabel, path: `/${content.slug}` },
+      ])])} />
       {/* Raw <img> (not next/image): a full-bleed ken-burns background layer. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -91,6 +99,7 @@ export default function ServiceHero({
         aria-hidden
         className={`${framingClassName} pointer-events-none absolute inset-0 h-full w-full object-cover`}
       />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[#0a1f33]/60 sm:bg-transparent" />
       {/* light left-side scrim keeps the copy legible without darkening the image */}
       <div className={scrimClassName} aria-hidden />
 

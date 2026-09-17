@@ -350,12 +350,12 @@ export const CANADA_INFLATION_JULY_2026: InsightArticle = {
 
   relatedServices: [
     {
-      href: "/services/traditional-investments",
+      href: "/traditional-investments",
       label: "Traditional Investments",
       note: "How we build diversified portfolios around objectives and time horizons rather than forecasts.",
     },
     {
-      href: "/services/wealth-building",
+      href: "/wealth-building",
       label: "Wealth Building",
       note: "Planning designed to hold up across more than one economic environment.",
     },

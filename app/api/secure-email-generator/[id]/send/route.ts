@@ -1,3 +1,4 @@
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth/guard";
 import { getComplianceSettings } from "@/lib/db/compliance";
 import { resolveUserByPin } from "@/lib/secureEmail/pinResolver";
 import { markDraftSent } from "@/lib/secureEmail/repo";
@@ -34,6 +35,8 @@ export async function POST(
   request: Request,
   ctx: { params: Promise<{ id: string }> }
 ) {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   if (!isServerSupabaseConfigured()) {
     return Response.json(
       { error: "Database is not configured." },

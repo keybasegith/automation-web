@@ -1,9 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/analytics/events";
 import { useState } from "react";
 import { ArrowRight, Check } from "lucide-react";
 
 type FormState = {
+  website: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -14,6 +17,7 @@ type FormState = {
 };
 
 const INITIAL: FormState = {
+  website: "",
   firstName: "",
   lastName: "",
   email: "",
@@ -38,8 +42,24 @@ const fieldClass =
 const labelClass =
   "mb-2 block text-[13px] font-semibold tracking-wide text-[#1a2433]";
 
-export default function ContactForm() {
-  const [form, setForm] = useState<FormState>(INITIAL);
+/**
+ * The site's inquiry form.
+ *
+ * `advisorName` lets an advisor's "Request a meeting" link arrive here with the
+ * request already addressed: the form says who it is for, and seeds the message
+ * so the named advisor reaches whoever reads the inquiry. It travels in the
+ * existing `message` field rather than a new one, so no change to the intake
+ * endpoint is needed and nothing can silently drop it. The visitor can edit or
+ * delete the sentence like any other text they typed.
+ */
+export default function ContactForm({ advisorName }: { advisorName?: string } = {}) {
+  const [form, setForm] = useState<FormState>(() =>
+    advisorName
+      ? { ...INITIAL, message: `I would like to request a meeting with ${advisorName}. ` }
+      : INITIAL,
+  );
+  const router = useRouter();
+  const [started, setStarted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -81,6 +101,8 @@ export default function ContactForm() {
         throw new Error(data?.error || "Something went wrong. Please try again.");
       }
       setDone(true);
+      trackEvent("generate_lead", {form_name:"contact"});
+      router.push("/contact/thank-you");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Submission failed.");
       setSubmitting(false);
@@ -97,7 +119,7 @@ export default function ContactForm() {
           Thank you — we&apos;ve received your inquiry.
         </h3>
         <p className="mt-4 text-[15px] leading-relaxed text-[#5b6573]">
-          A Keybase advisor will be in touch within one business day. If your
+          Your inquiry has been sent to Keybase. If your
           matter is time-sensitive, please call us at{" "}
           <a href="tel:+19057097911" className="font-semibold text-[#0a1f33]">
             905-709-7911
@@ -111,9 +133,18 @@ export default function ContactForm() {
   return (
     <form
       onSubmit={handleSubmit}
+      onFocus={() => { if (!started) { setStarted(true); trackEvent("form_start", {form_name:"contact"}); } }}
       noValidate
       className="rounded-xl border border-black/10 bg-white p-8 shadow-[0_1px_3px_rgba(10,31,51,0.06)] sm:p-10"
     >
+      <div hidden aria-hidden="true"><label htmlFor="contact-website">Website</label><input id="contact-website" name="website" autoComplete="off" tabIndex={-1} value={form.website} onChange={(e) => update("website", e.target.value)} /></div>
+      {advisorName && (
+        <p className="mb-6 border-l-2 border-[#006d6e] bg-[#f5f8f8] px-4 py-3 text-[14px] leading-relaxed text-[#1a2433]">
+          Your request will be passed to{" "}
+          <span className="font-semibold">{advisorName}</span>.
+        </p>
+      )}
+
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="firstName" className={labelClass}>

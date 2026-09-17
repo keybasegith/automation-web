@@ -47,7 +47,7 @@ export async function POST(
   await upsertCrqDraft({ submissionId, draft });
   await updateSubmissionStatus(submissionId, "crq_draft_created");
 
-  const acting = getActingUser();
+  const acting = await getActingUser();
   const h = await headers();
   await createAuditLog({
     submissionId,
@@ -127,7 +127,7 @@ export async function PATCH(
   await upsertCrqDraft({ submissionId, draft: next });
 
   if (Object.keys(edited).length > 0) {
-    const acting = getActingUser();
+    const acting = await getActingUser();
     const h = await headers();
     await createAuditLog({
       submissionId,

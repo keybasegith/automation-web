@@ -85,7 +85,7 @@ export default function TriviaForm() {
 
   return (
     <div className="min-h-screen w-full bg-white text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-5 py-8 sm:px-8 sm:py-12">
+      <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-5 py-8 sm:px-8 sm:py-12">
         <div className="flex flex-col items-center text-center">
           <Image
             src="/keybase-logo%20copy.png"
@@ -190,7 +190,7 @@ export default function TriviaForm() {
             Group.
           </p>
         </form>
-      </div>
+      </main>
     </div>
   );
 }

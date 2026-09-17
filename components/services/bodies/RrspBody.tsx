@@ -11,6 +11,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceCta from "@/components/services/ServiceCta";
 
 /* What an RRSP can hold. */
 const INVESTMENTS = ["Mutual Funds", "Equities", "Bonds", "GICs"];
@@ -390,6 +391,28 @@ export default function RrspBody() {
         </div>
       </section>
 
+      <ServiceCta
+        heading="Put your RRSP to work inside a wider plan."
+        body="A Keybase advisor can help you decide how much to contribute, what to hold inside the plan, and how it should eventually be drawn down in retirement."
+        tone="muted"
+        related={[
+          {
+            href: "/retirement-planning",
+            label: "Retirement Planning",
+            note: "Where RRSP savings become retirement income.",
+          },
+          {
+            href: "/tfsa",
+            label: "TFSAs",
+            note: "The tax-free account most often used alongside an RRSP.",
+          },
+          {
+            href: "/tax-planning",
+            label: "Tax Planning",
+            note: "Deductions today, taxable withdrawals later — coordinated.",
+          },
+        ]}
+      />
     </>
   );
 }

@@ -17,7 +17,7 @@ export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
-    const actor = authorize("edit_mapping");
+    const actor = await authorize("edit_mapping");
 
     const form = await request.formData();
     const file = form.get("file");

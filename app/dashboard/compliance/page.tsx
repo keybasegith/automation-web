@@ -5,7 +5,7 @@ import {
   updateComplianceSettings,
   type ComplianceSettings,
 } from "@/lib/db/compliance";
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 import { isServerSupabaseConfigured } from "@/lib/supabaseClient";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +32,7 @@ const splitLines = (raw: FormDataEntryValue | null): string[] => {
 async function saveSettings(formData: FormData) {
   "use server";
 
-  const user = getCurrentUser();
+  const user = await requireCurrentUser();
   await updateComplianceSettings({
     signature:
       (formData.get("signature") as string)?.trim() ||

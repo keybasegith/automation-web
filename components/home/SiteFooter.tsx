@@ -1,7 +1,9 @@
+import { isIndexableDeployment } from "@/lib/seo/deployment";
+import ConsentAnalytics from "@/components/analytics/ConsentAnalytics";
 import Image from "next/image";
 import Link from "next/link";
-import ComplaintHandlingProcess from "./ComplaintHandlingProcess";
-import PrivacyPolicy from "./PrivacyPolicy";
+import JsonLd from "@/lib/seo/jsonLd";
+import { keybaseOrganizationSchema } from "@/lib/seo/keybase";
 import {
   getPublishedFooter,
   getPublishedGlobalSettings,
@@ -62,9 +64,10 @@ function Social({
 }
 
 export default async function SiteFooter() {
-  const [footer, settings] = await Promise.all([
+  const [footer, settings, organization] = await Promise.all([
     getPublishedFooter(),
     getPublishedGlobalSettings(),
+    keybaseOrganizationSchema(),
   ]);
 
   const copyright = settings.copyrightText.replace(
@@ -74,6 +77,11 @@ export default async function SiteFooter() {
 
   return (
     <footer id="contact" className="border-t border-black/10 bg-white">
+      {/* The sitewide Organization entity. It lives here because the footer is
+          the one component every public marketing page renders exactly once —
+          putting it in the root layout would also emit it on the internal tools,
+          and putting it in a page would repeat it per route. */}
+      <JsonLd data={organization} />
       <div className="mx-auto max-w-[1280px] px-5 py-16 sm:px-8">
         {/* Top: brand + social */}
         <div className="flex flex-col gap-8 border-b border-black/10 pb-10 md:flex-row md:items-center md:justify-between">
@@ -90,7 +98,7 @@ export default async function SiteFooter() {
             <span className="mr-1 text-sm font-semibold tracking-wide text-[#5b6573]">
               FOLLOW US
             </span>
-            {settings.socialLinks.map((s) => (
+            {settings.socialLinks.filter((s) => { try { return new URL(s.url).pathname !== "/"; } catch { return false; } }).map((s) => (
               <Social
                 key={`${s.platform}-${s.url}`}
                 label={s.label}
@@ -101,13 +109,19 @@ export default async function SiteFooter() {
           </div>
         </div>
 
-        {/* Link columns */}
-        <div className="grid grid-cols-2 gap-8 py-10 md:grid-cols-3">
+        {/* Link columns. The grid itself is the <nav> — the columns are the site's
+            secondary navigation, and each column heading names its own list.
+            <h2> (not <h3>) because the level has to be stable: the footer renders
+            under every page, and its depth cannot depend on the page above it. */}
+        <nav
+          aria-label="Footer"
+          className="grid grid-cols-2 gap-8 py-10 md:grid-cols-3"
+        >
           {footer.columns.map((col) => (
             <div key={col.heading}>
-              <h3 className="text-[13px] font-bold uppercase tracking-wider text-[#1a2433]">
+              <h2 className="text-[13px] font-bold uppercase tracking-wider text-[#1a2433]">
                 {col.heading}
-              </h3>
+              </h2>
               <ul className="mt-4 space-y-3">
                 {col.links.map((link) => (
                   <li key={`${link.label}-${link.url}`}>
@@ -124,17 +138,23 @@ export default async function SiteFooter() {
               </ul>
             </div>
           ))}
-        </div>
+        </nav>
 
         {/* Legal */}
         <div className="space-y-4 border-t border-black/10 pt-8 text-[13px] leading-relaxed text-[#7a828d]">
+          <address className="mb-4 not-italic">Keybase Financial Group Inc.<br />1725 16th Avenue, Suite 101, Richmond Hill, ON L4B 0B3<br /><a href="tel:+19057097911" className="underline">905-709-7911</a> · <a href="mailto:info@keybase.com" className="underline">info@keybase.com</a></address>
           <p>{settings.footerDescription}</p>
           <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
             <p>{copyright}</p>
             <div className="flex flex-wrap gap-x-6 gap-y-2">
-              <ComplaintHandlingProcess />
-              <PrivacyPolicy />
-              {footer.legalLinks.map((link) => (
+              <Link href="/complaints">Complaint Handling Process</Link>
+              <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/accessibility">Accessibility</Link>
+            <Link href="/search">Search</Link>
+            <Link href="/tools/compound-interest-calculator">Calculator</Link>
+            <Link href="/media">Media</Link>
+            <Link href="/locations/richmond-hill">Head office</Link>
+              {footer.legalLinks.filter((link) => link.url && link.url !== "#").map((link) => (
                 <Link
                   key={`${link.label}-${link.url}`}
                   href={link.url}
@@ -158,6 +178,7 @@ export default async function SiteFooter() {
           </div>
         </div>
       </div>
+      <ConsentAnalytics id={isIndexableDeployment() ? process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID : undefined} />
     </footer>
   );
 }

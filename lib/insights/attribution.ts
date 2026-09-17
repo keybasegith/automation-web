@@ -16,8 +16,17 @@ import type { InsightArticle } from "./types";
  * filter over the same field, not a second list to keep in step.
  */
 
+/**
+ * Who to print above the article.
+ *
+ * The people registry wins wherever the author has a record there, so an
+ * article can never spell someone's title differently from their own profile.
+ * The snapshot on the article is the fallback for an advisor who is not in the
+ * registry yet — without it, a piece they genuinely wrote would print no byline
+ * at all, which is worse than printing the name they signed it with.
+ */
 export function articleAuthor(article: InsightArticle): PersonByline | undefined {
-  return getByline(article.authorId);
+  return getByline(article.authorId) ?? article.authorByline;
 }
 
 export function articleReviewer(article: InsightArticle): PersonByline | undefined {

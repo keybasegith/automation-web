@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    authorize("view");
+    await authorize("view");
     return Response.json({ packages: await store.listPackages() });
   } catch (error) {
     return errorResponse(error, 500);

@@ -9,6 +9,9 @@ import {
   Infinity as InfinityIcon,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceSection from "@/components/services/ServiceSection";
+import ServiceFaq, { type FaqItem } from "@/components/services/ServiceFaq";
+import ServiceCta from "@/components/services/ServiceCta";
 
 /* Freedom the account gives you — the three defining characteristics. */
 const FREEDOMS = [
@@ -90,6 +93,44 @@ const FACTORS = [
   "Your withdrawal needs and timeline",
   "The purpose of the investment",
   "How it complements your RRSP and TFSA",
+];
+
+const FAQ: FaqItem[] = [
+  {
+    question: "How is a non-registered account taxed?",
+    answer: [
+      "Income earned inside the account is generally taxable in the year it arises, and the treatment depends on the type — interest, dividends, and capital gains fall under different rules.",
+      "Because there is no tax shelter, what you hold in a non-registered account, and when gains are realised, has a direct effect on your after-tax return.",
+    ],
+  },
+  {
+    question: "Should I use registered accounts first?",
+    answer: [
+      "Often, though not always. Registered accounts offer tax advantages a non-registered account does not, so available contribution room is usually worth using.",
+      "The order still depends on your income, your time horizon, and how likely you are to need access to the money — which is why it is decided as part of a broader plan rather than by a general rule.",
+    ],
+  },
+  {
+    question: "What can a non-registered account hold?",
+    answer: [
+      "A broad mix: mutual funds, exchange-traded funds, GICs, and other traditional and alternative solutions.",
+      "That range is what allows a portfolio to be tailored to your goals, timeline, and comfort with risk, rather than being constrained by the account itself.",
+    ],
+  },
+  {
+    question: "Are there limits on contributions or withdrawals?",
+    answer: [
+      "No. Non-registered accounts have no annual contribution limits, no penalties for withdrawing, and no age-based maturity requirements.",
+      "That flexibility is the main reason they are used alongside registered plans rather than instead of them.",
+    ],
+  },
+  {
+    question: "When is a non-registered account worth opening?",
+    answer: [
+      "Commonly once registered room has been used, when a goal does not fit the rules of a registered plan, or when access to the money matters more than the tax shelter.",
+      "For many investors it ends up as one component of a balanced plan rather than a separate decision made on its own.",
+    ],
+  },
 ];
 
 /**
@@ -362,6 +403,48 @@ export default function NonRegisteredInvestmentsBody() {
         </div>
       </section>
 
+      {/* ---------- Who it is for ---------- */}
+      <ServiceSection eyebrow="Who We Work With" heading="Who a non-registered account suits" tone="muted">
+        <p>
+          Non-registered accounts are most often used by investors who have
+          already put their available registered contribution room to work and
+          want to keep investing, by those who want access to their money
+          without the restrictions attached to registered plans, by people
+          saving toward goals that fall between near-term cash needs and
+          retirement, and by business owners and professionals investing
+          personal surplus alongside registered savings.
+        </p>
+        <p>
+          They also suit investors who expect to need flexibility — the ability
+          to withdraw when circumstances change, with no age-based rules forcing
+          a wind-down.
+        </p>
+      </ServiceSection>
+
+      <ServiceFaq heading="Questions about non-registered investing." items={FAQ} tone="white" />
+
+      <ServiceCta
+        heading="Invest beyond the limits, with tax in mind."
+        body="A Keybase advisor can help you decide what belongs in a non-registered account and how it should work alongside your registered savings."
+        tone="muted"
+        related={[
+          {
+            href: "/tax-planning",
+            label: "Tax Planning",
+            note: "Why what you hold here, and where, changes what you keep.",
+          },
+          {
+            href: "/traditional-investments",
+            label: "Traditional Investments",
+            note: "The funds, ETFs, and GICs the account can hold.",
+          },
+          {
+            href: "/tfsa",
+            label: "TFSAs",
+            note: "The registered account most often used alongside it.",
+          },
+        ]}
+      />
     </>
   );
 }

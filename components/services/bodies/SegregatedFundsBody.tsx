@@ -7,6 +7,7 @@ import {
   Layers,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceCta from "@/components/services/ServiceCta";
 
 /* What sets segregated funds apart from mutual funds. */
 const FEATURES = [
@@ -251,6 +252,28 @@ export default function SegregatedFundsBody() {
         </div>
       </section>
 
+      <ServiceCta
+        heading="Weigh the guarantees against the cost."
+        body="A Keybase advisor can walk you through how the guarantees, fees, and estate features of a segregated fund contract compare with other ways of holding similar investments."
+        tone="muted"
+        related={[
+          {
+            href: "/insurance",
+            label: "Insurance",
+            note: "The insurance side of the contract, and where it fits.",
+          },
+          {
+            href: "/estate-planning",
+            label: "Estate Planning",
+            note: "Named beneficiaries and simplified estate settlement.",
+          },
+          {
+            href: "/traditional-investments",
+            label: "Traditional Investments",
+            note: "How mutual funds compare on features and fees.",
+          },
+        ]}
+      />
     </>
   );
 }

@@ -9,7 +9,7 @@
  * article is type-checked at build rather than discovered at runtime.
  */
 
-import type { PersonId } from "@/lib/people/types";
+import type { PersonByline, PersonId } from "@/lib/people/types";
 
 /**
  * What kind of piece this is. The template adapts: a company announcement gets
@@ -95,6 +95,17 @@ export interface InsightArticle {
   /** Only ever set when a named person genuinely reviewed the article. */
   reviewerId?: PersonId;
 
+  /**
+   * The byline for an author who has no people-registry record — an advisor
+   * writing their first piece, most often.
+   *
+   * A snapshot, deliberately: it is captured onto a revision when compliance
+   * approves it, so a published article keeps saying what was approved even if
+   * the author's title changes later. `authorId` still wins where it resolves,
+   * because a live person record can only ever have one spelling of a job title.
+   */
+  authorByline?: PersonByline & { organization?: string };
+
   heroImage?: ArticleImage;
   /**
    * Dedicated share image. Carried on the model so Open Graph metadata can use
@@ -131,6 +142,16 @@ export interface InsightArticle {
    * and external coverage. Set explicitly to override.
    */
   showDisclaimer?: boolean;
+
+  /**
+   * Extra disclosure wording for this one article, printed under the standard
+   * corporate paragraph in the Important Information section.
+   *
+   * It can only ever ADD. The mandatory corporate disclosure is rendered by the
+   * component itself and there is no field here that could remove or replace
+   * it, which is what stops an author publishing without one.
+   */
+  additionalDisclosure?: string;
 }
 
 /**

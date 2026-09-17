@@ -1,3 +1,4 @@
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth/guard";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit/createAuditLog";
 import { exportWindFundCoreCsv } from "@/lib/export/exportWindFundCoreCsv";
@@ -16,6 +17,8 @@ export async function GET(
   _request: Request,
   ctx: { params: Promise<{ submissionId: string }> }
 ) {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   if (!isServerSupabaseConfigured()) {
     return new Response("Database is not configured.", { status: 500 });
   }

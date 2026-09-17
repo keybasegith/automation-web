@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 import {
   createOnboarding,
   logOnboardingEvent,
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     return Response.json({ error: parsed.error }, { status: 400 });
   }
 
-  const user = getCurrentUser();
+  const user = await requireCurrentUser();
   try {
     const client = await upsertClientForOnboarding(parsed.value);
     const onboarding = await createOnboarding({

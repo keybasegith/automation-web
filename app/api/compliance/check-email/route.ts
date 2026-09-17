@@ -12,7 +12,7 @@
 import { checkProhibitedPhrases } from "@/lib/compliance/prohibitedPhraseChecker";
 import { logAudit } from "@/lib/db/audit";
 import { isServerSupabaseConfigured } from "@/lib/supabaseClient";
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   // audit log.
   if (raw.draftId && isServerSupabaseConfigured()) {
     try {
-      const user = getCurrentUser();
+      const user = await requireCurrentUser();
       await logAudit({
         userId: user.id,
         action: "PROHIBITED_PHRASE_CHECKED",

@@ -170,7 +170,7 @@ export default function TriviaGame() {
 
   return (
     <div className="min-h-screen w-full bg-white text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-5 py-8 sm:px-8 sm:py-12">
+      <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-5 py-8 sm:px-8 sm:py-12">
         {screen === "start" && <StartScreen onStart={start} />}
         {screen === "playing" && (
           <PlayingScreen
@@ -191,7 +191,7 @@ export default function TriviaGame() {
             onRestart={start}
           />
         )}
-      </div>
+      </main>
     </div>
   );
 }

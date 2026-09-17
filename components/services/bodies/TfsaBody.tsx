@@ -7,6 +7,7 @@ import {
   Infinity as InfinityIcon,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceCta from "@/components/services/ServiceCta";
 
 /* What a TFSA can help you save for. */
 const GOALS = [
@@ -224,6 +225,28 @@ export default function TfsaBody() {
         </div>
       </section>
 
+      <ServiceCta
+        heading="Use the room, and use it well."
+        body="A Keybase advisor can help you decide what belongs inside a TFSA and how it should work alongside your registered and non-registered savings."
+        tone="white"
+        related={[
+          {
+            href: "/rrsp",
+            label: "RRSPs",
+            note: "How the two registered accounts differ, and complement.",
+          },
+          {
+            href: "/non-registered-investments",
+            label: "Non-Registered Investments",
+            note: "Where to invest once contribution room is used.",
+          },
+          {
+            href: "/wealth-building",
+            label: "Wealth Planning",
+            note: "Fitting tax-free savings into the wider plan.",
+          },
+        ]}
+      />
     </>
   );
 }

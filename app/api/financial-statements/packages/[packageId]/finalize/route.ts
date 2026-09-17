@@ -10,7 +10,7 @@ export const maxDuration = 60;
 
 export async function POST(_request: Request, ctx: { params: Promise<{ packageId: string }> }) {
   try {
-    const actor = authorize("finalize");
+    const actor = await authorize("finalize");
     const { packageId } = await ctx.params;
 
     const outcome = await finalizePackage(packageId, actor);

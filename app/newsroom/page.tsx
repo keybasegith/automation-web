@@ -1,3 +1,4 @@
+import BreadcrumbSchema from "@/components/seo/BreadcrumbSchema";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import Newsroom from "@/components/newsroom/Newsroom";
@@ -6,15 +7,12 @@ import {
   getPublishedNewsroom,
   getVisiblePublishedArticles,
 } from "@/lib/cms/public";
+import { pageMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata() {
   const { hero } = await getPublishedNewsroom();
-  return {
-    title: "Newsroom — Keybase Financial Group",
-    description:
-      hero.intro ||
-      "Market intelligence, planning insights, and perspectives on building, protecting, and preserving wealth — curated by the Keybase Financial Group team.",
-  };
+  return pageMetadata("/newsroom", "Newsroom — Keybase Financial Group", hero.intro ||
+      "Market intelligence, planning insights, and perspectives on building, protecting, and preserving wealth — curated by the Keybase Financial Group team.");
 }
 
 export default async function NewsroomPage() {
@@ -25,6 +23,7 @@ export default async function NewsroomPage() {
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
+      <BreadcrumbSchema items={[{ name: "Newsroom", path: "/newsroom" }]} />
 
       <main className="mx-auto max-w-[1280px] px-5 pb-24 pt-12 sm:px-8 sm:pb-28 sm:pt-16">
         {/* Heading */}

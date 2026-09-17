@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 import { getClientById } from "@/lib/db/clientsRepo";
 import { getComplianceSettings } from "@/lib/db/compliance";
 import { insertSecureEmailDraft } from "@/lib/secureEmail/repo";
@@ -374,7 +374,7 @@ export async function POST(request: Request) {
   // 5. Defence-in-depth: assert that the prompt we are about to send does NOT
   //    contain the client's first name, full name, or email. If it does, fail
   //    closed before the network call.
-  const advisor = getCurrentUser();
+  const advisor = await requireCurrentUser();
   const compliance = await getComplianceSettings().catch(() => null);
 
   const piiCheck = assertNoPiiInOpenAiPayload(

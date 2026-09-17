@@ -1,3 +1,5 @@
+import { notifyIndexNow } from "@/lib/seo/indexnow";
+import { cmsPaths } from "@/lib/seo/cms-paths";
 import { randomUUID } from "crypto";
 import type { CmsDoc, CmsResource, CmsVersion } from "@/lib/cms/types";
 import { getCmsBackend } from "@/lib/cms/storage";
@@ -100,10 +102,13 @@ export async function publishDraft<T>(
     doc.versions = [version, ...doc.versions].slice(0, MAX_VERSIONS);
   }
 
+  const changedPaths = cmsPaths(resource, doc.published, doc.draft);
   doc.published = doc.draft;
   doc.publishedAt = iso;
   doc.publishedBy = publishedBy;
   await getCmsBackend().saveDoc(doc);
+  const notification = await notifyIndexNow(changedPaths);
+  if (notification.state.startsWith("retry-")) console.warn("[indexnow] publication saved; resubmit from the search operations tool", notification.state);
   return doc;
 }
 

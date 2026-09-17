@@ -75,16 +75,28 @@ body {
    the viewport. Default (hidden) is safe because the observer flips it on
    mount for anything already in view. */
 .reveal {
-  opacity: 0;
-  transform: translateY(26px);
+  opacity: 1;
+  transform: none;
   transition:
     opacity 0.9s var(--ease-premium),
     transform 0.9s var(--ease-premium);
   will-change: opacity, transform;
 }
+.reveal[data-animate="true"][data-shown="false"] {
+  opacity: 0;
+  transform: translateY(26px);
+}
 .reveal[data-shown="true"] {
   opacity: 1;
   transform: none;
+}
+/* No scripting means no observer to flip [data-shown], so show the content
+   outright rather than stranding it at opacity 0. */
+@media (scripting: none) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Hero entrance — plays once on mount. */
@@ -420,5 +432,209 @@ body {
      left blinking at the end of a finished answer. */
   .ka-caret {
     display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Client Risk Questionnaire (/client-risk-questionnaire)
+ *
+ * Screen styling lives in the components; this block is almost entirely
+ * about print. The printed sheet has to read as the source Keybase form:
+ * the paper, the questions, the scoring tables, the acknowledgement and
+ * the signatures — and none of the app chrome around them.
+ * ------------------------------------------------------------------ */
+
+.crq-print-only {
+  display: none;
+}
+
+@media print {
+  /* Print the questionnaire alone. Hiding by visibility (rather than
+     display) keeps the questionnaire's own ancestors intact; lifting
+     .crq-root out of the flow then drops the app sidebar's gutter so the
+     sheet starts at the top-left of page 1. */
+  body {
+    visibility: hidden;
+    background: #ffffff !important;
+  }
+
+  .crq-root,
+  .crq-root * {
+    visibility: visible;
+  }
+
+  .crq-root {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .crq-no-print {
+    display: none !important;
+  }
+
+  .crq-print-only {
+    display: block !important;
+  }
+
+  .crq-paper {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Chrome lays print out at the paper width, which is below the two-column
+     breakpoint — so the columns are asked for explicitly here. Without this
+     the questionnaire prints as one long single-column strip. */
+  .crq-question-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    column-gap: 20px !important;
+  }
+
+  /* A charted question takes the full width on paper too, and keeps its
+     chart beside the answers rather than shrinking it into half a column. */
+  .crq-question-wide {
+    grid-column: 1 / -1 !important;
+  }
+
+  .crq-chart-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) !important;
+    align-items: start !important;
+  }
+
+  .crq-question,
+  .crq-option,
+  .crq-chart,
+  table {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Tighter type on paper, closer to the density of the source form. */
+  .crq-question {
+    padding: 6px 4px !important;
+  }
+
+  .crq-question h3,
+  .crq-question legend {
+    font-size: 11.5px !important;
+  }
+
+  .crq-question p,
+  .crq-option span {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  .crq-option {
+    gap: 6px !important;
+  }
+
+  /* The priority ranking is a list of selects rather than options, so it
+     needs the same shrink applied on its own terms. */
+  .crq-question li,
+  .crq-question label {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  .crq-question li {
+    padding: 2px 4px !important;
+  }
+
+  .crq-question select {
+    height: 18px !important;
+    width: 38px !important;
+    font-size: 11px !important;
+    padding: 0 2px !important;
+  }
+
+  /* An unselected answer still belongs on the record; only the selected one
+     is emphasised, the way a ticked box reads on the paper form. */
+  .crq-option {
+    border-color: rgba(0, 0, 0, 0.15) !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .crq-option:has(input:checked) {
+    border-color: #0b6165 !important;
+    background: #eef5f5 !important;
+    font-weight: 600;
+  }
+
+  /* Radios print as an outline plus a filled square when checked. */
+  .crq-option input[type="radio"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .crq-section-bar {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .crq-print-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  /* Notes must print what was typed, not an empty box. */
+  .crq-notes {
+    border: 0 !important;
+    border-bottom: 1px solid #111111 !important;
+    border-radius: 0 !important;
+    padding-left: 0 !important;
+    resize: none !important;
+    height: auto !important;
+    min-height: 3.5rem;
+  }
+
+  /* Signature blocks keep the side-by-side arrangement of the source form
+     rather than stacking, since print lays out below the lg breakpoint. */
+  .crq-sign-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 180px !important;
+    gap: 24px !important;
+    align-items: end !important;
+  }
+
+  .crq-advisor-row {
+    display: grid !important;
+    grid-template-columns: 180px minmax(0, 1fr) 180px !important;
+    gap: 24px !important;
+    align-items: end !important;
+  }
+
+  /* Placeholders and pickers are prompts for the person filling the form in,
+     not part of the record. */
+  .crq-root input::placeholder {
+    color: transparent !important;
+  }
+
+  .crq-root input::-webkit-calendar-picker-indicator {
+    display: none !important;
+  }
+
+  /* Wide tables must not clip at the page edge. */
+  .crq-scroll-x {
+    overflow: visible !important;
+  }
+
+  .crq-scroll-x table {
+    min-width: 0 !important;
+    width: 100% !important;
+    font-size: 11px !important;
+  }
+
+  @page {
+    margin: 12mm;
   }
 }

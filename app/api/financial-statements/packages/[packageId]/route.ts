@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(_request: Request, ctx: { params: Promise<{ packageId: string }> }) {
   try {
-    authorize("view");
+    await authorize("view");
     const { packageId } = await ctx.params;
     const view = await loadPackage(packageId);
     if (!view) return Response.json({ error: "No such statement package." }, { status: 404 });
@@ -22,7 +22,7 @@ export async function GET(_request: Request, ctx: { params: Promise<{ packageId:
 
 export async function DELETE(_request: Request, ctx: { params: Promise<{ packageId: string }> }) {
   try {
-    const actor = authorize("generate");
+    const actor = await authorize("generate");
     const { packageId } = await ctx.params;
     const found = await store.getPackage(packageId);
     if (!found) return Response.json({ error: "No such statement package." }, { status: 404 });

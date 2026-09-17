@@ -303,9 +303,9 @@ public website.
 
 **Indexed**
 
-- Published insight articles, via `lib/insights/articles` — the same
-  published article collection the public newsroom renders. The separate,
-  uncommitted content-authoring CMS is not part of this feature release.
+- Published insight articles, via `lib/insights/registry` — the same
+  published-revision-only view the public newsroom renders, so a draft, a
+  submission under review, and a rejected piece are all invisible here too.
 - Website CMS service pages (16), deepened with their rendered copy.
 - Company pages with a CMS record (About, CEO Message).
 - A short list of other public pages: `/our-advisors`, `/careers`.

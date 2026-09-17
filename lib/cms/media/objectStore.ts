@@ -1,5 +1,6 @@
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -28,6 +29,16 @@ export interface MediaObjectStore {
     key: string;
     contentType: string;
   }): Promise<{ uploadUrl: string; expiresInSeconds: number }>;
+  /**
+   * A presigned GET URL. Used for objects that are not publicly readable —
+   * the department content calendar keeps working files here, and they are
+   * reachable only through a signed, expiring URL issued to a signed-in user.
+   * `downloadName` sets the filename the browser saves as.
+   */
+  presignDownload(args: {
+    key: string;
+    downloadName?: string;
+  }): Promise<{ url: string; expiresInSeconds: number }>;
   /** Object metadata after upload, or null if the object doesn't exist. */
   head(key: string): Promise<{ contentLength: number; contentType: string } | null>;
   delete(key: string): Promise<void>;
@@ -87,6 +98,21 @@ class S3MediaObjectStore implements MediaObjectStore {
       { expiresIn: PRESIGN_EXPIRES_SECONDS }
     );
     return { uploadUrl, expiresInSeconds: PRESIGN_EXPIRES_SECONDS };
+  }
+
+  async presignDownload(args: { key: string; downloadName?: string }) {
+    const url = await getSignedUrl(
+      this.client,
+      new GetObjectCommand({
+        Bucket: this.bucket,
+        Key: args.key,
+        ResponseContentDisposition: args.downloadName
+          ? `attachment; filename="${args.downloadName.replace(/["\\]/g, "")}"`
+          : undefined,
+      }),
+      { expiresIn: PRESIGN_EXPIRES_SECONDS }
+    );
+    return { url, expiresInSeconds: PRESIGN_EXPIRES_SECONDS };
   }
 
   async head(key: string) {

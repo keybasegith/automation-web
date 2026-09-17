@@ -43,6 +43,8 @@ export function siteUrl(): string | null {
     return null;
   }
 
+  if (parsed.protocol !== "https:" || parsed.username || parsed.password) return null;
+  if (["keybase.com", "www.keybase.com"].includes(parsed.hostname)) return "https://www.keybase.com";
   return parsed.origin;
 }
 

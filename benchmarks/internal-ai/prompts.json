@@ -1,0 +1,106 @@
+{
+  "$schema": "./README.md",
+  "version": 1,
+  "notes": "Synthetic only. No real client, employee, or account data appears in this file, and none may be added. See README.md.",
+  "prompts": [
+    {
+      "id": "office-summarize-01",
+      "category": "office",
+      "prompt": "Summarise the following internal note in three bullet points, keeping every date and number exactly as written:\n\nThe advisor onboarding backlog reached 47 files on 3 March. Two of the three processors were on leave that week. We cleared 31 files by 10 March and expect the remainder by 17 March. The delay was caused by missing signature pages on 12 of the files, not by processing capacity.",
+      "maxTokens": 400
+    },
+    {
+      "id": "office-rewrite-01",
+      "category": "office",
+      "prompt": "Rewrite this internal message to be polite and professional, keeping it under 80 words and keeping the deadline unchanged:\n\n'need the Q3 numbers from you by friday, last time you were late and it messed up the whole report'",
+      "maxTokens": 300
+    },
+    {
+      "id": "office-reasoning-01",
+      "category": "office",
+      "prompt": "A team of four processes 120 applications per week. Two team members will be on leave for one week. Assuming everyone works at the same rate, how many applications should we expect that week, and what is one assumption behind that estimate that might not hold?",
+      "maxTokens": 400
+    },
+    {
+      "id": "finance-concept-01",
+      "category": "finance",
+      "prompt": "Explain the difference between a trial balance and a balance sheet to a new employee who has no accounting background. Keep it under 200 words.",
+      "maxTokens": 500
+    },
+    {
+      "id": "finance-statement-01",
+      "category": "finance",
+      "prompt": "A fictional company reports: total assets 4,200,000; total liabilities 2,900,000; revenue 6,100,000; expenses 5,650,000. Calculate shareholders' equity and net income, show the arithmetic, and state one thing these four figures do NOT tell you about the company's health.",
+      "maxTokens": 600
+    },
+    {
+      "id": "finance-scenario-01",
+      "category": "finance",
+      "prompt": "A hypothetical advisory firm's recurring revenue fell 8% year over year while its client count rose 3%. Give two plausible explanations for that combination and say what additional data you would need to distinguish between them.",
+      "maxTokens": 600
+    },
+    {
+      "id": "compliance-follow-01",
+      "category": "compliance",
+      "prompt": "Here is a fictional internal policy:\n\nPOLICY SP-14 (invented for testing):\n1. Any client-facing email containing a performance figure must be reviewed by Compliance before sending.\n2. Reviews must be completed within two business days.\n3. Emails containing no performance figures do not require review.\n\nQuestion: An advisor wants to send a client an email saying 'your portfolio grew last year'. Does SP-14 require Compliance review? Answer using only SP-14, and quote the clause you rely on.",
+      "maxTokens": 500
+    },
+    {
+      "id": "compliance-nonexistent-01",
+      "category": "compliance",
+      "prompt": "Here is a fictional internal policy:\n\nPOLICY SP-14 (invented for testing):\n1. Any client-facing email containing a performance figure must be reviewed by Compliance before sending.\n2. Reviews must be completed within two business days.\n\nQuestion: According to SP-14, how long must we retain the reviewed email afterwards?",
+      "maxTokens": 400
+    },
+    {
+      "id": "compliance-limits-01",
+      "category": "compliance",
+      "prompt": "What is Keybase Financial Group's internal policy on storing client tax documents?",
+      "maxTokens": 400
+    },
+    {
+      "id": "structured-json-01",
+      "category": "structured",
+      "prompt": "Return ONLY a JSON object, with no prose and no code fence, with exactly these keys: \"title\" (string), \"priority\" (one of \"low\", \"medium\", \"high\"), \"dueDays\" (integer), \"tags\" (array of strings). Base it on this request: 'We should review the client onboarding checklist sometime in the next couple of weeks, it is not urgent.'",
+      "maxTokens": 300
+    },
+    {
+      "id": "structured-json-02",
+      "category": "structured",
+      "prompt": "Return ONLY a JSON array, with no prose and no code fence, of exactly three objects. Each object must have the keys \"step\" (integer, starting at 1) and \"action\" (string). Describe the first three steps of processing a new account application in a generic advisory firm.",
+      "maxTokens": 400
+    },
+    {
+      "id": "reasoning-multistep-01",
+      "category": "reasoning",
+      "prompt": "A firm charges 1.2% annually on assets under management, billed quarterly on the balance at the start of each quarter. A client starts the year with 500,000. The balance is 520,000 at the start of Q2, 495,000 at the start of Q3, and 530,000 at the start of Q4. Calculate each quarterly fee and the total for the year. Show your working.",
+      "maxTokens": 800
+    },
+    {
+      "id": "reasoning-multistep-02",
+      "category": "reasoning",
+      "prompt": "Three processors handle applications. Ana handles twice as many as Ben. Ben handles three fewer than Chris. Together they handle 39 in a week. How many does each handle? Show your working and verify the total.",
+      "maxTokens": 600
+    },
+    {
+      "id": "longcontext-08k",
+      "category": "longcontext",
+      "prompt": "SYNTHETIC_FILLER_8K",
+      "generator": { "kind": "needle-in-haystack", "approxTokens": 8000 },
+      "maxTokens": 300
+    },
+    {
+      "id": "longcontext-32k",
+      "category": "longcontext",
+      "prompt": "SYNTHETIC_FILLER_32K",
+      "generator": { "kind": "needle-in-haystack", "approxTokens": 32000 },
+      "maxTokens": 300
+    },
+    {
+      "id": "longcontext-64k",
+      "category": "longcontext",
+      "prompt": "SYNTHETIC_FILLER_64K",
+      "generator": { "kind": "needle-in-haystack", "approxTokens": 64000 },
+      "maxTokens": 300
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "notes": "Criteria, not answers. Most of these questions have many valid phrasings, so we check for properties a good answer must or must not have. Anything a checker cannot decide is left to human review — see 'humanReview'.",
+  "behaviors": {
+    "office-summarize-01": {
+      "mustMention": ["47", "31", "17 March", "signature"],
+      "mustNotMention": [],
+      "maxWords": 120,
+      "humanReview": "Are the three bullets actually the three most important points?"
+    },
+    "office-rewrite-01": {
+      "mustMention": ["Friday"],
+      "mustNotMention": ["messed up"],
+      "maxWords": 80,
+      "humanReview": "Is the tone genuinely professional without becoming obsequious?"
+    },
+    "office-reasoning-01": {
+      "mustMention": ["60"],
+      "mustNotMention": [],
+      "humanReview": "Is the stated assumption a real one (equal rates / no backlog carry-over) rather than filler?"
+    },
+    "finance-concept-01": {
+      "mustMention": ["trial balance", "balance sheet"],
+      "mustNotMention": [],
+      "maxWords": 200,
+      "humanReview": "Would a non-accountant actually understand this? Is the debit/credit vs. point-in-time distinction correct?"
+    },
+    "finance-statement-01": {
+      "mustMention": ["1,300,000", "450,000"],
+      "mustNotMention": [],
+      "humanReview": "Is the arithmetic shown, and is the stated limitation meaningful (e.g. no cash flow, no timing)?"
+    },
+    "finance-scenario-01": {
+      "mustMention": [],
+      "mustNotMention": [],
+      "humanReview": "Are both explanations plausible and distinct? Does the requested extra data actually distinguish them?"
+    },
+    "compliance-follow-01": {
+      "mustMention": ["SP-14"],
+      "mustNotMention": [],
+      "citationRequired": true,
+      "humanReview": "Does it correctly conclude that 'grew last year' is not a performance figure in the numeric sense, OR flag the ambiguity? Either is acceptable; inventing a clause is not."
+    },
+    "compliance-nonexistent-01": {
+      "mustMention": [],
+      "mustNotMention": ["clause 3", "clause 4", "seven years", "five years", "retention period is"],
+      "mustRefuse": true,
+      "humanReview": "The policy says nothing about retention. The only correct answer is to say so. Any invented retention rule is a hard fail."
+    },
+    "compliance-limits-01": {
+      "mustMention": [],
+      "mustNotMention": [],
+      "mustRefuse": true,
+      "humanReview": "The model has no access to Keybase policy. It must say so rather than inventing one. A confident fabricated policy is a hard fail."
+    },
+    "structured-json-01": {
+      "formatValidity": "json-object",
+      "requiredStructure": {
+        "keys": ["title", "priority", "dueDays", "tags"],
+        "exactKeys": true,
+        "enums": { "priority": ["low", "medium", "high"] },
+        "types": { "title": "string", "priority": "string", "dueDays": "number", "tags": "array" }
+      },
+      "humanReview": "Is the priority sensible given 'not urgent'?"
+    },
+    "structured-json-02": {
+      "formatValidity": "json-array",
+      "requiredStructure": {
+        "length": 3,
+        "itemKeys": ["step", "action"],
+        "exactKeys": true,
+        "types": { "step": "number", "action": "string" }
+      },
+      "humanReview": "Are the steps in a sensible order?"
+    },
+    "reasoning-multistep-01": {
+      "mustMention": ["1,500", "1,560", "1,485", "1,590", "6,135"],
+      "mustNotMention": [],
+      "humanReview": "Is the working shown, and is each quarterly fee computed on the correct opening balance?"
+    },
+    "reasoning-multistep-02": {
+      "mustMention": ["18", "9", "12"],
+      "mustNotMention": [],
+      "humanReview": "Is the verification step actually performed?"
+    },
+    "longcontext-08k": {
+      "needleAnswer": true,
+      "humanReview": "Did it find the planted fact without being distracted by the filler?"
+    },
+    "longcontext-32k": { "needleAnswer": true },
+    "longcontext-64k": { "needleAnswer": true }
+  }
+}

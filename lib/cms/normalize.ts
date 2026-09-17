@@ -370,7 +370,16 @@ export function normalizeCareers(raw: unknown): NormalizeResult<CareersContent> 
       maxLength(asString(r?.description), 1000, `${title || `Position #${i + 1}`} description`)
     );
     if (err) return { error: err };
+    const datePosted = asString(r?.datePosted).trim();
+    const validThrough = asString(r?.validThrough).trim();
+    const validDate = (date:string) => /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(Date.parse(date)) && new Date(date).toISOString().slice(0,10) === date;
+    if ((datePosted && !validDate(datePosted)) || (validThrough && !validDate(validThrough)) || (datePosted && validThrough && validThrough < datePosted)) return {error:"Use valid posting and closing dates in YYYY-MM-DD order."};
+    if (r?.confirmedOpening === true && (!datePosted || !validThrough || !asString(r?.addressLocality).trim() || !asString(r?.addressRegion).trim())) return {error:"Confirmed openings require posting and closing dates, city and province."};
     roles.push({
+      datePosted, validThrough,
+      addressLocality:asString(r?.addressLocality).trim(),
+      addressRegion:asString(r?.addressRegion).trim(),
+      confirmedOpening:r?.confirmedOpening === true,
       id: typeof r?.id === "string" && r.id ? r.id : randomId(),
       title,
       department: asString(r?.department).trim(),

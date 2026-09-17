@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    authorize("view");
+    await authorize("view");
     const rules = await store.listMappings();
     return Response.json({
       mappings: rules.map(toMappingDto),
@@ -24,7 +24,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const actor = authorize("edit_mapping");
+    const actor = await authorize("edit_mapping");
     const rule = (await request.json()) as MappingRule;
     if (!rule?.id) return Response.json({ error: "A mapping needs an id." }, { status: 400 });
 

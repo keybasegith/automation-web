@@ -1,13 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, Mail } from "lucide-react";
-import { DEPARTMENTS, getDepartment } from "@/lib/departments";
+import { getDepartment } from "@/lib/departments";
 
-export const dynamic = "force-static";
-
-export function generateStaticParams() {
-  return DEPARTMENTS.map((d) => ({ slug: d.slug }));
-}
+// Behind authentication: rendered per request, never prerendered.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

@@ -1,13 +1,12 @@
+import BreadcrumbSchema from "@/components/seo/BreadcrumbSchema";
 import { Mail, Phone, MapPin } from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import ContactForm from "@/components/home/ContactForm";
+import { getPerson } from "@/lib/people/people";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata = {
-  title: "Contact Us — Keybase Financial Group",
-  description:
-    "Request an inquiry with Keybase Financial Group. Speak with an advisor about wealth management, investment advisory, retirement, estate, and insurance solutions.",
-};
+export const metadata = pageMetadata("/contact", "Contact Us — Keybase Financial Group", "Request an inquiry with Keybase Financial Group. Speak with an advisor about wealth management, investment advisory, retirement, estate, and insurance solutions.");
 
 const DETAILS = [
   {
@@ -29,10 +28,25 @@ const DETAILS = [
   },
 ];
 
-export default function ContactPage() {
+/**
+ * `?advisor=<slug>` addresses the inquiry to one advisor.
+ *
+ * The slug is resolved against the people registry rather than trusted: an
+ * unknown or tampered value simply yields the ordinary contact form, so nothing
+ * a visitor puts in the URL can be reflected onto the page.
+ */
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ advisor?: string }>;
+}) {
+  const { advisor } = await searchParams;
+  const requested = advisor ? getPerson(advisor) : undefined;
+
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
+      <BreadcrumbSchema items={[{ name: "Contact Us", path: "/contact" }]} />
 
       <main className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,420px)_1fr] lg:gap-20">
@@ -82,7 +96,7 @@ export default function ContactPage() {
           </div>
 
           {/* Right: form */}
-          <ContactForm />
+          <ContactForm advisorName={requested?.name} />
         </div>
       </main>
 

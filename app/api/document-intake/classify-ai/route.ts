@@ -1,3 +1,4 @@
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth/guard";
 import { NextResponse } from "next/server";
 import {
   DOCUMENT_CATALOG,
@@ -117,6 +118,8 @@ function parseJsonObject(raw: string): AIResultPayload | null {
 }
 
 export async function POST(request: Request) {
+  // Internal route: a valid dashboard session is required.
+  if (!(await getSessionUser())) return unauthorizedResponse();
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey || apiKey.trim().length === 0) {
     return NextResponse.json(

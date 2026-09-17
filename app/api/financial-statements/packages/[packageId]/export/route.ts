@@ -30,7 +30,7 @@ const FORMATS: ExportFormat[] = ["xlsx", "pdf"];
 
 export async function GET(request: Request, ctx: { params: Promise<{ packageId: string }> }) {
   try {
-    const actor = authorize("export");
+    const actor = await authorize("export");
     const { packageId } = await ctx.params;
 
     const params = new URL(request.url).searchParams;

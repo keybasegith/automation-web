@@ -7,6 +7,9 @@ import {
   Users,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceSection from "@/components/services/ServiceSection";
+import ServiceFaq, { type FaqItem } from "@/components/services/ServiceFaq";
+import ServiceCta from "@/components/services/ServiceCta";
 
 const PILLARS = [
   {
@@ -60,6 +63,44 @@ const STEPS = [
   },
 ];
 
+const FAQ: FaqItem[] = [
+  {
+    question: "What does a wealth plan include?",
+    answer: [
+      "A wealth plan starts from your goals and timeline, then works through the areas that support them: a written financial plan, an investment strategy matched to your risk tolerance, a retirement income approach, tax-efficient structuring of accounts and income, insurance and contingency planning, and an estate strategy.",
+      "The weight given to each area depends on your circumstances. Not every plan needs equal attention on every front.",
+    ],
+  },
+  {
+    question: "How are investments and tax planning connected?",
+    answer: [
+      "Where an investment is held affects what you ultimately keep. Interest, dividends, and capital gains are taxed differently, and registered accounts such as RRSPs and TFSAs treat growth and withdrawals differently again.",
+      "Deciding which assets sit in which accounts — and, later, the order income is drawn from them — is part of building the plan rather than something handled at year end.",
+    ],
+  },
+  {
+    question: "How often should a financial plan be reviewed?",
+    answer: [
+      "At least annually, and sooner whenever something material changes: a new job or business, a marriage or separation, a birth, an inheritance, a property purchase, or a shift in your intended retirement date. Tax rules and market conditions move as well.",
+      "Reviews are what keep a plan accurate. Without them it becomes a document you filed once rather than a strategy you are actually following.",
+    ],
+  },
+  {
+    question: "Is wealth planning the same as investment management?",
+    answer: [
+      "No — investment management is one component of it. A wealth plan sets the objectives the portfolio is meant to serve, then coordinates it with retirement income, tax, protection, and estate decisions.",
+      "Put simply: the portfolio answers how your money is invested, and the plan answers what it is for.",
+    ],
+  },
+  {
+    question: "When should I work with a financial advisor?",
+    answer: [
+      "There is no single trigger. People often begin when decisions start interacting — when saving, tax, and investment choices affect one another, when retirement moves from an idea to a date, or when a business, property, or inheritance adds complexity.",
+      "Starting earlier gives a plan more time to work, but a plan can be built at any stage.",
+    ],
+  },
+];
+
 /**
  * The wealth-building page body — every section below the hero.
  *
@@ -69,6 +110,27 @@ const STEPS = [
 export default function WealthBuildingBody() {
   return (
     <>
+      {/* ---------- What it is (direct answer) ---------- */}
+      <ServiceSection
+        eyebrow="In Short"
+        heading="What is wealth planning?"
+        tone="muted"
+        divider={false}
+      >
+        <p>
+          Wealth planning is the coordinated management of your whole financial
+          life. Rather than treating investments, retirement income, tax
+          strategy, and estate planning as separate decisions, a wealth plan
+          measures them against your goals and timeline and keeps them working
+          together.
+        </p>
+        <p>
+          At Keybase Financial Group that plan is written down, put into effect
+          across your accounts, and revisited as your circumstances and the
+          markets change.
+        </p>
+      </ServiceSection>
+
       {/* ---------- Why it matters ---------- */}
       <section className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,360px)_1fr] lg:gap-20">
@@ -209,6 +271,47 @@ export default function WealthBuildingBody() {
         </div>
       </section>
 
+      {/* ---------- Who it is for ---------- */}
+      <ServiceSection eyebrow="Who We Work With" heading="Who wealth planning is for">
+        <p>
+          Wealth planning matters most once several financial decisions start
+          affecting one another at the same time. That includes professionals
+          building career earnings, families balancing long-term saving against
+          day-to-day commitments, business owners whose personal and corporate
+          finances are intertwined, people approaching retirement who need
+          savings to become income, and families preparing to transfer wealth to
+          the next generation.
+        </p>
+        <p>
+          It is not a service reserved for one level of wealth. What it asks for
+          is a willingness to look at the whole picture rather than one account
+          at a time.
+        </p>
+      </ServiceSection>
+
+      <ServiceFaq heading="Questions about wealth planning." items={FAQ} />
+
+      <ServiceCta
+        heading="Build a plan that works as one."
+        body="A Keybase advisor can review where you stand today and show you how investments, retirement income, tax, and estate decisions fit together in a single written plan."
+        related={[
+          {
+            href: "/retirement-planning",
+            label: "Retirement Planning",
+            note: "Turning savings and benefits into income that lasts.",
+          },
+          {
+            href: "/tax-planning",
+            label: "Tax Planning",
+            note: "Structuring accounts and income to improve what you keep.",
+          },
+          {
+            href: "/estate-planning",
+            label: "Estate Planning",
+            note: "Passing wealth on with less cost and more clarity.",
+          },
+        ]}
+      />
     </>
   );
 }

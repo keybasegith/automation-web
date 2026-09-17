@@ -18,6 +18,8 @@ export interface PersonInput {
    * text the site already publishes about them; never inferred from a job title.
    */
   knowsAbout?: string[];
+  knowsLanguage?: string[];
+  credentials?: string[];
 }
 
 export function buildPerson(input: PersonInput): SchemaNode {
@@ -37,6 +39,8 @@ export function buildPerson(input: PersonInput): SchemaNode {
       : undefined,
     sameAs: input.sameAs,
     knowsAbout: input.knowsAbout,
+    knowsLanguage: input.knowsLanguage,
+    hasCredential: input.credentials?.map((name) => ({ "@type": "EducationalOccupationalCredential", name })), 
   });
 }
 

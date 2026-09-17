@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { type YearRow, calculateCompoundInterest } from "@/lib/tools/compound-interest";
+import { trackEvent } from "@/lib/analytics/events";
+import { useState, useRef, useId } from "react";
 import {
   Wallet,
   PiggyBank,
@@ -65,91 +67,6 @@ const COMPOUND_OPTIONS: CompoundOption[] = [
   { label: "Daily", value: 365 },
 ];
 
-interface CalcParams {
-  principal: number;
-  monthlyContribution: number;
-  annualRate: number;
-  years: number;
-  compoundFreq: number;
-  inflationRate: number;
-  taxRate: number;
-  contributionIncrease: number;
-}
-
-interface YearRow {
-  year: number;
-  balance: number;
-  contributions: number;
-  interest: number;
-  yearInterest: number;
-  realBalance: number;
-  afterTaxBalance: number;
-}
-
-function calculateCompoundInterest(params: CalcParams): YearRow[] {
-  const {
-    principal,
-    monthlyContribution,
-    annualRate,
-    years,
-    compoundFreq,
-    inflationRate,
-    taxRate,
-    contributionIncrease,
-  } = params;
-
-  const r = annualRate / 100;
-  const inf = inflationRate / 100;
-  const tax = taxRate / 100;
-  const contribInc = contributionIncrease / 100;
-  const n = compoundFreq;
-
-  const yearlyData: YearRow[] = [];
-  let balance = principal;
-  let totalContributions = principal;
-  let totalInterest = 0;
-  let currentMonthlyContrib = monthlyContribution;
-
-  // Use a standard compound interest approach:
-  // Each month: add contribution, then apply one month's worth of compounded growth.
-  // Effective monthly rate from nominal rate compounded n times/year:
-  // effectiveMonthlyRate = (1 + r/n)^(n/12) - 1
-
-  for (let year = 1; year <= years; year++) {
-    let yearInterest = 0;
-    const effectiveMonthlyRate = Math.pow(1 + r / n, n / 12) - 1;
-
-    for (let month = 1; month <= 12; month++) {
-      balance += currentMonthlyContrib;
-      totalContributions += currentMonthlyContrib;
-
-      const interest = balance * effectiveMonthlyRate;
-      yearInterest += interest;
-      balance += interest;
-    }
-
-    totalInterest += yearInterest;
-
-    const realBalance = balance / Math.pow(1 + inf, year);
-    const afterTaxInterest = totalInterest * (1 - tax);
-    const afterTaxBalance = totalContributions + afterTaxInterest;
-
-    yearlyData.push({
-      year,
-      balance: Math.round(balance * 100) / 100,
-      contributions: Math.round(totalContributions * 100) / 100,
-      interest: Math.round(totalInterest * 100) / 100,
-      yearInterest: Math.round(yearInterest * 100) / 100,
-      realBalance: Math.round(realBalance * 100) / 100,
-      afterTaxBalance: Math.round(afterTaxBalance * 100) / 100,
-    });
-
-    currentMonthlyContrib *= 1 + contribInc;
-  }
-
-  return yearlyData;
-}
-
 interface InputSliderProps {
   label: string;
   value: number;
@@ -183,6 +100,7 @@ function InputSlider({
     : addCommas(Math.round(value));
 
   const handleFocus = () => {
+    trackEvent("calculator_use", {tool_name:"compound_interest"});
     setIsFocused(true);
     setRawInput(step < 1 ? String(value) : String(Math.round(value)));
   };
@@ -202,6 +120,7 @@ function InputSlider({
   };
 
   const handleBlur = () => {
+    trackEvent("calculator_complete", {tool_name:"compound_interest"});
     setIsFocused(false);
     const num = parseFloat(rawInput.replace(/,/g, ""));
     if (isNaN(num) || num < min) {
@@ -213,12 +132,13 @@ function InputSlider({
     }
   };
 
+  const inputId = useId();
   const pct = ((value - min) / (max - min)) * 100;
 
   return (
     <div className="mb-4">
       <div className="mb-1.5 flex items-center justify-between">
-        <label className="flex items-center text-[13px] font-medium text-slate-700">
+        <label htmlFor={inputId} className="flex items-center text-[13px] font-medium text-slate-700">
           {label}
           {tooltip && (
             <span
@@ -237,6 +157,7 @@ function InputSlider({
             <span className="mr-0.5 text-sm text-slate-400">{prefix}</span>
           )}
           <input
+            id={inputId}
             type="text"
             inputMode="decimal"
             value={displayValue}
@@ -261,6 +182,9 @@ function InputSlider({
         />
         <input
           type="range"
+          onFocus={()=>trackEvent("calculator_use", {tool_name:"compound_interest"})}
+          onBlur={()=>trackEvent("calculator_complete", {tool_name:"compound_interest"})}
+            aria-label={label}
           min={min}
           max={max}
           step={step}
@@ -296,6 +220,7 @@ function SegmentedControl({ options, value, onChange }: SegmentedControlProps) {
         return (
           <button
             key={opt.value}
+            aria-pressed={active}
             type="button"
             onClick={() => onChange(opt.value)}
             className={`flex-1 rounded-lg px-1.5 py-2 text-[12px] transition ${
@@ -324,10 +249,12 @@ function ToggleRow({ label, checked, onChange }: ToggleRowProps) {
       <span className="text-[13px] font-medium text-slate-700">{label}</span>
       <button
         type="button"
+        role="switch"
+        aria-label={label}
+        aria-checked={checked}
         onClick={onChange}
         className="relative h-6 w-11 rounded-full border-none transition-colors"
         style={{ background: checked ? C.brand : C.line }}
-        aria-pressed={checked}
       >
         <span
           className="absolute top-[3px] h-[18px] w-[18px] rounded-full bg-white shadow transition-[left]"
@@ -615,12 +542,21 @@ function StatCard({ label, value, subValue, accent, icon, compact }: StatCardPro
   );
 }
 
+/**
+ * The calculator's panel headings sit at different depths depending on where it
+ * is embedded — directly under a page <h1> on its own route, or inside a page
+ * section that already owns an <h2>. The level travels with the component so
+ * the outline stays correct without duplicating any markup.
+ */
+export type CalculatorHeadingLevel = "h2" | "h3";
+
 interface MilestoneTrackerProps {
   data: YearRow[];
   milestones: number[];
+  headingLevel: CalculatorHeadingLevel;
 }
 
-function MilestoneTracker({ data, milestones }: MilestoneTrackerProps) {
+function MilestoneTracker({ data, milestones, headingLevel: Heading }: MilestoneTrackerProps) {
   if (!data || data.length === 0) return null;
 
   const reached = milestones.map((m) => {
@@ -630,10 +566,10 @@ function MilestoneTracker({ data, milestones }: MilestoneTrackerProps) {
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
+      <Heading className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
         <Flag className="h-4 w-4 text-[#0a1f33]" />
         Milestone Tracker
-      </h3>
+      </Heading>
       <div className="flex flex-col gap-3">
         {reached.map((m, i) => {
           const finalBal = data[data.length - 1]?.balance || 0;
@@ -672,9 +608,10 @@ interface YearlyTableProps {
   data: YearRow[];
   showInflation: boolean;
   showTax: boolean;
+  headingLevel: CalculatorHeadingLevel;
 }
 
-function YearlyTable({ data, showInflation, showTax }: YearlyTableProps) {
+function YearlyTable({ data, showInflation, showTax, headingLevel: Heading }: YearlyTableProps) {
   const [expanded, setExpanded] = useState(false);
   const display = expanded ? data : data.slice(0, 5);
 
@@ -684,10 +621,10 @@ function YearlyTable({ data, showInflation, showTax }: YearlyTableProps) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 px-5 py-4">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+        <Heading className="flex items-center gap-2 text-sm font-semibold text-slate-900">
           <TableIcon className="h-4 w-4 text-[#0a1f33]" />
           Year by Year Breakdown
-        </h3>
+        </Heading>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-xs tabular-nums">
@@ -757,13 +694,17 @@ function YearlyTable({ data, showInflation, showTax }: YearlyTableProps) {
 /**
  * `compact` tightens padding, type sizes, and chart height for embedding the
  * calculator inside a page section (e.g. the homepage) rather than giving it a
- * full page of its own.
+ * full page of its own. `headingLevel` is the matching semantic knob: pass "h3"
+ * wherever the surrounding page section already owns the <h2>.
  */
 export default function CompoundInterestCalculator({
   compact = false,
+  headingLevel = "h2",
 }: {
   compact?: boolean;
+  headingLevel?: CalculatorHeadingLevel;
 } = {}) {
+  const PanelHeading = headingLevel;
   const [principal, setPrincipal] = useState(10000);
   const [monthlyContrib, setMonthlyContrib] = useState(500);
   const [annualRate, setAnnualRate] = useState(7);
@@ -848,7 +789,9 @@ export default function CompoundInterestCalculator({
             compact ? "p-4" : "p-5"
           }`}
         >
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">Your Inputs</h2>
+          <PanelHeading className="mb-3 text-sm font-semibold text-slate-900">
+            Your Inputs
+          </PanelHeading>
 
           <InputSlider label="Initial Investment" value={principal} onChange={setPrincipal} min={0} max={2000000} step={1000} prefix="$" tooltip="The starting amount you invest today" />
           <InputSlider label="Monthly Contribution" value={monthlyContrib} onChange={setMonthlyContrib} min={0} max={50000} step={50} prefix="$" tooltip="How much you add each month" />
@@ -948,11 +891,18 @@ export default function CompoundInterestCalculator({
           )}
 
           {activeTab === "table" && (
-            <YearlyTable data={data} showInflation={showInflation} showTax={showTax} />
+            <YearlyTable
+              data={data}
+              showInflation={showInflation}
+              showTax={showTax}
+              headingLevel={headingLevel}
+            />
           )}
 
           {/* Milestones */}
-          {milestones.length > 0 && <MilestoneTracker data={data} milestones={milestones} />}
+          {milestones.length > 0 && (
+            <MilestoneTracker data={data} milestones={milestones} headingLevel={headingLevel} />
+          )}
 
           {/* Insight Cards */}
           <div className="grid grid-cols-2 gap-3">

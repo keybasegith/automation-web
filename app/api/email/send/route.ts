@@ -16,7 +16,7 @@
  * Inputs:
  *   { draftId, advisorId?, finalSubject, finalBody }
  *
- * NOTE: advisorId is logged but the canonical actor is `getCurrentUser()`.
+ * NOTE: advisorId is logged but the canonical actor is the signed-in session user.
  * If those don't match, the route refuses (defense-in-depth).
  */
 
@@ -30,7 +30,7 @@ import { logAudit } from "@/lib/db/audit";
 import { getClientById } from "@/lib/db/clientsRepo";
 import { getEmailById, updateEmailStatus } from "@/lib/db/emailsRepo";
 import { isServerSupabaseConfigured } from "@/lib/supabaseClient";
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const user = getCurrentUser();
+  const user = await requireCurrentUser();
   if (raw.advisorId && raw.advisorId !== user.id) {
     return Response.json(
       {

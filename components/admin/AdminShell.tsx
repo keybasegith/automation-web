@@ -29,6 +29,7 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
+  { label: "SEO / GEO", href: "/website-admin-cms/seo", icon: LayoutDashboard },
   { label: "Overview", href: "/website-admin-cms", icon: LayoutDashboard },
   { label: "Key Executives", href: "/website-admin-cms/executives", icon: Users },
   { label: "Company Pages", href: "/website-admin-cms/company-pages", icon: Building2 },

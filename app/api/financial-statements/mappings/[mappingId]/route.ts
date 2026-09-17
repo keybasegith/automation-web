@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export async function PATCH(request: Request, ctx: { params: Promise<{ mappingId: string }> }) {
   try {
-    const actor = authorize("edit_mapping");
+    const actor = await authorize("edit_mapping");
     const { mappingId } = await ctx.params;
     const body = (await request.json()) as { status?: string };
     if (body.status !== "active" && body.status !== "inactive") {

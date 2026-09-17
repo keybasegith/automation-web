@@ -21,7 +21,7 @@
  *      so the page a visitor reads is the only faithful copy of that prose.
  */
 
-import { getPublishedArticles } from "@/lib/insights/articles";
+import { getPublishedArticles } from "@/lib/insights/registry";
 import type { ArticleBlock, InsightArticle } from "@/lib/insights/types";
 import { readPublished } from "@/lib/cms/store";
 import { seedContentPages, seedServicePages } from "@/lib/cms/seeds";
@@ -351,7 +351,7 @@ export async function loadApprovedDocuments(
   }
   for (const page of servicePages?.pages ?? []) {
     discovered += 1;
-    const path = `/services/${page.slug}`;
+    const path = `/${page.slug}`;
     const crawled = await crawl(path);
     const sections = dedupeSections([
       { heading: page.heading, paragraphs: [page.intro].filter(Boolean) },

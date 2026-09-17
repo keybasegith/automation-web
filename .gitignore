@@ -36,3 +36,7 @@ test-data
 # machine that has the file and is simply absent everywhere else.
 lib/financial-statements/__fixtures__/
 lib/financial-statements/__tests__/local/
+
+# Benchmark output. Runs are machine- and moment-specific; the framework and
+# the dataset are version-controlled, the numbers are not.
+/benchmark-results/

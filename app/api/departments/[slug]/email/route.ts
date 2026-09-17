@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 import { logAudit } from "@/lib/db/audit";
 import { getEmailProvider } from "@/lib/email/providers";
 import { getDepartment } from "@/lib/departments";
@@ -75,7 +75,7 @@ export async function GET(
     limit,
   });
 
-  const user = getCurrentUser();
+  const user = await requireCurrentUser();
   await logAudit({
     userId: user.id,
     action: "DEPT_MAILBOX_FETCH",
@@ -153,7 +153,7 @@ export async function POST(
     );
   }
 
-  const user = getCurrentUser();
+  const user = await requireCurrentUser();
   const defaultFrom = `${department.slug}@keybase.com`;
   const fromAddress =
     isEmail(body.from) ? (body.from as string).trim() : defaultFrom;

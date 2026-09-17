@@ -8,6 +8,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceCta from "@/components/services/ServiceCta";
 
 /* Who can open a plan — the four eligibility requirements. */
 const ELIGIBILITY = [
@@ -296,6 +297,28 @@ export default function RdspBody() {
         </div>
       </section>
 
+      <ServiceCta
+        heading="Build long-term security, grants included."
+        body="A Keybase advisor can help you confirm eligibility, structure contributions to capture the grants and bonds available, and plan how the money is eventually withdrawn."
+        tone="white"
+        related={[
+          {
+            href: "/estate-planning",
+            label: "Estate Planning",
+            note: "Planning long-term support alongside an estate strategy.",
+          },
+          {
+            href: "/tax-planning",
+            label: "Tax Planning",
+            note: "How contributions, growth, and withdrawals are treated.",
+          },
+          {
+            href: "/wealth-building",
+            label: "Wealth Planning",
+            note: "Coordinating a plan for a family member's future.",
+          },
+        ]}
+      />
     </>
   );
 }

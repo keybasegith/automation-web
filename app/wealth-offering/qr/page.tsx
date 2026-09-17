@@ -21,7 +21,7 @@ export default function WealthOfferingQR() {
 
   return (
     <div className="min-h-screen w-full bg-white text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center justify-center px-6 py-10 text-center">
+      <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center justify-center px-6 py-10 text-center">
         <Image
           src="/argosy-logo.png"
           alt="Argosy"
@@ -55,7 +55,7 @@ export default function WealthOfferingQR() {
             </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

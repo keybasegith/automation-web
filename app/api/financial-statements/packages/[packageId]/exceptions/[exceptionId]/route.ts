@@ -13,7 +13,7 @@ export async function PATCH(
   ctx: { params: Promise<{ packageId: string; exceptionId: string }> }
 ) {
   try {
-    const actor = authorize("resolve_exception");
+    const actor = await authorize("resolve_exception");
     const { packageId, exceptionId } = await ctx.params;
 
     const body = (await request.json()) as { status?: string; note?: string };

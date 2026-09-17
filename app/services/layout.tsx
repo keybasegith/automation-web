@@ -17,7 +17,7 @@ export default async function ServicesLayout({
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
       <ServicesTabs items={items} />
-      {children}
+      <main>{children}</main>
       <SiteFooter />
     </div>
   );

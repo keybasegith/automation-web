@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Libre_Franklin } from "next/font/google";
 import "./globals.css";
+import { siteMetadataBase, siteRobots } from "@/lib/seo/metadata";
+import { KEYBASE_NAME } from "@/lib/seo/keybase";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,9 +21,15 @@ const libreFranklin = Libre_Franklin({
   weight: ["400", "500", "600", "700"],
 });
 
+/** Route metadata owns titles; deployment policy controls indexing separately from canonical identity. */
 export const metadata: Metadata = {
-  title: "Keybase Automation",
-  description: "Keybase AI Automation System",
+  title: `${KEYBASE_NAME} — Independent Wealth Management in Canada`,
+  description:
+    "Keybase Financial Group is a Canadian independent financial services and wealth management firm serving individuals, families, and institutions.",
+  applicationName: KEYBASE_NAME,
+  verification: { google: process.env.GOOGLE_SITE_VERIFICATION, other: process.env.BING_SITE_VERIFICATION ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION } : undefined },
+  ...siteMetadataBase(),
+  ...siteRobots(),
 };
 
 export default function RootLayout({

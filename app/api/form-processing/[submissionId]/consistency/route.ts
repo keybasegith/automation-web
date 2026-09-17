@@ -43,7 +43,7 @@ export async function POST(
     mismatchCount: result.flags.length,
   });
 
-  const acting = getActingUser();
+  const acting = await getActingUser();
   const h = await headers();
   await createAuditLog({
     submissionId,

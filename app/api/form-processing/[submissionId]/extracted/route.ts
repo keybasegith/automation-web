@@ -78,7 +78,7 @@ export async function PATCH(
   await upsertExtractedData({ submissionId, data: updated });
 
   if (Object.keys(editedFields).length > 0) {
-    const acting = getActingUser();
+    const acting = await getActingUser();
     const h = await headers();
     await createAuditLog({
       submissionId,

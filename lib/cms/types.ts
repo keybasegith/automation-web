@@ -178,6 +178,13 @@ export interface ServicePagesContent {
 
 /** One open position on the Careers page. */
 export interface JobPosting {
+  /** Confirmed dates; absent on legacy marketing entries. */
+  datePosted?: string;
+  validThrough?: string;
+  addressLocality?: string;
+  addressRegion?: string;
+  /** Explicit confirmation that this is a genuine current vacancy. */
+  confirmedOpening?: boolean;
   id: string;
   title: string;
   department: string;

@@ -22,7 +22,7 @@ export default function TradeshowBoothConnectQR() {
 
   return (
     <div className="min-h-screen w-full bg-white text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center justify-center px-6 py-10 text-center">
+      <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center justify-center px-6 py-10 text-center">
         <Image
           src="/keybase-logo%20copy.png"
           alt="Keybase Financial Group"
@@ -64,7 +64,7 @@ export default function TradeshowBoothConnectQR() {
         <p className="mt-8 text-xs text-slate-400">
           Powered by Cal.com · Pick a time that works for you
         </p>
-      </div>
+      </main>
     </div>
   );
 }

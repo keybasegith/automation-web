@@ -31,7 +31,7 @@ import { logAudit } from "@/lib/db/audit";
 import { getClientById } from "@/lib/db/clientsRepo";
 import { saveGeneratedEmail } from "@/lib/db/emailsRepo";
 import { isServerSupabaseConfigured } from "@/lib/supabaseClient";
-import { getCurrentUser } from "@/lib/currentUser";
+import { requireCurrentUser } from "@/lib/currentUser";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -228,7 +228,7 @@ export async function POST(request: Request) {
   }
 
   const safe: SafeOpenAIInput = sanitizeResult.safe;
-  const user = getCurrentUser();
+  const user = await requireCurrentUser();
 
   // Audit step 1: AI draft requested. Metadata contains only abstracted
   // fields (no PII), so it is safe to retain indefinitely.

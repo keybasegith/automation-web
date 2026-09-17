@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    authorize("view");
+    await authorize("view");
     const csv = mappingsToCsv(await store.listMappings());
     return new Response(csv, {
       headers: {

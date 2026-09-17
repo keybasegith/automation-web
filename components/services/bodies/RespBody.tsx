@@ -1,5 +1,6 @@
 import { User, Users, Sprout, Repeat, Clock, GraduationCap } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceCta from "@/components/services/ServiceCta";
 
 /* Post-secondary paths an RESP can fund. */
 const ELIGIBLE_USES = [
@@ -261,6 +262,28 @@ export default function RespBody() {
         </div>
       </section>
 
+      <ServiceCta
+        heading="Open it, fund it, and invest it properly."
+        body="A Keybase advisor can help you choose the right plan type, structure contributions around the grants you qualify for, and plan how the money is withdrawn."
+        tone="muted"
+        related={[
+          {
+            href: "/education-planning",
+            label: "Education Planning",
+            note: "The wider strategy an RESP sits inside.",
+          },
+          {
+            href: "/tfsa",
+            label: "TFSAs",
+            note: "A flexible complement once RESP contributions are set.",
+          },
+          {
+            href: "/wealth-building",
+            label: "Wealth Planning",
+            note: "Balancing education saving against your other goals.",
+          },
+        ]}
+      />
     </>
   );
 }

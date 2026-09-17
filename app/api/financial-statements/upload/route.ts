@@ -18,7 +18,7 @@ const MAX_BYTES = 15 * 1024 * 1024;
 
 export async function POST(request: Request) {
   try {
-    const actor = authorize("upload");
+    const actor = await authorize("upload");
 
     const form = await request.formData();
     const file = form.get("file");

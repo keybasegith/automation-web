@@ -7,6 +7,9 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import Reveal from "@/components/home/Reveal";
+import ServiceSection from "@/components/services/ServiceSection";
+import ServiceFaq, { type FaqItem } from "@/components/services/ServiceFaq";
+import ServiceCta from "@/components/services/ServiceCta";
 
 const PILLARS = [
   {
@@ -75,6 +78,44 @@ const STEPS = [
   },
 ];
 
+const FAQ: FaqItem[] = [
+  {
+    question: "When should I start saving for education?",
+    answer: [
+      "As early as is practical. Starting early helps in two ways: contributions have longer to compound, and government grants are generally tied to contributions, so contributing consistently matters more than contributing heavily in any one year.",
+      "A plan begun closer to the date still has options — it simply leans more on the amount contributed than on the time available.",
+    ],
+  },
+  {
+    question: "What is an RESP?",
+    answer: [
+      "A Registered Education Savings Plan is an account designed to save toward a beneficiary\u2019s post-secondary education. Contributions are not tax-deductible, but investments grow on a tax-deferred basis inside the plan, and contributions can attract federal grants.",
+      "When the beneficiary enrols in a qualifying program, grants and growth are withdrawn as Educational Assistance Payments, which are taxed in the student\u2019s hands rather than the contributor\u2019s.",
+    ],
+  },
+  {
+    question: "What is the difference between an individual and a family RESP?",
+    answer: [
+      "An individual plan has a single beneficiary, and the person opening it does not need to be related to that beneficiary. A family plan can name more than one beneficiary, provided each is related to the person opening the plan, and allows contributions and growth to be shared among them.",
+      "Families saving for several children often prefer a family plan for exactly that flexibility, since no two children\u2019s timing or path will be identical.",
+    ],
+  },
+  {
+    question: "What happens if the child does not attend post-secondary school?",
+    answer: [
+      "There are options rather than a single outcome. A plan can generally be kept open for a period in case plans change, another eligible beneficiary may be named in some circumstances, and contributions can normally be returned to the subscriber. Government grants that go unused for education are returned to the government.",
+      "The rules that apply depend on the plan and on the circumstances, so this is worth reviewing with an advisor before any decision is made.",
+    ],
+  },
+  {
+    question: "Can grandparents open a plan?",
+    answer: [
+      "Yes. A grandparent can be the subscriber of an RESP for a grandchild, or contribute to a plan a parent has already opened.",
+      "Where more than one plan exists for the same child, coordinating them matters — grants are tied to the beneficiary rather than to any individual plan.",
+    ],
+  },
+];
+
 /**
  * The education-planning page body — every section below the hero.
  *
@@ -84,6 +125,27 @@ const STEPS = [
 export default function EducationPlanningBody() {
   return (
     <>
+      {/* ---------- What it is (direct answer) ---------- */}
+      <ServiceSection
+        eyebrow="In Short"
+        heading="What is education planning?"
+        tone="muted"
+        divider={false}
+      >
+        <p>
+          Education planning is the work of setting a savings target for a
+          child&rsquo;s post-secondary education and building a strategy to
+          reach it. In Canada that usually centres on a Registered Education
+          Savings Plan, where contributions can attract government grants such
+          as the Canada Education Savings Grant and investments grow on a
+          tax-deferred basis until the funds are needed.
+        </p>
+        <p>
+          The plan also covers how the money is invested as the start date
+          approaches, and how it is drawn down once studies actually begin.
+        </p>
+      </ServiceSection>
+
       {/* ---------- A thoughtful plan ---------- */}
       <section className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 sm:py-28">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,360px)_1fr] lg:gap-20">
@@ -272,6 +334,46 @@ export default function EducationPlanningBody() {
         </div>
       </section>
 
+      {/* ---------- Who it is for ---------- */}
+      <ServiceSection eyebrow="Who We Work With" heading="Who education planning is for" tone="muted">
+        <p>
+          Education planning is for parents and grandparents who want to
+          contribute toward a child&rsquo;s education, for families planning for
+          more than one child who need contributions and grants balanced across
+          them, and for anyone who would rather start early and let time carry
+          part of the load.
+        </p>
+        <p>
+          It is also worth revisiting for families who already hold an RESP but
+          have not looked recently at how it is invested, or at how withdrawals
+          will be handled once school begins.
+        </p>
+      </ServiceSection>
+
+      <ServiceFaq heading="Questions about education savings." items={FAQ} tone="white" />
+
+      <ServiceCta
+        heading="Give the plan time to work."
+        body="A Keybase advisor can help you open and structure an education savings plan, capture the grants you qualify for, and invest it against the years you actually have."
+        tone="muted"
+        related={[
+          {
+            href: "/resp",
+            label: "RESPs",
+            note: "How the plan itself works, and the grants attached to it.",
+          },
+          {
+            href: "/tfsa",
+            label: "TFSAs",
+            note: "A flexible complement when RESP room is already used.",
+          },
+          {
+            href: "/wealth-building",
+            label: "Wealth Planning",
+            note: "Balancing education saving against your other goals.",
+          },
+        ]}
+      />
     </>
   );
 }
