@@ -1,4 +1,3 @@
-import ServiceResources from "@/components/services/ServiceResources";
 import ServiceNavigation from "@/components/services/ServiceNavigation";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
@@ -23,7 +22,6 @@ export default async function RDSPPage() {
         <ServiceHero content={page} scrimClassName="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0a1f33]/80 via-[#0a1f33]/40 to-transparent" />
 
         <RdspBody />
-        <ServiceResources slug="rdsp" />
       </main>
 
       <SiteFooter />

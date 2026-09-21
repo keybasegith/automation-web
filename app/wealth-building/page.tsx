@@ -1,4 +1,3 @@
-import ServiceResources from "@/components/services/ServiceResources";
 import ServiceNavigation from "@/components/services/ServiceNavigation";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
@@ -31,7 +30,6 @@ export default async function WealthBuildingPage() {
         />
 
         <WealthBuildingBody />
-        <ServiceResources slug="wealth-building" />
       </main>
 
       <SiteFooter />
