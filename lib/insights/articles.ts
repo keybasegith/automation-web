@@ -1,3 +1,5 @@
+import { CANADA_INFLATION_AUGUST_2026 } from "./content/canadaInflationAugust2026";
+import { POLICY_RATE_AND_BOND_PRICES_2026 } from "./content/policyRateAndBondPrices2026";
 import { AI_DRIVEN_WORLD_HUMAN_ADVICE } from "./content/aiDrivenWorldHumanAdvice";
 import { BANK_OF_CANADA_SEPTEMBER_2026 } from "./content/bankOfCanadaSeptember2026";
 import { CANADA_JOBS_AUGUST_2026 } from "./content/canadaJobsAugust2026";
@@ -19,6 +21,8 @@ import type { ArticleBlock, ArticleKind, InsightArticle } from "./types";
  * articles, not headlines waiting for copy.
  */
 export const ARTICLES: InsightArticle[] = [
+  CANADA_INFLATION_AUGUST_2026,
+  POLICY_RATE_AND_BOND_PRICES_2026,
   BANK_OF_CANADA_SEPTEMBER_2026,
   AI_DRIVEN_WORLD_HUMAN_ADVICE,
   FROM_PRODUCT_SELECTION_TO_LIFE_PLANNING,

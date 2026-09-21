@@ -143,6 +143,9 @@ export interface InsightArticle {
    */
   showDisclaimer?: boolean;
 
+  /** Hide the advisory-services banner for purely informational articles. */
+  showAdvisorCta?: boolean;
+
   /**
    * Extra disclosure wording for this one article, printed under the standard
    * corporate paragraph in the Important Information section.

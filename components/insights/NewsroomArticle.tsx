@@ -136,10 +136,10 @@ export default function NewsroomArticle({
         {schema && <JsonLd data={schema} />}
       </main>
 
-      <ServiceCta
+      {article.showAdvisorCta !== false && <ServiceCta
         heading="Talk it through with an advisor."
         body="Reading is a starting point. A Keybase advisor can tell you how any of this applies to your own circumstances, and what — if anything — is worth acting on."
-      />
+      />}
 
       <SiteFooter />
     </div>
