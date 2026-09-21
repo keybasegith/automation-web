@@ -3,10 +3,7 @@ import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import Newsroom from "@/components/newsroom/Newsroom";
 import { buildNewsroomCards } from "@/lib/insights/listing";
-import {
-  getPublishedNewsroom,
-  getVisiblePublishedArticles,
-} from "@/lib/cms/public";
+import { getPublishedNewsroom } from "@/lib/cms/public";
 import { pageMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata() {
@@ -16,10 +13,7 @@ export async function generateMetadata() {
 }
 
 export default async function NewsroomPage() {
-  const [{ hero }, articles] = await Promise.all([
-    getPublishedNewsroom(),
-    getVisiblePublishedArticles(),
-  ]);
+  const { hero } = await getPublishedNewsroom();
   return (
     <div className="font-franklin min-h-screen bg-white text-[#1a2433]">
       <SiteHeader />
@@ -39,7 +33,7 @@ export default async function NewsroomPage() {
 
         {/* Interactive list */}
         <div className="mt-12">
-          <Newsroom articles={buildNewsroomCards(articles)} />
+          <Newsroom articles={buildNewsroomCards([])} />
         </div>
       </main>
 
