@@ -7,9 +7,9 @@ import {
 } from "./articles";
 
 /**
- * Public publication selection. Only the two selected Market Perspectives
- * are published. Older static modules and CMS records remain archived, but
- * cannot reappear through direct URLs, related links, search or the sitemap.
+ * Public publication selection: two Market Perspectives and three homepage
+ * Perspectives. Other static modules and CMS records remain archived.
+ * The Newsroom listing separately selects only Market Perspectives.
  */
 export async function getPublishedArticles(): Promise<InsightArticle[]> {
   return publishedArticles();

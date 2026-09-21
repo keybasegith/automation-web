@@ -33,7 +33,7 @@ export default async function NewsroomPage() {
 
         {/* Interactive list */}
         <div className="mt-12">
-          <Newsroom articles={buildNewsroomCards([])} />
+          <Newsroom articles={buildNewsroomCards([]).filter((article) => article.category === "Market Perspectives")} />
         </div>
       </main>
 
