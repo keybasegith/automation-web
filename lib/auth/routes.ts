@@ -17,6 +17,13 @@ export const PUBLIC_EXCEPTIONS: readonly { path: string; why: string }[] = [
     path: "/api/onboarding/sign",
     why: "external signer, authenticated by the token in the link",
   },
+  {
+    // Same, for the onboarding wizard's documents: the client signs, and opens
+    // the documents they are signing, from a link. The token is checked for
+    // expiry and spent on use (app/api/client-onboarding/sign/[token]).
+    path: "/api/client-onboarding/sign",
+    why: "external signer, authenticated by the token in the link",
+  },
 ];
 
 const startsWithSegment = (pathname: string, prefix: string): boolean =>

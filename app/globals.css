@@ -638,3 +638,98 @@ body {
     margin: 12mm;
   }
 }
+
+/* ------------------------------------------------------------------
+ * New Account Application Form (/dashboard/naaf)
+ *
+ * The form mounts inside .crq-root, so the questionnaire's print isolation
+ * and its signature pad's print-only image apply here too. This block adds
+ * what the NAAF needs on top: its colours, its four page breaks, and a
+ * blank Client B that prints as a blank Client B, not a greyed-out one.
+ * ------------------------------------------------------------------ */
+
+@media print {
+  .naaf-no-print {
+    display: none !important;
+  }
+
+  .naaf-root {
+    font-size: 11px;
+  }
+
+  .naaf-paper {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .naaf-bar,
+  .naaf-root h3 {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Each "n| Page" footer closes a printed page, as on the source form. */
+  .naaf-page-foot {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .naaf-definitions .naaf-page-foot {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .naaf-inactive fieldset,
+  .naaf-root [inert] {
+    opacity: 1 !important;
+  }
+
+  .naaf-root input,
+  .naaf-root textarea {
+    background: transparent !important;
+  }
+
+  .naaf-textarea {
+    resize: none !important;
+  }
+
+  .naaf-root .ring-2 {
+    box-shadow: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------
+ * New-account workspace (/dashboard/new-account)
+ *
+ * Two .crq-root forms sit side by side in fixed-height scrolling panes.
+ * Printing takes one of them: the pane's print button names it on
+ * <body data-print-pane>, the other is dropped, and the panes stop
+ * clipping so the whole form reaches the paper. (The workspace also
+ * counts print as "wide", so neither pane unmounts mid-print.)
+ * ------------------------------------------------------------------ */
+
+@media print {
+  body[data-print-pane="naaf"] .crq-root:not(.naaf-root),
+  body[data-print-pane="crq"] .naaf-root {
+    display: none !important;
+  }
+
+  .naw-root,
+  .naw-split,
+  .naw-pane {
+    display: block !important;
+    /* Static, so the printed .crq-root anchors to the page, not the pane. */
+    position: static !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+}

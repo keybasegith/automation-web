@@ -16,7 +16,7 @@ export type OnboardingStatus = (typeof ONBOARDING_STATUSES)[number];
 export const RISK_PROFILES = ["Low", "Medium", "High"] as const;
 export type RiskProfile = (typeof RISK_PROFILES)[number];
 
-export type SignatureType = "client" | "advisor";
+export type SignatureType = "client" | "joint" | "advisor";
 
 export const ONBOARDING_EVENT_TYPES = [
   "created",
@@ -126,6 +126,14 @@ interface SignatureRow {
   signature_url: string;
   signed_at: string;
 }
+
+/**
+ * Onboarding row plus its (primary) client. Migration 016 gave onboardings a
+ * second foreign key to clients (the joint holder), so the embed must name
+ * which relationship it means or PostgREST rejects it as ambiguous. The
+ * result key stays `clients`.
+ */
+const ONBOARDING_WITH_CLIENT = "*, clients!onboardings_client_id_fkey!inner(*)";
 
 const splitName = (name: string): { first: string; last: string } => {
   const parts = name.trim().split(/\s+/);
@@ -279,7 +287,7 @@ export async function getOnboardingById(
   const supabase = getServerSupabase();
   const { data, error } = await supabase
     .from("onboardings")
-    .select("*, clients!inner(*)")
+    .select(ONBOARDING_WITH_CLIENT)
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(`Onboarding lookup failed: ${error.message}`);
@@ -299,7 +307,7 @@ export async function getOnboardingByToken(
   const supabase = getServerSupabase();
   const { data, error } = await supabase
     .from("onboardings")
-    .select("*, clients!inner(*)")
+    .select(ONBOARDING_WITH_CLIENT)
     .eq("signing_token", token)
     .maybeSingle();
   if (error) throw new Error(`Onboarding lookup failed: ${error.message}`);
@@ -367,7 +375,7 @@ export async function listOnboardingsByStatuses(
   const supabase = getServerSupabase();
   const { data, error } = await supabase
     .from("onboardings")
-    .select("*, clients!inner(*)")
+    .select(ONBOARDING_WITH_CLIENT)
     .in("status", statuses as unknown as string[])
     .order("created_at", { ascending: false });
   if (error) throw new Error(`Onboarding list failed: ${error.message}`);

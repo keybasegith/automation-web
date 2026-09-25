@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isServerSupabaseConfigured } from "@/lib/supabaseClient";
 import { getClientWithEmails } from "@/lib/db/clientsRepo";
+import ClientRecordPanel from "@/components/client-onboarding/ClientRecordPanel";
 import type { EmailStatus, GeneratedEmailRow } from "@/lib/db/types";
 
 export const dynamic = "force-dynamic";
@@ -78,6 +79,8 @@ export default async function ClientDetailPage({
           + Draft new email
         </Link>
       </header>
+
+      <ClientRecordPanel clientId={client.id} />
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Risk tolerance" value={client.risk_tolerance} />

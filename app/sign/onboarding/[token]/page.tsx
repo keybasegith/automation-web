@@ -2,6 +2,12 @@ import Image from "next/image";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import ClientSigningPanel from "@/components/onboarding/ClientSigningPanel";
+import ClientWizardSigning from "@/components/client-onboarding/ClientWizardSigning";
+import {
+  getWizardOnboardingByToken,
+  listOnboardingDocuments,
+  type WizardOnboarding,
+} from "@/lib/client-onboarding/repo";
 import { isServerSupabaseConfigured } from "@/lib/supabaseClient";
 import {
   clientFullName,
@@ -28,6 +34,11 @@ export default async function ClientSignPage({
   }
 
   const { token } = await params;
+
+  // Links sent from the onboarding wizard: sign the filled official NAAF + CRQ.
+  const wizard = /^[0-9a-f]{32}$/i.test(token) ? await getWizardOnboardingByToken(token) : null;
+  if (wizard) return <WizardSignPage onboarding={wizard} token={token} />;
+
   const result = await getOnboardingByToken(token);
   if (!result) notFound();
   const { onboarding, client } = result;
@@ -133,6 +144,71 @@ export default async function ClientSignPage({
         <footer className="pb-8 text-center text-xs text-slate-400">
           This link is unique to you. Please do not forward it.
         </footer>
+      </div>
+    </main>
+  );
+}
+
+/** The client's page for a link sent from the onboarding wizard. */
+async function WizardSignPage({ onboarding, token }: { onboarding: WizardOnboarding; token: string }) {
+  const live =
+    onboarding.status === "sent" &&
+    onboarding.signingTokenExpiresAt !== null &&
+    new Date(onboarding.signingTokenExpiresAt) > new Date();
+
+  if (live) {
+    try {
+      const h = await headers();
+      await logOnboardingEvent({
+        onboardingId: onboarding.id,
+        eventType: "viewed",
+        ipAddress: h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+        userAgent: h.get("user-agent") ?? null,
+      });
+    } catch {
+      // never block the client on audit logging
+    }
+  }
+
+  const { naaf, variant } = onboarding.draft;
+  const a = naaf.clientA;
+  const b = naaf.clientB;
+  const nameA = variant === "corporate" ? `Authorized Signing Officer, ${a.surname}` : [a.firstName, a.surname].filter(Boolean).join(" ");
+  const nameB = [b.firstName, b.surname].filter(Boolean).join(" ");
+  const documents = live
+    ? (await listOnboardingDocuments(onboarding.id))
+        // Only the forms being signed — never the ID copies and declarations filed alongside.
+        .filter((d) => !d.signed && (d.kind === "naaf" || d.kind === "crq"))
+        .map((d) => ({ id: d.id, title: d.title }))
+    : [];
+
+  return (
+    <main className="min-h-screen bg-slate-50 px-4 py-10">
+      <div className="mx-auto flex max-w-2xl flex-col gap-6">
+        <Image src="/keybase-logo-nobg.png" alt="Keybase Financial Group" width={556} height={124} className="h-10 w-auto self-start" />
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Review and sign your account documents</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            {naaf.advisor.name ? `${naaf.advisor.name} has` : "Your advisor has"} prepared your New Account Application Form
+            and Client Risk Questionnaire.
+          </p>
+        </div>
+        {live ? (
+          <ClientWizardSigning
+            token={token}
+            documents={documents}
+            signers={[
+              { key: "client1", label: `${nameA || "Account holder"} — signature` },
+              ...(naaf.hasJointHolder ? [{ key: "client2" as const, label: `${nameB || "Joint account holder"} — signature` }] : []),
+            ]}
+          />
+        ) : (
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-700">
+            {onboarding.status === "completed"
+              ? "These documents have already been signed. Thank you."
+              : "This signing link has expired. Please contact your advisor for a new one."}
+          </div>
+        )}
       </div>
     </main>
   );

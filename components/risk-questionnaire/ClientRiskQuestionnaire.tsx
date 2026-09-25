@@ -1,26 +1,24 @@
 "use client";
 
+/**
+ * The Client Risk Questionnaire, in any of its three printed editions
+ * (individual, joint, corporate — see lib/risk-questionnaire/forms.ts).
+ *
+ * Controlled: the parent owns the answers. On its own page that is a small
+ * wrapper; in the new-account workspace it is the workspace, which keeps the
+ * fields the CRQ shares with the NAAF in step.
+ *
+ * Layout breakpoints are container queries (@xl:, @4xl:) rather than viewport
+ * ones, so the form lays itself out for the space it is given — the full page,
+ * or half of a split view.
+ */
+
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Printer } from "lucide-react";
 
-import {
-  ACKNOWLEDGEMENT_ALL_ACCOUNTS,
-  ACKNOWLEDGEMENT_SINGLE_ACCOUNT_PREFIX,
-  ACKNOWLEDGEMENT_SINGLE_ACCOUNT_SUFFIX,
-  CAPACITY_QUESTION_IDS,
-  CAPACITY_SUMMARY_INSTRUCTION,
-  FORM_SUBTITLE,
-  FORM_TITLE,
-  FORM_VERSION,
-  INTRO_PARAGRAPHS,
-  INVESTMENT_CHECK_QUESTION,
-  PORTFOLIO_PRIORITIES,
-  QUESTIONS_BY_ID,
-  SECTION_LABELS,
-  TOLERANCE_QUESTION_IDS,
-  TOLERANCE_SUMMARY_INSTRUCTION,
-} from "@/lib/risk-questionnaire/config";
+import { CAPACITY_SUMMARY_INSTRUCTION, TOLERANCE_SUMMARY_INSTRUCTION, SECTION_LABELS } from "@/lib/risk-questionnaire/config";
+import type { CrqFormDefinition } from "@/lib/risk-questionnaire/forms";
 import { deriveRiskProfile } from "@/lib/risk-questionnaire/scoring";
 import {
   buildSubmission,
@@ -31,38 +29,18 @@ import { fieldIds, validateQuestionnaire } from "@/lib/risk-questionnaire/valida
 import type {
   AcknowledgementType,
   InvestmentCheckFrequency,
-  PortfolioPriorityId,
+  JointInvestmentGoal,
   QuestionnaireState,
   ScoredQuestionId,
 } from "@/lib/risk-questionnaire/types";
 
 import PriorityRanking from "./PriorityRanking";
-import QuestionCard from "./QuestionCard";
+import QuestionCard, { type QuestionNote } from "./QuestionCard";
 import RiskProfile from "./RiskProfile";
 import ScoreSummary from "./ScoreSummary";
 import SignatureField from "./SignatureField";
 import UnscoredChoice from "./UnscoredChoice";
 import { DateField, FieldError, RuledField, SectionBar } from "./ui";
-
-const EMPTY_PRIORITIES = Object.fromEntries(
-  PORTFOLIO_PRIORITIES.map((p) => [p.id, null]),
-) as Record<PortfolioPriorityId, number | null>;
-
-const INITIAL_STATE: QuestionnaireState = {
-  accountHolderName: "",
-  clientId: "",
-  portfolioPriorities: EMPTY_PRIORITIES,
-  investmentCheckFrequency: null,
-  answers: {},
-  notes: "",
-  acknowledgementType: null,
-  acknowledgementAccountName: "",
-  accountHolderSignature: null,
-  accountHolderDate: "",
-  advisorName: "",
-  advisorSignature: null,
-  advisorDate: "",
-};
 
 /** Moves keyboard focus to the first thing the client still has to fix. */
 function focusField(fieldId: string) {
@@ -76,19 +54,33 @@ function focusField(fieldId: string) {
   focusable?.focus({ preventScroll: true });
 }
 
-export default function ClientRiskQuestionnaire() {
-  // Deliberately not persisted to localStorage: this is a client's financial
-  // profile, and the application has no encrypted draft store to put it in.
-  const [state, setState] = useState<QuestionnaireState>(INITIAL_STATE);
+export default function ClientRiskQuestionnaire({
+  form,
+  state,
+  onChange,
+  answerNotes,
+  onPrint,
+}: {
+  form: CrqFormDefinition;
+  state: QuestionnaireState;
+  onChange: (update: (prev: QuestionnaireState) => QuestionnaireState) => void;
+  /** Per-question lines shown under the heading, e.g. "Filled from the NAAF". */
+  answerNotes?: Partial<Record<ScoredQuestionId, QuestionNote>>;
+  /** Overrides the print button, for pages that show more than one form. */
+  onPrint?: () => void;
+}) {
   const [showErrors, setShowErrors] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SubmitResult | null>(null);
 
-  const profile = useMemo(() => deriveRiskProfile(state.answers), [state.answers]);
+  const joint = form.variant === "joint";
+  const corporate = form.variant === "corporate";
+
+  const profile = useMemo(() => deriveRiskProfile(state.answers, form), [state.answers, form]);
 
   // The single source of truth for what is still missing. Surfaced only after
   // a submit attempt, then kept live so messages clear as fields are fixed.
-  const outstanding = useMemo(() => validateQuestionnaire(state), [state]);
+  const outstanding = useMemo(() => validateQuestionnaire(state, form), [state, form]);
   const errors = showErrors ? outstanding : [];
   const errorFor = (fieldId: string) => errors.find((e) => e.fieldId === fieldId)?.message;
 
@@ -96,11 +88,10 @@ export default function ClientRiskQuestionnaire() {
   const totalQuestions = profile.capacity.total + profile.tolerance.total;
   const complete = outstanding.length === 0;
 
-  const patch = (changes: Partial<QuestionnaireState>) =>
-    setState((prev) => ({ ...prev, ...changes }));
+  const patch = (changes: Partial<QuestionnaireState>) => onChange((prev) => ({ ...prev, ...changes }));
 
   const selectAnswer = (questionId: ScoredQuestionId, optionId: string) =>
-    setState((prev) => ({
+    onChange((prev) => ({
       ...prev,
       // Replacing the key replaces the points: there is no accumulation here.
       answers: { ...prev.answers, [questionId]: optionId },
@@ -116,7 +107,7 @@ export default function ClientRiskQuestionnaire() {
       return;
     }
 
-    const payload = buildSubmission(state);
+    const payload = buildSubmission(state, form);
     if (!payload) {
       setResult({ ok: false, stored: false, error: "The questionnaire is incomplete." });
       return;
@@ -137,27 +128,73 @@ export default function ClientRiskQuestionnaire() {
   };
 
   const renderQuestion = (id: ScoredQuestionId) => {
-    const question = QUESTIONS_BY_ID[id];
+    const question = form.byId[id];
     return (
-      <div key={id} className={question.chart ? "crq-question-wide lg:col-span-2" : undefined}>
+      <div key={id} className={question.chart ? "crq-question-wide @4xl:col-span-2" : undefined}>
         <QuestionCard
           question={question}
           fieldId={fieldIds.question(id)}
           selectedOptionId={state.answers[id]}
           onSelect={selectAnswer}
           error={errorFor(fieldIds.question(id))}
+          note={answerNotes?.[id]}
         />
       </div>
     );
   };
 
+  const nameField = (id: string, label: string, value: string, key: "accountHolderName" | "jointHolderName") => (
+    <div>
+      <RuledField
+        id={id}
+        label={label}
+        value={value}
+        onChange={(v) => patch({ [key]: v })}
+        invalid={Boolean(errorFor(id))}
+        autoComplete={corporate ? "organization" : "name"}
+      />
+      {errorFor(id) && <FieldError id={`${id}-error`} message={errorFor(id)!} />}
+    </div>
+  );
+
+  const signatureRow = (
+    signatureId: string,
+    dateId: string,
+    label: string,
+    signature: string | null,
+    date: string,
+    set: (changes: Partial<QuestionnaireState>) => void,
+    keys: { signature: keyof QuestionnaireState; date: keyof QuestionnaireState },
+  ) => (
+    <div className="crq-sign-row grid gap-5 @4xl:grid-cols-[minmax(0,1fr)_220px]">
+      <SignatureField
+        id={signatureId}
+        label={label}
+        value={signature}
+        onChange={(v) => set({ [keys.signature]: v })}
+        invalid={Boolean(errorFor(signatureId))}
+        error={errorFor(signatureId)}
+      />
+      <div>
+        <DateField
+          id={dateId}
+          label="Date:"
+          value={date}
+          onChange={(v) => set({ [keys.date]: v })}
+          invalid={Boolean(errorFor(dateId))}
+        />
+        {errorFor(dateId) && <FieldError id={`${dateId}-error`} message={errorFor(dateId)!} />}
+      </div>
+    </div>
+  );
+
   return (
-    <form onSubmit={handleSubmit} noValidate className="crq-root mx-auto max-w-[1120px]">
+    <form onSubmit={handleSubmit} noValidate className="crq-root @container mx-auto max-w-[1120px]">
       {/* Restrained progress strip. The authoritative figures live in the
           Risk Profile Summary, not up here. */}
       <nav
         aria-label="Questionnaire progress"
-        className="crq-no-print sticky top-0 z-20 -mx-4 mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 border-b border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur sm:mx-0 sm:rounded-t-[6px]"
+        className="crq-no-print sticky top-0 z-20 -mx-4 mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 border-b border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur @xl:mx-0 @xl:rounded-t-[6px]"
       >
         <p className="text-[13px] font-medium text-slate-600">
           <span className="tabular-nums text-[#0B6165]">
@@ -180,42 +217,30 @@ export default function ClientRiskQuestionnaire() {
 
       <div className="crq-paper overflow-hidden rounded-[6px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
         {/* ---------------------------------------------------------- Header */}
-        <header className="px-4 pt-5 sm:px-7">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <header className="px-4 pt-5 @xl:px-7">
+          <div className="flex flex-col gap-4 @xl:flex-row @xl:items-center @xl:justify-between">
             <Image
               src="/keybase-logo-nobg.png"
               alt="Keybase Financial Group"
               width={556}
               height={124}
               priority
-              className="h-[42px] w-auto"
+              className="h-[42px] w-auto self-start @xl:self-auto"
             />
-            <div className="sm:text-center">
-              <h1 className="text-[26px] font-semibold tracking-tight text-[#111111] sm:text-[32px]">
-                {FORM_TITLE}
+            <div className="@xl:text-center">
+              <h1 className="text-[24px] font-semibold tracking-tight text-[#111111] @xl:text-[30px]">
+                {form.title}
               </h1>
-              <p className="text-[15px] font-bold text-[#111111] sm:text-[17px]">{FORM_SUBTITLE}</p>
+              <p className="text-[15px] font-bold text-[#111111] @xl:text-[17px]">{form.subtitle}</p>
             </div>
-            <div aria-hidden className="hidden w-[150px] lg:block" />
+            <div aria-hidden className="hidden w-[150px] @5xl:block" />
           </div>
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div>
-              <RuledField
-                id={fieldIds.accountHolderName}
-                label="Account Holder's Name"
-                value={state.accountHolderName}
-                onChange={(v) => patch({ accountHolderName: v })}
-                invalid={Boolean(errorFor(fieldIds.accountHolderName))}
-                autoComplete="name"
-              />
-              {errorFor(fieldIds.accountHolderName) && (
-                <FieldError
-                  id={`${fieldIds.accountHolderName}-error`}
-                  message={errorFor(fieldIds.accountHolderName)!}
-                />
-              )}
-            </div>
+          <div className={`mt-5 grid gap-4 ${joint ? "@xl:grid-cols-3" : "@xl:grid-cols-2"}`}>
+            {nameField(fieldIds.accountHolderName, form.primaryNameLabel, state.accountHolderName, "accountHolderName")}
+            {joint &&
+              form.jointNameLabel &&
+              nameField(fieldIds.jointHolderName, form.jointNameLabel, state.jointHolderName, "jointHolderName")}
             <RuledField
               id={fieldIds.clientId}
               label="Client ID"
@@ -225,7 +250,7 @@ export default function ClientRiskQuestionnaire() {
           </div>
 
           <div className="mt-5 space-y-2.5 border-t-[3px] border-[#0B6165] pt-3.5">
-            {INTRO_PARAGRAPHS.map((paragraph) => (
+            {form.introParagraphs.map((paragraph) => (
               <p key={paragraph.slice(0, 24)} className="text-[15px] leading-relaxed text-[#111111]">
                 {paragraph}
               </p>
@@ -238,19 +263,21 @@ export default function ClientRiskQuestionnaire() {
           <SectionBar id="crq-capacity" title={SECTION_LABELS.capacity} />
         </div>
 
-        <div className="crq-question-grid grid gap-x-10 px-1 py-2 sm:px-3 lg:grid-cols-2">
+        <div className="crq-question-grid grid gap-x-10 px-1 py-2 @xl:px-3 @4xl:grid-cols-2">
           <PriorityRanking
+            question={form.priorityQuestion}
+            instruction={form.priorityInstruction}
             values={state.portfolioPriorities}
             onChange={(portfolioPriorities) => patch({ portfolioPriorities })}
           />
           <UnscoredChoice
-            question={INVESTMENT_CHECK_QUESTION}
+            question={form.investmentCheckQuestion}
             value={state.investmentCheckFrequency}
             onSelect={(optionId) =>
               patch({ investmentCheckFrequency: optionId as InvestmentCheckFrequency })
             }
           />
-          {CAPACITY_QUESTION_IDS.map(renderQuestion)}
+          {form.capacityIds.map(renderQuestion)}
         </div>
 
         {/* ------------------------------------------------- Risk Tolerance */}
@@ -258,8 +285,8 @@ export default function ClientRiskQuestionnaire() {
           <SectionBar id="crq-tolerance" title={SECTION_LABELS.tolerance} startsPrintPage />
         </div>
 
-        <div className="crq-question-grid grid gap-x-10 px-1 py-2 sm:px-3 lg:grid-cols-2">
-          {TOLERANCE_QUESTION_IDS.map(renderQuestion)}
+        <div className="crq-question-grid grid gap-x-10 px-1 py-2 @xl:px-3 @4xl:grid-cols-2">
+          {form.toleranceIds.map(renderQuestion)}
         </div>
 
         {/* --------------------------------------------- Risk Profile Summary */}
@@ -267,25 +294,27 @@ export default function ClientRiskQuestionnaire() {
           <SectionBar id="crq-summary" title="RISK PROFILE SUMMARY" startsPrintPage />
         </div>
 
-        <div className="px-4 py-5 sm:px-7">
+        <div className="px-4 py-5 @xl:px-7">
           <ScoreSummary
             title="Risk Capacity Scoring Summary"
             instruction={CAPACITY_SUMMARY_INSTRUCTION}
-            questionIds={CAPACITY_QUESTION_IDS}
+            questionIds={form.capacityIds}
             answers={state.answers}
             section={profile.capacity}
+            sheet={form}
           />
           <ScoreSummary
             title="Risk Tolerance Scoring Summary"
             instruction={TOLERANCE_SUMMARY_INSTRUCTION}
-            questionIds={TOLERANCE_QUESTION_IDS}
+            questionIds={form.toleranceIds}
             answers={state.answers}
             section={profile.tolerance}
+            sheet={form}
           />
 
-          <RiskProfile profile={profile} />
+          <RiskProfile profile={profile} form={form} />
 
-          <ProfileReadout profile={profile} />
+          <ProfileReadout profile={profile} rankingLabel={form.rankingLabel} corporate={corporate} />
 
           {/* ------------------------------------------------------- Notes */}
           <section className="mt-7">
@@ -314,7 +343,7 @@ export default function ClientRiskQuestionnaire() {
                 checked={state.acknowledgementType === "all_accounts"}
                 onSelect={() => patch({ acknowledgementType: "all_accounts" })}
               >
-                {ACKNOWLEDGEMENT_ALL_ACCOUNTS}
+                {form.acknowledgement.all}
               </AcknowledgementOption>
 
               <AcknowledgementOption
@@ -323,7 +352,7 @@ export default function ClientRiskQuestionnaire() {
                 onSelect={() => patch({ acknowledgementType: "single_account" })}
               >
                 <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1.5">
-                  {ACKNOWLEDGEMENT_SINGLE_ACCOUNT_PREFIX}
+                  {form.acknowledgement.singlePrefix}
                   <input
                     id={fieldIds.acknowledgementAccountName}
                     name={fieldIds.acknowledgementAccountName}
@@ -342,60 +371,76 @@ export default function ClientRiskQuestionnaire() {
                         : "border-slate-300 focus-visible:border-[#0B6165]"
                     }`}
                   />
-                  {ACKNOWLEDGEMENT_SINGLE_ACCOUNT_SUFFIX}
+                  {form.acknowledgement.singleSuffix}
+                  {form.acknowledgement.goalChoices && (
+                    <>
+                      {/* Printed as "(Balanced/Growth/High Growth)" to be circled. */}
+                      <select
+                        id={fieldIds.acknowledgementGoal}
+                        name={fieldIds.acknowledgementGoal}
+                        aria-label="Investment goal for this joint account"
+                        value={state.acknowledgementGoal ?? ""}
+                        disabled={state.acknowledgementType !== "single_account"}
+                        aria-invalid={Boolean(errorFor(fieldIds.acknowledgementGoal)) || undefined}
+                        onChange={(e) =>
+                          patch({ acknowledgementGoal: (e.target.value || null) as JointInvestmentGoal | null })
+                        }
+                        className={`h-9 scroll-mt-28 rounded-[4px] border bg-white px-2 text-[15px] text-[#111111] outline-none disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 ${
+                          errorFor(fieldIds.acknowledgementGoal) ? "border-red-500" : "border-slate-300"
+                        }`}
+                      >
+                        <option value="">(Balanced/Growth/High Growth)</option>
+                        {form.acknowledgement.goalChoices.map((goal) => (
+                          <option key={goal} value={goal}>
+                            {goal}
+                          </option>
+                        ))}
+                      </select>
+                      {form.acknowledgement.goalTail}
+                    </>
+                  )}
                 </span>
               </AcknowledgementOption>
             </div>
 
-            {errorFor(fieldIds.acknowledgement) && (
-              <FieldError
-                id={`${fieldIds.acknowledgement}-error`}
-                message={errorFor(fieldIds.acknowledgement)!}
-              />
-            )}
-            {errorFor(fieldIds.acknowledgementAccountName) && (
-              <FieldError
-                id={`${fieldIds.acknowledgementAccountName}-error`}
-                message={errorFor(fieldIds.acknowledgementAccountName)!}
-              />
+            {[fieldIds.acknowledgement, fieldIds.acknowledgementAccountName, fieldIds.acknowledgementGoal].map(
+              (id) => errorFor(id) && <FieldError key={id} id={`${id}-error`} message={errorFor(id)!} />,
             )}
           </fieldset>
 
           {/* ------------------------------------------------- Signatures */}
-          <section className="mt-8 border-t-[3px] border-[#0B6165] pt-5">
+          <section className="mt-8 flex flex-col gap-6 border-t-[3px] border-[#0B6165] pt-5">
             <h3 className="sr-only">Signatures</h3>
 
-            <div className="crq-sign-row grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px]">
-              <SignatureField
-                id={fieldIds.accountHolderSignature}
-                label="Account Holder's Signature:"
-                value={state.accountHolderSignature}
-                onChange={(accountHolderSignature) => patch({ accountHolderSignature })}
-                invalid={Boolean(errorFor(fieldIds.accountHolderSignature))}
-                error={errorFor(fieldIds.accountHolderSignature)}
-              />
-              <div>
-                <DateField
-                  id={fieldIds.accountHolderDate}
-                  label="Date:"
-                  value={state.accountHolderDate}
-                  onChange={(accountHolderDate) => patch({ accountHolderDate })}
-                  invalid={Boolean(errorFor(fieldIds.accountHolderDate))}
-                />
-                {errorFor(fieldIds.accountHolderDate) && (
-                  <FieldError
-                    id={`${fieldIds.accountHolderDate}-error`}
-                    message={errorFor(fieldIds.accountHolderDate)!}
-                  />
-                )}
-              </div>
-            </div>
+            {signatureRow(
+              fieldIds.accountHolderSignature,
+              fieldIds.accountHolderDate,
+              form.primarySignatureLabel,
+              state.accountHolderSignature,
+              state.accountHolderDate,
+              patch,
+              { signature: "accountHolderSignature", date: "accountHolderDate" },
+            )}
+            {joint &&
+              form.jointSignatureLabel &&
+              signatureRow(
+                fieldIds.jointHolderSignature,
+                fieldIds.jointHolderDate,
+                form.jointSignatureLabel,
+                state.jointHolderSignature,
+                state.jointHolderDate,
+                patch,
+                { signature: "jointHolderSignature", date: "jointHolderDate" },
+              )}
+            {form.signingNote && (
+              <p className="-mt-3 text-[13px] italic text-[#333333]">{form.signingNote}</p>
+            )}
 
-            <div className="mt-7 border-t border-slate-200 pt-5">
+            <div className="border-t border-slate-200 pt-5">
               <p className="crq-no-print mb-3 text-[13px] text-slate-500">
                 Completed by the advisor. Not required for the client to submit their portion.
               </p>
-              <div className="crq-advisor-row grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)_220px]">
+              <div className="crq-advisor-row grid gap-5 @4xl:grid-cols-[220px_minmax(0,1fr)_220px]">
                 <RuledField
                   id="crq-advisor-name"
                   label="Advisor's Name:"
@@ -463,7 +508,7 @@ export default function ClientRiskQuestionnaire() {
               </button>
               <button
                 type="button"
-                onClick={() => window.print()}
+                onClick={() => (onPrint ? onPrint() : window.print())}
                 disabled={!complete}
                 title={
                   complete
@@ -479,8 +524,8 @@ export default function ClientRiskQuestionnaire() {
           </div>
         </div>
 
-        <footer className="border-t border-slate-200 px-4 py-3 sm:px-7">
-          <p className="text-[12px] text-slate-400">{FORM_VERSION}</p>
+        <footer className="border-t border-slate-200 px-4 py-3 @xl:px-7">
+          <p className="text-[12px] text-slate-400">{form.formVersion}</p>
         </footer>
       </div>
     </form>
@@ -531,7 +576,15 @@ function AcknowledgementOption({
 }
 
 /** The plain-language readout under the two printed tables. */
-function ProfileReadout({ profile }: { profile: ReturnType<typeof deriveRiskProfile> }) {
+function ProfileReadout({
+  profile,
+  rankingLabel,
+  corporate,
+}: {
+  profile: ReturnType<typeof deriveRiskProfile>;
+  rankingLabel: string;
+  corporate: boolean;
+}) {
   const cells: { label: string; score: number | null; level: string | null }[] = [
     { label: "Risk Capacity", score: profile.capacity.score, level: profile.capacityLevel },
     { label: "Risk Tolerance", score: profile.tolerance.score, level: profile.toleranceLevel },
@@ -539,7 +592,7 @@ function ProfileReadout({ profile }: { profile: ReturnType<typeof deriveRiskProf
 
   return (
     <section className="mt-6 rounded-[6px] border border-[#0B6165]/25 bg-[#F4F9F9] px-4 py-4">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 @xl:grid-cols-3">
         {cells.map((cell) => (
           <div key={cell.label}>
             <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[#0B6165]">
@@ -551,17 +604,17 @@ function ProfileReadout({ profile }: { profile: ReturnType<typeof deriveRiskProf
             <p className="mt-1 text-[14px] text-[#333333]">{cell.level ?? "Incomplete"}</p>
           </div>
         ))}
-        <div className="border-t border-[#0B6165]/20 pt-4 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
+        <div className="border-t border-[#0B6165]/20 pt-4 @xl:border-l @xl:border-t-0 @xl:pl-4 @xl:pt-0">
           <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[#0B6165]">
-            Your Risk Ranking
+            {rankingLabel}
           </p>
           <p className="mt-1 text-[24px] font-bold uppercase leading-tight text-[#0B6165]">
             {profile.finalRiskRanking ?? "—"}
           </p>
           <p className="mt-1 text-[13px] text-[#333333]">
             {profile.finalRiskRanking
-              ? "The lower of your two risk levels."
-              : "Complete Questions 1–12 to determine your ranking."}
+              ? `The lower of ${corporate ? "the entity's" : "your"} two risk levels.`
+              : "Complete Questions 1–12 to determine the ranking."}
           </p>
         </div>
       </div>

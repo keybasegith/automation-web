@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
 
-import ClientRiskQuestionnaire from "@/components/risk-questionnaire/ClientRiskQuestionnaire";
+import StandaloneQuestionnaire from "@/components/risk-questionnaire/StandaloneQuestionnaire";
+import { isCrqVariant } from "@/lib/risk-questionnaire/forms";
 
 export const metadata: Metadata = {
-  title: "Client Risk Questionnaire — Individual Account Holder",
+  title: "Client Risk Questionnaire",
   description:
-    "Digital version of the Keybase Financial Group Client Risk Questionnaire for individual account holders (form v2-crq25).",
+    "Digital version of the Keybase Financial Group Client Risk Questionnaire — individual, joint and corporate editions (form v2-crq25).",
 };
 
-export default function ClientRiskQuestionnairePage() {
+export default async function ClientRiskQuestionnairePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string }>;
+}) {
+  const { type } = await searchParams;
+  const initialVariant = isCrqVariant(type) ? type : "individual";
+
   return (
     <div className="mx-auto max-w-[1120px]">
       <header className="crq-no-print mb-5">
@@ -17,13 +25,13 @@ export default function ClientRiskQuestionnairePage() {
           Client Risk Questionnaire
         </h2>
         <p className="max-w-3xl text-sm text-slate-500">
-          The individual account holder questionnaire, completed on screen. Scores, risk levels and
+          Completed on screen, for individual, joint and corporate accounts. Scores, risk levels and
           the final risk ranking are calculated from the answers as they are selected — nothing is
           totalled by hand.
         </p>
       </header>
 
-      <ClientRiskQuestionnaire />
+      <StandaloneQuestionnaire key={initialVariant} initialVariant={initialVariant} />
     </div>
   );
 }

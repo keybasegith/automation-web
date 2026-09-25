@@ -1,6 +1,7 @@
 import {
   Banknote,
   Briefcase,
+  BriefcaseBusiness,
   CalendarDays,
   ShieldCheck,
   TrendingUp,
@@ -135,7 +136,7 @@ export const DEPARTMENTS: readonly Department[] = [
     tools: [
       {
         label: "Client Risk Questionnaire",
-        hint: "Complete the individual account holder CRQ and score it automatically",
+        hint: "Complete an individual, joint or corporate CRQ and score it automatically",
         href: "/client-risk-questionnaire",
         icon: ClipboardList,
       },
@@ -162,6 +163,47 @@ export const DEPARTMENTS: readonly Department[] = [
         hint: "Full record of system events",
         href: "/dashboard/audit",
         icon: Inbox,
+      },
+    ],
+  },
+  {
+    slug: "financial-advisors",
+    name: "Financial Advisors",
+    tagline: "Client applications",
+    description:
+      "Onboard a new client step by step, or work in the NAAF and CRQ side by side — shared details fill in across both, and the signed forms are filed on the client's record.",
+    icon: BriefcaseBusiness,
+    accent: "from-teal-500/15 to-teal-500/5 text-teal-700",
+    tools: [
+      {
+        label: "New Client Onboarding",
+        hint: "Step-by-step onboarding: answer once, then the NAAF and CRQ are filled, signed and filed on the client's record",
+        href: "/onboarding/new",
+        icon: UserPlus,
+      },
+      {
+        label: "New Account Application Form",
+        hint: "The NAAF beside its CRQ — shared details fill in across both, blanks and missing signatures are flagged",
+        href: "/dashboard/new-account",
+        icon: FileText,
+      },
+      {
+        label: "CRQ — Individual Account Holder",
+        hint: "Individual risk questionnaire, side by side with the NAAF",
+        href: "/dashboard/new-account?crq=individual",
+        icon: ClipboardList,
+      },
+      {
+        label: "CRQ — Joint Account Holders",
+        hint: "Joint risk questionnaire with both holders' signatures, side by side with the NAAF",
+        href: "/dashboard/new-account?crq=joint",
+        icon: ClipboardList,
+      },
+      {
+        label: "CRQ — Corporate Accounts",
+        hint: "Corporate risk questionnaire signed by the Authorized Signing Officer, side by side with the NAAF",
+        href: "/dashboard/new-account?crq=corporate",
+        icon: ClipboardList,
       },
     ],
   },

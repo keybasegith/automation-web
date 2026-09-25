@@ -7,6 +7,11 @@
  * The pipeline is:
  *   selected option ids -> point values -> section totals -> band lookup
  *   -> lower of the two levels.
+ *
+ * Every function takes the edition's question sheet, defaulting to the
+ * individual form. The editions share option ids and bands but not every point
+ * value (the corporate Question 1 scores differently), so a total must always
+ * be computed against the sheet of the form the client actually answered.
  */
 
 import {
@@ -19,17 +24,32 @@ import {
 } from "./config";
 import type {
   RiskLevel,
+  RiskQuestion,
   RiskLevelResolution,
   RiskSection,
   ScoredQuestionId,
   SectionScore,
 } from "./types";
 
+/** The parts of a form edition that scoring reads. */
+export interface ScoringSheet {
+  byId: Readonly<Record<ScoredQuestionId, RiskQuestion>>;
+  capacityIds: readonly ScoredQuestionId[];
+  toleranceIds: readonly ScoredQuestionId[];
+}
+
+const INDIVIDUAL_SHEET: ScoringSheet = {
+  byId: QUESTIONS_BY_ID,
+  capacityIds: CAPACITY_QUESTION_IDS,
+  toleranceIds: TOLERANCE_QUESTION_IDS,
+};
+
 /** Question ids belonging to a section, in printed order. */
 export function questionIdsForSection(
   section: RiskSection,
+  sheet: ScoringSheet = INDIVIDUAL_SHEET,
 ): readonly ScoredQuestionId[] {
-  return section === "capacity" ? CAPACITY_QUESTION_IDS : TOLERANCE_QUESTION_IDS;
+  return section === "capacity" ? sheet.capacityIds : sheet.toleranceIds;
 }
 
 /**
@@ -39,9 +59,10 @@ export function questionIdsForSection(
 export function pointsForAnswer(
   questionId: ScoredQuestionId,
   optionId: string | undefined,
+  sheet: ScoringSheet = INDIVIDUAL_SHEET,
 ): number | null {
   if (!optionId) return null;
-  const option = QUESTIONS_BY_ID[questionId]?.options.find((o) => o.id === optionId);
+  const option = sheet.byId[questionId]?.options.find((o) => o.id === optionId);
   return option ? option.points : null;
 }
 
@@ -53,13 +74,14 @@ export function pointsForAnswer(
 export function calculateSectionScore(
   answers: Partial<Record<ScoredQuestionId, string>>,
   section: RiskSection,
+  sheet: ScoringSheet = INDIVIDUAL_SHEET,
 ): SectionScore {
-  const ids = questionIdsForSection(section);
+  const ids = questionIdsForSection(section, sheet);
   let total = 0;
   let answered = 0;
 
   for (const id of ids) {
-    const points = pointsForAnswer(id, answers[id]);
+    const points = pointsForAnswer(id, answers[id], sheet);
     if (points === null) continue;
     total += points;
     answered += 1;
@@ -120,9 +142,10 @@ export interface RiskProfile {
 /** The whole derivation in one pass. The only place the UI reads results from. */
 export function deriveRiskProfile(
   answers: Partial<Record<ScoredQuestionId, string>>,
+  sheet: ScoringSheet = INDIVIDUAL_SHEET,
 ): RiskProfile {
-  const capacity = calculateSectionScore(answers, "capacity");
-  const tolerance = calculateSectionScore(answers, "tolerance");
+  const capacity = calculateSectionScore(answers, "capacity", sheet);
+  const tolerance = calculateSectionScore(answers, "tolerance", sheet);
 
   const capacityResolution =
     capacity.score === null ? null : resolveRiskLevel(capacity.score);

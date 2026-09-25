@@ -4,6 +4,8 @@ import {
   listClientsWithStats,
   type ClientWithStats,
 } from "@/lib/db/clientsRepo";
+import { ClientSearchBox, ClientSearchResults } from "@/components/client-onboarding/ClientSearch";
+import { searchClients, type ClientSearchResult } from "@/lib/client-onboarding/repo";
 
 export const dynamic = "force-dynamic";
 
@@ -27,9 +29,40 @@ const formatRelative = (iso: string | null): string => {
   return `${days}d ago`;
 };
 
-export default async function ClientsListPage() {
+export default async function ClientsListPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   if (!isServerSupabaseConfigured()) {
     return <NotConfigured />;
+  }
+
+  const query = ((await searchParams).q ?? "").trim().slice(0, 100);
+  if (query) {
+    let results: ClientSearchResult[] = [];
+    let searchError: string | null = null;
+    try {
+      results = await searchClients(query);
+    } catch (err) {
+      searchError = err instanceof Error ? err.message : String(err);
+    }
+    return (
+      <div className="mx-auto max-w-7xl">
+        <header className="mb-5 flex flex-col gap-1">
+          <p className="text-xs font-medium uppercase tracking-wider text-brand">Book of Business</p>
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Clients</h2>
+        </header>
+        <ClientSearchBox query={query} />
+        {searchError ? (
+          <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            Search failed: {searchError}
+          </div>
+        ) : (
+          <ClientSearchResults query={query} results={results} />
+        )}
+      </div>
+    );
   }
 
   let clients: ClientWithStats[] = [];
@@ -65,6 +98,8 @@ export default async function ClientsListPage() {
           📥 Import CSV
         </Link>
       </header>
+
+      <ClientSearchBox query="" />
 
       {loadError && (
         <div

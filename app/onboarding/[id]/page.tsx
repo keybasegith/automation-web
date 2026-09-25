@@ -5,6 +5,8 @@ import KYCPreview from "@/components/onboarding/KYCPreview";
 import NAAFPreview from "@/components/onboarding/NAAFPreview";
 import OnboardingActions from "@/components/onboarding/OnboardingActions";
 import StatusBadge from "@/components/onboarding/StatusBadge";
+import WizardOnboardingDetail from "@/components/client-onboarding/WizardOnboardingDetail";
+import { getWizardOnboarding, isUuid, listOnboardingDocuments } from "@/lib/client-onboarding/repo";
 import { isServerSupabaseConfigured } from "@/lib/supabaseClient";
 import {
   clientFullName,
@@ -44,6 +46,22 @@ export default async function OnboardingDetailPage({
   }
 
   const { id } = await params;
+
+  // Onboardings made with the wizard keep their answers and filed PDFs; they
+  // get their own record view. Older ones fall through to the page below.
+  const wizard = isUuid(id) ? await getWizardOnboarding(id) : null;
+  if (wizard) {
+    const h = await headers();
+    const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+    const proto = h.get("x-forwarded-proto") ?? "http";
+    return (
+      <WizardOnboardingDetail
+        onboarding={wizard}
+        documents={await listOnboardingDocuments(wizard.id)}
+        signingUrl={`${proto}://${host}/sign/onboarding/${wizard.signingToken}`}
+      />
+    );
+  }
 
   const result = await getOnboardingById(id);
   if (!result) notFound();

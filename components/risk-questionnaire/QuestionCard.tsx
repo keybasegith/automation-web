@@ -4,6 +4,12 @@ import Image from "next/image";
 import { Check } from "lucide-react";
 
 import type { RiskQuestion } from "@/lib/risk-questionnaire/types";
+
+export interface QuestionNote {
+  text: string;
+  /** "differs" when the answer disagrees with what the other form implies. */
+  tone: "linked" | "differs";
+}
 import { FieldError, Instruction, QuestionHeading } from "./ui";
 
 /**
@@ -61,12 +67,15 @@ export default function QuestionCard({
   selectedOptionId,
   onSelect,
   error,
+  note,
 }: {
   question: RiskQuestion;
   fieldId: string;
   selectedOptionId: string | undefined;
   onSelect: (questionId: RiskQuestion["id"], optionId: string) => void;
   error?: string;
+  /** A short line under the heading, e.g. that the answer was filled from the NAAF. */
+  note?: QuestionNote;
 }) {
   const errorId = `${fieldId}-error`;
 
@@ -91,6 +100,15 @@ export default function QuestionCard({
           </span>
         ))}
       </QuestionHeading>
+      {note && (
+        <p
+          className={`crq-no-print mt-1 inline-flex rounded-full px-2 py-0.5 text-[12px] font-medium ${
+            note.tone === "differs" ? "bg-amber-50 text-amber-900 ring-1 ring-inset ring-amber-200" : "bg-[#EEF5F5] text-[#0B6165]"
+          }`}
+        >
+          {note.text}
+        </p>
+      )}
 
       {/* A charted question puts the chart beside its answers on wide screens,
           the way the source form pairs them, instead of stacking a very tall
@@ -98,7 +116,7 @@ export default function QuestionCard({
       <div
         className={
           question.chart
-            ? "crq-chart-layout mt-3 grid gap-x-8 gap-y-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-start"
+            ? "crq-chart-layout mt-3 grid gap-x-8 gap-y-3 @3xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] @3xl:items-start"
             : undefined
         }
       >

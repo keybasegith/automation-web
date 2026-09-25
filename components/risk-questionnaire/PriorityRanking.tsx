@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  PORTFOLIO_PRIORITIES,
-  PORTFOLIO_PRIORITY_INSTRUCTION,
-  PORTFOLIO_PRIORITY_QUESTION,
-} from "@/lib/risk-questionnaire/config";
+import { PORTFOLIO_PRIORITIES } from "@/lib/risk-questionnaire/config";
 import type { PortfolioPriorityId } from "@/lib/risk-questionnaire/types";
 import { Instruction, QuestionHeading } from "./ui";
 
@@ -21,9 +17,13 @@ const RANKS = PORTFOLIO_PRIORITIES.map((_, i) => i + 1);
  * it, clearing the priority that held it, rather than refusing the click.
  */
 export default function PriorityRanking({
+  question,
+  instruction,
   values,
   onChange,
 }: {
+  question: string;
+  instruction: string;
   values: Record<PortfolioPriorityId, number | null>;
   onChange: (next: Record<PortfolioPriorityId, number | null>) => void;
 }) {
@@ -41,9 +41,9 @@ export default function PriorityRanking({
   return (
     <section className="crq-question px-4 py-4" aria-labelledby="crq-priorities-heading">
       <div id="crq-priorities-heading">
-        <QuestionHeading as="h3">{PORTFOLIO_PRIORITY_QUESTION}</QuestionHeading>
+        <QuestionHeading as="h3">{question}</QuestionHeading>
       </div>
-      <Instruction>{PORTFOLIO_PRIORITY_INSTRUCTION}</Instruction>
+      <Instruction>{instruction}</Instruction>
 
       <ul className="mt-2.5 flex flex-col gap-1.5">
         {PORTFOLIO_PRIORITIES.map((priority) => {

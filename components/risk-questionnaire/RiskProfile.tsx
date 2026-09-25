@@ -2,12 +2,8 @@
 
 import { Check } from "lucide-react";
 
-import {
-  RISK_LEVELS_INSTRUCTION,
-  RISK_LEVELS_IN_ORDER,
-  RISK_LEVEL_BANDS,
-  RISK_RANKING_INSTRUCTION,
-} from "@/lib/risk-questionnaire/config";
+import { RISK_LEVELS_IN_ORDER, RISK_LEVEL_BANDS } from "@/lib/risk-questionnaire/config";
+import type { CrqFormDefinition } from "@/lib/risk-questionnaire/forms";
 import type { RiskProfile as Profile } from "@/lib/risk-questionnaire/scoring";
 import type { RiskLevel } from "@/lib/risk-questionnaire/types";
 
@@ -67,14 +63,21 @@ function LevelRow({
  * Everything here is derived. The final ranking is the LOWER of the two levels
  * and is never something the client or advisor picks by hand.
  */
-export default function RiskProfile({ profile }: { profile: Profile }) {
+export default function RiskProfile({
+  profile,
+  form,
+}: {
+  profile: Profile;
+  /** Supplies the edition's wording ("Your Risk Profile" / "The Entity's Risk Profile"). */
+  form: CrqFormDefinition;
+}) {
   const { finalRiskRanking } = profile;
 
   return (
     <section className="mt-7">
-      <h3 className="text-[17px] font-bold text-[#111111]">Your Risk Profile</h3>
+      <h3 className="text-[17px] font-bold text-[#111111]">{form.profileHeading}</h3>
       <p className="mt-1 max-w-4xl text-[13px] leading-snug text-[#333333]">
-        {RISK_LEVELS_INSTRUCTION}
+        {form.levelsInstruction}
       </p>
 
       <div className="crq-scroll-x mt-2.5 overflow-x-auto">
@@ -89,7 +92,7 @@ export default function RiskProfile({ profile }: { profile: Profile }) {
                 scope="col"
                 className="w-[260px] border border-[#111111] bg-white px-3 py-1.5 text-left text-[15px] font-bold text-[#111111]"
               >
-                Your Risk Levels
+                {form.levelsLabel}
               </th>
               {RISK_LEVELS_IN_ORDER.map((level) => (
                 <th
@@ -127,7 +130,7 @@ export default function RiskProfile({ profile }: { profile: Profile }) {
       )}
 
       <p className="mt-4 max-w-4xl text-[13px] leading-snug text-[#333333]">
-        {RISK_RANKING_INSTRUCTION}
+        {form.rankingInstruction}
       </p>
 
       <div className="crq-scroll-x mt-2.5 overflow-x-auto">
@@ -139,7 +142,7 @@ export default function RiskProfile({ profile }: { profile: Profile }) {
                 scope="col"
                 className="w-[260px] border border-[#111111] bg-white px-3 py-1.5 text-left text-[15px] font-bold text-[#111111]"
               >
-                Your Risk Ranking
+                {form.rankingLabel}
               </th>
               {RISK_LEVELS_IN_ORDER.map((level) => (
                 <th

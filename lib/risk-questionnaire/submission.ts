@@ -7,7 +7,7 @@
  * trusted for a compliance record.
  */
 
-import { FORM_VERSION, RISK_QUESTIONS } from "./config";
+import { CRQ_FORMS, type CrqFormDefinition } from "./forms";
 import { deriveRiskProfile, pointsForAnswer } from "./scoring";
 import type {
   QuestionnaireState,
@@ -23,30 +23,35 @@ import type {
  */
 export function buildSubmission(
   state: QuestionnaireState,
+  form: CrqFormDefinition = CRQ_FORMS.individual,
   completedAt: Date = new Date(),
 ): QuestionnaireSubmission | null {
   const answers: Partial<Record<ScoredQuestionId, RecordedAnswer>> = {};
 
-  for (const question of RISK_QUESTIONS) {
+  for (const question of form.questions) {
     const optionId = state.answers[question.id];
-    const points = pointsForAnswer(question.id, optionId);
+    const points = pointsForAnswer(question.id, optionId, form);
     if (!optionId || points === null) return null;
     answers[question.id] = { optionId, points };
   }
 
-  const profile = deriveRiskProfile(state.answers);
+  const profile = deriveRiskProfile(state.answers, form);
   if (profile.capacity.score === null || profile.tolerance.score === null) {
     return null;
   }
   if (state.acknowledgementType === null || !state.accountHolderSignature) {
     return null;
   }
+  const joint = form.variant === "joint";
+  if (joint && !state.jointHolderSignature) return null;
 
   const trimmedAccountName = state.acknowledgementAccountName.trim();
 
   return {
-    formVersion: FORM_VERSION,
+    formVersion: form.formVersion,
+    variant: form.variant,
     accountHolderName: state.accountHolderName.trim(),
+    jointHolderName: joint ? state.jointHolderName.trim() : null,
     clientId: state.clientId.trim(),
     portfolioPriorities: { ...state.portfolioPriorities },
     investmentCheckFrequency: state.investmentCheckFrequency,
@@ -64,9 +69,13 @@ export function buildSubmission(
         state.acknowledgementType === "single_account"
           ? trimmedAccountName || null
           : null,
+      goal:
+        joint && state.acknowledgementType === "single_account" ? state.acknowledgementGoal : null,
     },
     accountHolderSignature: state.accountHolderSignature,
     accountHolderDate: state.accountHolderDate,
+    jointHolderSignature: joint ? state.jointHolderSignature : null,
+    jointHolderDate: joint ? state.jointHolderDate.trim() || null : null,
     advisorName: state.advisorName.trim() || null,
     advisorSignature: state.advisorSignature,
     advisorDate: state.advisorDate.trim() || null,

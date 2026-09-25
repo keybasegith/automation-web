@@ -37,7 +37,7 @@ export function SectionBar({
         startsPrintPage ? "crq-print-page-break" : ""
       }`}
     >
-      <h2 className="text-[19px] font-bold uppercase tracking-[0.01em] text-[#0f172a] sm:text-[22px]">
+      <h2 className="text-[19px] font-bold uppercase tracking-[0.01em] text-[#0f172a] @xl:text-[22px]">
         {title}
       </h2>
     </div>
@@ -53,7 +53,7 @@ export function QuestionHeading({
   as?: "h3" | "h4" | "legend";
 }) {
   return (
-    <Tag className="text-[15px] font-bold leading-snug text-[#0B6165] sm:text-[16px]">
+    <Tag className="text-[15px] font-bold leading-snug text-[#0B6165] @xl:text-[16px]">
       {children}
     </Tag>
   );

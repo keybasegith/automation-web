@@ -1,8 +1,7 @@
 "use client";
 
-import { QUESTIONS_BY_ID } from "@/lib/risk-questionnaire/config";
 import type { ScoredQuestionId, SectionScore } from "@/lib/risk-questionnaire/types";
-import { pointsForAnswer } from "@/lib/risk-questionnaire/scoring";
+import { pointsForAnswer, type ScoringSheet } from "@/lib/risk-questionnaire/scoring";
 
 /**
  * One of the two scoring tables from the source form, filled in automatically.
@@ -16,12 +15,15 @@ export default function ScoreSummary({
   questionIds,
   answers,
   section,
+  sheet,
 }: {
   title: string;
   instruction: string;
   questionIds: readonly ScoredQuestionId[];
   answers: Partial<Record<ScoredQuestionId, string>>;
   section: SectionScore;
+  /** The edition's questions: the corporate Question 1 scores differently. */
+  sheet: ScoringSheet;
 }) {
   const spacerColumns = [0, 1, 2];
 
@@ -47,7 +49,7 @@ export default function ScoreSummary({
                   scope="col"
                   className="border border-[#111111] px-3 py-1.5 text-[15px] font-bold text-[#111111]"
                 >
-                  {QUESTIONS_BY_ID[id].number}
+                  {sheet.byId[id].number}
                 </th>
               ))}
               {spacerColumns.map((i) => (
@@ -68,7 +70,7 @@ export default function ScoreSummary({
                 Answers:
               </th>
               {questionIds.map((id) => {
-                const points = pointsForAnswer(id, answers[id]);
+                const points = pointsForAnswer(id, answers[id], sheet);
                 return (
                   <td
                     key={id}

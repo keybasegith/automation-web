@@ -6,16 +6,21 @@
  * option ids. A mismatch is recorded on the row rather than accepted quietly,
  * so a tampered or stale client shows up in review instead of in a client's
  * official risk ranking.
+ *
+ * Scores are recalculated against the edition the client answered (individual,
+ * joint or corporate): the corporate Question 1 is worth different points, so
+ * scoring one edition's answers against another's sheet would be wrong. The
+ * edition and the joint holder's details are kept in `metadata`, which the
+ * table already has, rather than in new columns.
  */
 
 import { NextResponse } from "next/server";
 
 import {
-  FORM_VERSION,
   INVESTMENT_CHECK_VALUES,
   PORTFOLIO_PRIORITIES,
-  RISK_QUESTIONS,
 } from "@/lib/risk-questionnaire/config";
+import { CRQ_FORMS, isCrqVariant } from "@/lib/risk-questionnaire/forms";
 import { deriveRiskProfile } from "@/lib/risk-questionnaire/scoring";
 import { isValidSignatureDataUrl } from "@/lib/signature";
 import {
@@ -53,13 +58,23 @@ export async function POST(req: Request) {
 
   const data = body as Partial<QuestionnaireSubmission>;
 
+  // Older clients sent no edition; they could only have been on the individual form.
+  const variant = data.variant === undefined ? "individual" : data.variant;
+  if (!isCrqVariant(variant)) return bad("Unrecognised questionnaire edition.");
+  const form = CRQ_FORMS[variant];
+  const joint = variant === "joint";
+
   const accountHolderName = text(data.accountHolderName, 200);
-  if (!accountHolderName) return bad("Account holder's name is required.");
+  if (!accountHolderName) {
+    return bad(variant === "corporate" ? "The corporation or entity's name is required." : "Account holder's name is required.");
+  }
+  const jointHolderName = joint ? text(data.jointHolderName, 200) : null;
+  if (joint && !jointHolderName) return bad("The joint account holder's name is required.");
 
   // Rebuild the answer sheet from ids alone. Anything the client sent
   // alongside them (points, totals, levels) is ignored from here on.
   const answers: Partial<Record<ScoredQuestionId, string>> = {};
-  for (const question of RISK_QUESTIONS) {
+  for (const question of form.questions) {
     const submitted = data.answers?.[question.id];
     const optionId = typeof submitted?.optionId === "string" ? submitted.optionId : null;
     if (!optionId || !question.options.some((o) => o.id === optionId)) {
@@ -68,7 +83,7 @@ export async function POST(req: Request) {
     answers[question.id] = optionId;
   }
 
-  const profile = deriveRiskProfile(answers);
+  const profile = deriveRiskProfile(answers, form);
   if (profile.capacity.score === null || profile.tolerance.score === null) {
     // Unreachable given the loop above, but a compliance record never gets
     // written off a partially scored questionnaire.
@@ -86,12 +101,28 @@ export async function POST(req: Request) {
   if (acknowledgementType === "single_account" && !acknowledgementAccountName) {
     return bad("Name the account this questionnaire applies to.");
   }
+  const goal = data.acknowledgement?.goal ?? null;
+  const acknowledgementGoal =
+    joint && acknowledgementType === "single_account" && goal !== null && form.acknowledgement.goalChoices?.includes(goal)
+      ? goal
+      : null;
+  if (joint && acknowledgementType === "single_account" && !acknowledgementGoal) {
+    return bad("Choose the investment goal this joint account pursues.");
+  }
 
   if (!isValidSignatureDataUrl(data.accountHolderSignature)) {
     return bad("The account holder's signature is required.");
   }
   const accountHolderDate = text(data.accountHolderDate, 32);
   if (!accountHolderDate) return bad("The account holder's signing date is required.");
+
+  const jointHolderDate = joint ? text(data.jointHolderDate, 32) : null;
+  if (joint) {
+    if (!isValidSignatureDataUrl(data.jointHolderSignature)) {
+      return bad("The joint account holder's signature is required.");
+    }
+    if (!jointHolderDate) return bad("The joint account holder's signing date is required.");
+  }
 
   const advisorSignature =
     data.advisorSignature && isValidSignatureDataUrl(data.advisorSignature)
@@ -120,13 +151,13 @@ export async function POST(req: Request) {
     data.finalRiskRanking !== profile.finalRiskRanking;
 
   const row = {
-    form_version: FORM_VERSION,
+    form_version: form.formVersion,
     account_holder_name: accountHolderName,
     client_id: text(data.clientId, 100),
     portfolio_priorities: priorities,
     investment_check_frequency: frequency,
     answers: Object.fromEntries(
-      RISK_QUESTIONS.map((q) => [
+      form.questions.map((q) => [
         q.id,
         {
           optionId: answers[q.id],
@@ -149,7 +180,16 @@ export async function POST(req: Request) {
     advisor_signature: advisorSignature,
     advisor_date: text(data.advisorDate, 32),
     completed_at: text(data.completedAt, 40) ?? new Date().toISOString(),
-    metadata: { clientTotalsDisagree },
+    metadata: {
+      clientTotalsDisagree,
+      variant,
+      ...(joint && {
+        jointHolderName,
+        jointHolderSignature: data.jointHolderSignature,
+        jointHolderDate,
+        acknowledgementGoal,
+      }),
+    },
   };
 
   const recalculated = {

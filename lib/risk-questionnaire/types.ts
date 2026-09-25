@@ -1,5 +1,5 @@
 /**
- * Client Risk Questionnaire — Individual Account Holder (source form v2-crq25).
+ * Client Risk Questionnaire — Individual, Joint and Corporate (source form v2-crq25).
  *
  * Types only. The authoritative content (wording, options, point values and
  * risk-level thresholds) lives in ./config.ts; the arithmetic lives in
@@ -8,6 +8,12 @@
  */
 
 export type RiskSection = "capacity" | "tolerance";
+
+/** The three printed editions of the CRQ. They share every scoring band. */
+export type CrqVariant = "individual" | "joint" | "corporate";
+
+/** The joint form's second acknowledgement asks which goal the account pursues. */
+export type JointInvestmentGoal = "Balanced" | "Growth" | "High Growth";
 
 export type ScoredQuestionId =
   | "q1" | "q2" | "q3" | "q4" | "q5" | "q6"
@@ -104,7 +110,10 @@ export type AcknowledgementType = "all_accounts" | "single_account";
 
 /** Everything the client fills in. Held as one object in React state. */
 export interface QuestionnaireState {
+  /** Corporate: the Corporation / Entity's Name. */
   accountHolderName: string;
+  /** Joint only. */
+  jointHolderName: string;
   clientId: string;
   portfolioPriorities: Record<PortfolioPriorityId, number | null>;
   investmentCheckFrequency: InvestmentCheckFrequency | null;
@@ -113,8 +122,14 @@ export interface QuestionnaireState {
   notes: string;
   acknowledgementType: AcknowledgementType | null;
   acknowledgementAccountName: string;
+  /** Joint only — the goal named in the single-account acknowledgement. */
+  acknowledgementGoal: JointInvestmentGoal | null;
+  /** Corporate: the Authorized Signing Officer's signature. */
   accountHolderSignature: string | null;
   accountHolderDate: string;
+  /** Joint only. */
+  jointHolderSignature: string | null;
+  jointHolderDate: string;
   advisorName: string;
   advisorSignature: string | null;
   advisorDate: string;
@@ -128,7 +143,9 @@ export interface RecordedAnswer {
 
 export interface QuestionnaireSubmission {
   formVersion: string;
+  variant: CrqVariant;
   accountHolderName: string;
+  jointHolderName: string | null;
   clientId: string;
   portfolioPriorities: Record<PortfolioPriorityId, number | null>;
   investmentCheckFrequency: InvestmentCheckFrequency | null;
@@ -144,9 +161,12 @@ export interface QuestionnaireSubmission {
   acknowledgement: {
     type: AcknowledgementType;
     accountName: string | null;
+    goal: JointInvestmentGoal | null;
   };
   accountHolderSignature: string;
   accountHolderDate: string;
+  jointHolderSignature: string | null;
+  jointHolderDate: string | null;
   advisorName: string | null;
   advisorSignature: string | null;
   advisorDate: string | null;

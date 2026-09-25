@@ -89,6 +89,12 @@ const ONBOARDING_MENU: readonly MenuItem[] = [
 
 const ADMIN_MENU: readonly MenuItem[] = [
   {
+    label: "New Account Application",
+    href: "/dashboard/new-account",
+    matchPaths: ["/dashboard/new-account", "/dashboard/naaf"],
+    icon: FileText,
+  },
+  {
     label: "Client Risk Questionnaire",
     href: "/client-risk-questionnaire",
     matchPaths: ["/client-risk-questionnaire"],
