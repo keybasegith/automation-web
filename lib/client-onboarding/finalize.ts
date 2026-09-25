@@ -73,27 +73,37 @@ export function outstandingBeforeSigning(draft: OnboardingDraft): StepFinding[] 
 
 // ---------------------------------------------------------------- templates
 
+/**
+ * The blank forms. Reading files under process.cwd() makes the bundler trace
+ * the whole project into the server function — ~480 MB of video and images
+ * from public/ — which breaks Vercel's 250 MB function limit. So the reads
+ * carry turbopackIgnore, and next.config.ts's outputFileTracingIncludes adds
+ * back exactly these four PDFs for the onboarding routes.
+ */
 const TEMPLATES = {
-  naaf: "form-NAAF.pdf",
-  individual: "crq-individualaccountholder.pdf",
-  joint: "crq-jointaccountholders.pdf",
-  corporate: "crq-corporateaccounts.pdf",
+  naaf: { file: "form-NAAF.pdf", path: () => path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "form-NAAF.pdf") },
+  individual: {
+    file: "crq-individualaccountholder.pdf",
+    path: () => path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "crq-individualaccountholder.pdf"),
+  },
+  joint: { file: "crq-jointaccountholders.pdf", path: () => path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "crq-jointaccountholders.pdf") },
+  corporate: { file: "crq-corporateaccounts.pdf", path: () => path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "crq-corporateaccounts.pdf") },
 } as const;
 
 const templateCache = new Map<string, Uint8Array>();
 
 /**
- * Reads a blank form from public/. Serverless bundles do not always ship
- * public/ beside the function, so when the file is not on disk it is fetched
- * from the site itself — the same file the browser would get.
+ * Reads a blank form from public/. If the file is not beside the function
+ * after all, it is fetched from the site itself — the same file the browser
+ * would get.
  */
 async function loadTemplate(name: keyof typeof TEMPLATES, origin: string): Promise<Uint8Array> {
-  const file = TEMPLATES[name];
+  const { file, path: filePath } = TEMPLATES[name];
   const cached = templateCache.get(file);
   if (cached) return cached;
   let bytes: Uint8Array;
   try {
-    bytes = new Uint8Array(await readFile(path.join(process.cwd(), "public", file)));
+    bytes = new Uint8Array(await readFile(/*turbopackIgnore: true*/ filePath()));
   } catch {
     const response = await fetch(new URL(`/${file}`, origin));
     if (!response.ok) throw new Error(`Could not load the blank ${file} (${response.status}).`);

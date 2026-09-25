@@ -5,6 +5,17 @@ import { SERVICE_SLUGS, LEGACY_REDIRECTS } from "./lib/seo/public-paths";
 const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
   turbopack: { root: __dirname },
+  // The onboarding routes fill Keybase's blank PDF forms from public/. The
+  // reads are excluded from tracing (lib/client-onboarding/finalize.ts), so
+  // only these four files ship with those functions — not all of public/.
+  outputFileTracingIncludes: {
+    "/api/client-onboarding/**": [
+      "./public/form-NAAF.pdf",
+      "./public/crq-individualaccountholder.pdf",
+      "./public/crq-jointaccountholders.pdf",
+      "./public/crq-corporateaccounts.pdf",
+    ],
+  },
   async headers() {
     return [{ source: "/:path*", headers: [
       {key:"X-Content-Type-Options",value:"nosniff"},
