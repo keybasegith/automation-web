@@ -1,4 +1,5 @@
 import SecureEmailGenerator from "@/components/secure-email/SecureEmailGenerator";
+import { Breadcrumbs } from "@/components/workspace/Breadcrumbs";
 import { isServerSupabaseConfigured } from "@/lib/supabaseClient";
 
 export const dynamic = "force-dynamic";
@@ -6,10 +7,17 @@ export const dynamic = "force-dynamic";
 export default function SecureEmailGeneratorPage() {
   return (
     <div className="mx-auto max-w-7xl">
+      <Breadcrumbs
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Marketing", href: "/dashboard/departments/marketing" },
+          { label: "Client Email Generator" },
+        ]}
+      />
       <header className="mb-6 flex flex-col gap-1">
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Client Email Generator
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           A controlled drafting assistant that polishes language inside an
           approved template. The advisor remains responsible for final review

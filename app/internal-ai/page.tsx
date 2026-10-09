@@ -43,9 +43,9 @@ export default function InternalAiPage() {
     <div className="mx-auto flex h-[calc(100vh-7.5rem)] max-w-5xl flex-col">
       <header className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
-          <h2 className="font-display text-[26px] font-semibold leading-tight tracking-tight text-slate-900">
+          <h1 className="font-display text-[26px] font-semibold leading-tight tracking-tight text-slate-900">
             Internal AI Assistant
-          </h2>
+          </h1>
           <p className="text-[14px] text-slate-500">
             Private AI for internal company use
           </p>

@@ -210,9 +210,9 @@ export default function ImportClientsPage() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Bulk add
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Import Clients from CSV
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           Upload a spreadsheet exported from your CRM. Existing clients (matched
           by email) will be updated; new ones will be added.

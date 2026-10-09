@@ -25,9 +25,9 @@ export default async function FormProcessingAuditLogsPage() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Form Intelligence & Compliance Review
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Audit logs
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           Append-only history of NAAF uploads, edits, drafts, consistency
           checks, compliance decisions, BP actions, and CSV exports. Updates

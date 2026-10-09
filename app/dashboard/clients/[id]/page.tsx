@@ -67,9 +67,9 @@ export default async function ClientDetailPage({
           <p className="text-xs font-medium uppercase tracking-wider text-brand">
             Client profile
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             {client.name}
-          </h2>
+          </h1>
           <p className="text-sm text-slate-500">{client.email}</p>
         </div>
         <Link

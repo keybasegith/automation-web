@@ -26,9 +26,9 @@ export default async function CompletedOnboardingsPage() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Client Onboarding
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Completed onboardings
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           All onboardings with both client and advisor signatures on file.
         </p>

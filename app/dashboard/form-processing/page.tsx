@@ -26,9 +26,9 @@ export default async function FormProcessingDashboardPage() {
           <p className="text-xs font-medium uppercase tracking-wider text-brand">
             Form Intelligence & Compliance Review
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             NAAF → KYC → CRQ → Compliance → BP/WindFund
-          </h2>
+          </h1>
           <p className="text-sm text-slate-500">
             The system flags potential mismatches and supports human review.
             All approvals remain with compliance.
@@ -65,9 +65,9 @@ function NotConfigured() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Form Intelligence & Compliance Review
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Form processing
-        </h2>
+        </h1>
       </header>
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
         <p className="text-sm font-semibold text-amber-900">

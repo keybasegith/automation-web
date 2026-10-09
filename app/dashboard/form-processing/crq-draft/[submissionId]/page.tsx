@@ -41,9 +41,9 @@ export default async function CrqDraftPage({
           >
             ← Back to KYC draft
           </Link>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             CRQ draft
-          </h2>
+          </h1>
           <p className="text-sm text-slate-500">
             Subjective answers must be confirmed with the client. The system
             does not determine the client&apos;s risk profile.

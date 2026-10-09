@@ -215,9 +215,9 @@ export default function DocumentRefreshPage() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Outreach module
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Automated Document Refresh & Outreach
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           Detect outdated client documents and draft compliance-aware outreach
           emails. Drafts only — every send still requires advisor review.

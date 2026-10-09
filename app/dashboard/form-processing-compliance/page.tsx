@@ -44,9 +44,9 @@ export default function FormProcessingLanding() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Module
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Form Processing & Compliance
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           Tools for compliance-safe form pre-population, validation, and
           structured data extraction.

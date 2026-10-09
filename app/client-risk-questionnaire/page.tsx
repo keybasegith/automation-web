@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import StandaloneQuestionnaire from "@/components/risk-questionnaire/StandaloneQuestionnaire";
+import { Breadcrumbs } from "@/components/workspace/Breadcrumbs";
 import { isCrqVariant } from "@/lib/risk-questionnaire/forms";
 
 export const metadata: Metadata = {
@@ -19,11 +20,19 @@ export default async function ClientRiskQuestionnairePage({
 
   return (
     <div className="mx-auto max-w-[1120px]">
+      <div className="crq-no-print">
+        <Breadcrumbs
+          items={[
+            { label: "Dashboard", href: "/dashboard" },
+            { label: "Client Risk Questionnaire" },
+          ]}
+        />
+      </div>
       <header className="crq-no-print mb-5">
         <p className="text-xs font-medium uppercase tracking-wider text-brand">Compliance</p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Client Risk Questionnaire
-        </h2>
+        </h1>
         <p className="max-w-3xl text-sm text-slate-500">
           Completed on screen, for individual, joint and corporate accounts. Scores, risk levels and
           the final risk ranking are calculated from the answers as they are selected — nothing is

@@ -87,9 +87,9 @@ export default async function OnboardingDetailPage({
           >
             ← All onboardings
           </Link>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             {clientFullName(client)}
-          </h2>
+          </h1>
           <p className="text-sm text-slate-500">{client.email}</p>
         </div>
         <div className="flex flex-col items-end gap-2">

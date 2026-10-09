@@ -123,9 +123,9 @@ export default async function ComplianceReviewPage({
           <p className="text-xs font-medium uppercase tracking-wider text-brand">
             Compliance review
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             {submission.client_name}
-          </h2>
+          </h1>
         </div>
         <StatusBadge status={submission.status} />
       </header>

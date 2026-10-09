@@ -50,9 +50,9 @@ export default async function ConsistencyCheckPage({
           >
             ← Back to CRQ draft
           </Link>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             KYC / CRQ consistency check
-          </h2>
+          </h1>
           <p className="text-sm text-slate-500">
             Deterministic mismatch detection. The system never approves; humans
             make every final call.

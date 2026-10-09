@@ -99,9 +99,9 @@ export default async function BpPackagePage({
           <p className="text-xs font-medium uppercase tracking-wider text-brand">
             Approved package
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             {submission.client_name}
-          </h2>
+          </h1>
           <p className="text-xs text-slate-500">
             BP processing status:{" "}
             {bp ? BP_STATUS_LABELS[bp.status] : "Awaiting processing"}

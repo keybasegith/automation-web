@@ -38,9 +38,9 @@ export default async function ExtractedDataPage({
           >
             ← Back to dashboard
           </Link>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             Review extracted NAAF data
-          </h2>
+          </h1>
           <p className="text-sm text-slate-500">
             Confirm or correct every value. The advisor owns this data — KYC and
             CRQ drafts will be derived from it.

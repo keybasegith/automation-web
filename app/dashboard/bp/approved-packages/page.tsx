@@ -38,9 +38,9 @@ export default async function ApprovedPackagesPage() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           BP / back office
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Approved packages
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           Only compliance-approved packages appear here. Push to WindFund or
           export the core CSV from the detail page.

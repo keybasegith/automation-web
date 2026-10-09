@@ -264,9 +264,9 @@ export default function AutomationPage() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Client Communication & Outreach
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Automation Engine
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           Detect market events, target clients, and draft compliance-aware
           emails — end to end.

@@ -37,9 +37,9 @@ export default async function OnboardingEditPage({
         >
           ← Back to {clientFullName(client)}
         </Link>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Edit onboarding
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           Update client information. Saving will preserve the current signing
           token; regenerate the documents if you change anything that appears in

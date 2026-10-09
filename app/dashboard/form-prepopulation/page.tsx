@@ -106,9 +106,9 @@ export default function FormPrepopulationPage() {
       </Link>
 
       <header className="mb-6 flex flex-col gap-1">
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Form Pre-Population
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           Upload a filled NAAF and we&apos;ll automatically populate the matching
           fields on a blank KYC. Runs entirely in your browser — no client

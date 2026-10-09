@@ -18,7 +18,7 @@ export default async function GlMappingPage() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Financial Statement Generator
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">GL Mapping</h2>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">GL Mapping</h1>
         <p className="max-w-3xl text-sm text-slate-500">
           Which accounts feed which statement line. An account with no mapping is never guessed at —
           it becomes a blocking exception until someone places it. Mapping version{" "}

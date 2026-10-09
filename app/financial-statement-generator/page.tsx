@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import TrialBalanceUpload from "@/components/financial-statements/TrialBalanceUpload";
+import { Breadcrumbs } from "@/components/workspace/Breadcrumbs";
 import { StatusPill } from "@/components/financial-statements/ui";
 import { store } from "@/lib/financial-statements/repo";
 import { isPersistenceAvailable } from "@/lib/financial-statements/store/localStore";
@@ -15,13 +16,20 @@ export default async function FinancialStatementGeneratorPage() {
 
   return (
     <div className="mx-auto max-w-7xl">
+      <Breadcrumbs
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Finance", href: "/dashboard/departments/finance" },
+          { label: "Financial Statement Generator" },
+        ]}
+      />
       <header className="mb-6 flex flex-col gap-1">
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Finance
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Financial Statement Generator
-        </h2>
+        </h1>
         <p className="max-w-3xl text-sm text-slate-500">
           Upload a Trial Balance to automatically create the Balance Sheet and Income Statement.
           Every figure is derived from the uploaded accounts and the approved GL mapping table, and

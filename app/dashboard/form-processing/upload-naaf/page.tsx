@@ -13,9 +13,9 @@ export default function UploadNaafPage() {
         >
           ← Back to dashboard
         </Link>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Upload NAAF
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           Upload the completed NAAF document. Extraction is automatic for plain
           text uploads; PDFs and images currently fall back to a manual fill

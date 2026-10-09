@@ -41,9 +41,9 @@ export default async function KycDraftPage({
           >
             ← Back to extracted data
           </Link>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             KYC draft
-          </h2>
+          </h1>
           <p className="text-sm text-slate-500">
             Auto-filled from confirmed NAAF data. Edit any field below.
           </p>

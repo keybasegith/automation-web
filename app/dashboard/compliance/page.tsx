@@ -65,9 +65,9 @@ export default async function CompliancePage() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Compliance
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Compliance Rules
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           Firm-wide guardrails injected into every AI-generated email. Updated
           rules apply to new generations only.
@@ -200,9 +200,9 @@ function NotConfigured() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Compliance
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Compliance Rules
-        </h2>
+        </h1>
       </header>
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
         <p className="text-sm font-semibold text-amber-900">

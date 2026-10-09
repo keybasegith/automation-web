@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import ContentCalendar from "@/components/department-calendar/ContentCalendar";
+import { PageHeader } from "@/components/workspace/PageHeader";
 import { getDepartment } from "@/lib/departments";
 
 // Behind authentication and reading live data: rendered per request.
@@ -30,26 +29,17 @@ export default async function DepartmentCalendarPage({
 
   return (
     <div className="mx-auto max-w-[1400px]">
-      <Link
-        href={`/dashboard/departments/${dept.slug}`}
-        className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition hover:text-slate-900"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back to {dept.name}
-      </Link>
-
-      <header className="mb-6">
-        <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-slate-400">
-          {dept.name}
-        </p>
-        <h2 className="font-display mt-1 text-[28px] font-semibold leading-tight tracking-tight text-slate-900">
-          Content Calendar
-        </h2>
-        <p className="mt-1.5 max-w-2xl text-[14px] text-slate-500">
-          Plan what goes out and when, keep the files and reference links with the
-          piece, and move it through approval and compliance review in one place.
-        </p>
-      </header>
+      <PageHeader
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: dept.name, href: `/dashboard/departments/${dept.slug}` },
+          { label: "Content Calendar" },
+        ]}
+        eyebrow={dept.name}
+        title="Content Calendar"
+        description="Plan what goes out and when, keep the files and reference links with the piece, and move it through approval and compliance review in one place."
+        className="mb-6"
+      />
 
       <ContentCalendar departmentSlug={dept.slug} departmentName={dept.name} />
     </div>

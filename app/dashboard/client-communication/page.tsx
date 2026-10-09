@@ -46,9 +46,9 @@ export default function ClientCommunicationLanding() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand">
           Module
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Client Communication & Outreach
-        </h2>
+        </h1>
         <p className="text-sm text-slate-500">
           AI-powered tools for personalized, compliance-aware client outreach.
         </p>
