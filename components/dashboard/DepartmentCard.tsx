@@ -9,7 +9,7 @@ export function DepartmentCard({ department }: { department: Department }) {
   const toolCount = department.tools.length;
   return (
     <Link
-      href={`/dashboard/departments/${department.slug}`}
+      href={department.href ?? `/dashboard/departments/${department.slug}`}
       className="group relative flex flex-col gap-4 rounded-2xl border border-[var(--hairline)] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition hover:border-[var(--hairline-strong)] hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       <div className="flex items-start justify-between">

@@ -137,8 +137,9 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     title: "Departments",
     items: DEPARTMENTS.map((dept) => ({
       label: dept.name,
-      href: `/dashboard/departments/${dept.slug}`,
+      href: dept.href ?? `/dashboard/departments/${dept.slug}`,
       matchPaths: [
+        ...(dept.href ? [dept.href] : []),
         `/dashboard/departments/${dept.slug}`,
         ...exclusiveToolPaths(dept),
       ],

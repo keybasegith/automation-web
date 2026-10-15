@@ -70,6 +70,8 @@ export interface Department {
   tagline: string;
   description: string;
   icon: LucideIcon;
+  /** Direct destination for departments with a dedicated workspace. */
+  href?: string;
   /**
    * Display order of tool groups on the department page. Departments with a
    * short tool list omit this and render flat.
@@ -81,6 +83,24 @@ export interface Department {
 }
 
 export const DEPARTMENTS: readonly Department[] = [
+  {
+    slug: "advisor-portal",
+    name: "Advisor Portal",
+    tagline: "Advisor pages & approvals",
+    description: "Customize your advisor page, review compliance feedback, and track your changes through publishing.",
+    icon: Users,
+    href: "/advisor-portal",
+    tools: [
+      {
+        id: "advisor-portal",
+        label: "Advisor Page Portal",
+        hint: "Edit your page and manage submissions, feedback, and publishing",
+        href: "/advisor-portal",
+        icon: Users,
+        keywords: ["advisor", "website", "profile", "compliance", "publishing"],
+      },
+    ],
+  },
   {
     slug: "finance",
     name: "Finance",
@@ -210,6 +230,15 @@ export const DEPARTMENTS: readonly Department[] = [
       href: "/dashboard/form-processing",
     },
     tools: [
+      {
+        id: "advisor-portal",
+        label: "Advisor Page Review",
+        hint: "Review advisor page submissions and return feedback",
+        href: "/advisor-portal",
+        icon: FileCheck2,
+        category: "Review tools",
+        keywords: ["advisor", "website", "David", "Keith", "approval"],
+      },
       {
         id: "client-risk-questionnaire",
         label: "Client Risk Questionnaire",
@@ -371,6 +400,14 @@ export const DEPARTMENTS: readonly Department[] = [
     icon: Server,
     tools: [
       {
+        id: "advisor-portal",
+        label: "Advisor Page Publishing",
+        hint: "Implement approved advisor page changes manually",
+        href: "/advisor-portal",
+        icon: FileCheck2,
+        keywords: ["advisor", "website", "David", "Keith", "approval"],
+      },
+      {
         id: "audit-logs",
         label: "Audit Logs",
         hint: "All system events and actor history",
@@ -451,6 +488,15 @@ export const DEPARTMENTS: readonly Department[] = [
     icon: Megaphone,
     categories: ["Content & planning", "Outreach & campaigns"],
     tools: [
+      {
+        id: "advisor-portal",
+        label: "Advisor Page Portal",
+        hint: "Customize advisor pages and track compliance feedback",
+        href: "/advisor-portal",
+        icon: FileCheck2,
+        category: "Content & planning",
+        keywords: ["advisor", "website", "David", "Keith", "approval"],
+      },
       {
         id: "content-calendar",
         label: "Content Calendar",

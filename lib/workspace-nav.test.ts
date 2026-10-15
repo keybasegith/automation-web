@@ -15,8 +15,9 @@ import {
 } from "@/lib/workspace-nav";
 
 describe("department registry", () => {
-  it("keeps all nine departments", () => {
+  it("includes the advisor portal alongside the existing departments", () => {
     expect(DEPARTMENTS.map((d) => d.slug)).toEqual([
+      "advisor-portal",
       "finance",
       "business-processing",
       "compliance",
@@ -69,7 +70,7 @@ describe("department registry", () => {
     const groups = departmentToolGroups(it_);
     expect(groups).toHaveLength(1);
     expect(groups[0].category).toBeUndefined();
-    expect(groups[0].tools).toHaveLength(2);
+    expect(groups[0].tools.map((tool) => tool.id)).toEqual(["advisor-portal", "audit-logs", "automation-runs"]);
   });
 });
 
@@ -77,7 +78,7 @@ describe("global navigation", () => {
   it("lists every department in the Departments section", () => {
     const deptSection = NAV_SECTIONS.find((s) => s.title === "Departments")!;
     expect(deptSection.items.map((i) => i.href)).toEqual(
-      DEPARTMENTS.map((d) => `/dashboard/departments/${d.slug}`),
+      DEPARTMENTS.map((d) => d.href ?? `/dashboard/departments/${d.slug}`),
     );
   });
 

@@ -32,6 +32,7 @@ const QUICK_ACTIONS: readonly {
   href: string;
   icon: LucideIcon;
 }[] = [
+  { label: "Advisor page portal", href: "/advisor-portal", icon: Users },
   { label: "Find a client", href: "/dashboard/clients", icon: Users },
   { label: "Start client onboarding", href: "/onboarding/new", icon: UserPlus },
   { label: "Resume an onboarding", href: "/onboarding/active", icon: PlayCircle },

@@ -66,6 +66,7 @@ export function serviceRoutes(): string[] {
  * stay out even if a link to one of them leaks into the wild.
  */
 export const INTERNAL_PREFIXES = [
+  "/advisor-portal",
   "/api/",
   "/contact/thank-you",
   "/search",

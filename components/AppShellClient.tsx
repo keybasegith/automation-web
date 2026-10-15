@@ -25,8 +25,13 @@ function SidebarNav({ activeHref }: { activeHref: string | undefined }) {
       className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 pb-4"
     >
       {NAV_SECTIONS.map((section, idx) => (
-        <div key={section.title ?? `section-${idx}`} className="flex flex-col gap-0.5">
-          {idx > 0 && <div className="my-3 border-t border-[var(--hairline)]" />}
+        <div
+          key={section.title ?? `section-${idx}`}
+          className="flex flex-col gap-0.5"
+        >
+          {idx > 0 && (
+            <div className="my-3 border-t border-[var(--hairline)]" />
+          )}
           {section.title && (
             <p className="px-3 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">
               {section.title}
@@ -85,9 +90,12 @@ const FOCUSABLE =
 export default function AppShellClient({
   children,
   user,
+  title,
 }: {
   children: React.ReactNode;
   user: SessionDisplayUser;
+  /** Optional title for a workspace tool with its own internal views. */
+  title?: string;
 }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -97,7 +105,7 @@ export default function AppShellClient({
   const wasOpen = useRef(false);
 
   const activeHref = activeNavHref(pathname);
-  const sectionLabel = activeNavLabel(pathname) ?? "Workspace";
+  const sectionLabel = title ?? activeNavLabel(pathname) ?? "Workspace";
 
   // The drawer is navigation: any route change closes it. Adjusted during
   // render (not in an effect) so the closed drawer never flashes.
@@ -131,7 +139,8 @@ export default function AppShellClient({
       return;
     }
     if (event.key !== "Tab" || !drawerRef.current) return;
-    const focusable = drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE);
+    const focusable =
+      drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE);
     if (focusable.length === 0) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
@@ -178,7 +187,10 @@ export default function AppShellClient({
 
       {/* Mobile drawer */}
       {menuOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden" onKeyDown={onDrawerKeyDown}>
+        <div
+          className="fixed inset-0 z-40 lg:hidden"
+          onKeyDown={onDrawerKeyDown}
+        >
           <div
             className="absolute inset-0 bg-slate-900/30"
             onClick={() => setMenuOpen(false)}
